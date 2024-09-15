@@ -8,7 +8,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow: hidden; /* 防止页面溢出 */
+    overflow-x: hidden; /* 防止水平溢出 */
 }
 
 /* 渐变动画样式 */
@@ -159,7 +159,7 @@ nav ul li a:hover {
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     padding: 20px;
-    width: 80%;
+    width: 90%;
     max-width: 600px;
     text-align: center;
     margin-top: 70px;
@@ -217,7 +217,7 @@ footer {
 
     /* 调整主要内容样式 */
     .container {
-        width: 90%;
+        width: 95%;
         max-width: 100%;
         margin-top: 70px;
     }
