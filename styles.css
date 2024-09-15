@@ -1,76 +1,180 @@
-* {
+/* 全局样式 */
+body {
+    font-family: 'Arial', sans-serif;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background: #f0f0f0;
     color: #333;
-}
-
-header {
-    background-color: #333;
-    padding: 15px;
-}
-
-nav ul {
-    list-style-type: none;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden; /* 防止页面溢出 */
 }
 
-nav ul li {
-    margin: 0 15px;
-}
-
-nav ul li a {
-    color: white;
-    text-decoration: none;
-    font-size: 16px;
-}
-
-.language-selector {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-}
-
-nav ul li a:hover {
-    color: #58a6ff;
-}
-
-.hero {
+/* 渐变动画样式 */
+#gradient-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
     height: 100vh;
+    background: linear-gradient(45deg, #007BFF, #00C851);
+    z-index: 9999;
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #58a6ff;
-    color: white;
+    animation: fadeInOut 4s ease-out forwards;
+}
+
+/* 欢迎文字样式 */
+#welcome-message {
+    color: #fff;
+    font-size: 36px;
+    font-weight: bold;
     text-align: center;
+    margin: 0;
+    animation: fadeIn 2s ease-out forwards;
 }
 
-.hero h1 {
-    font-size: 48px;
-    margin-bottom: 20px;
+/* 欢迎文字渐变动画 */
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
 }
 
-.hero p {
+/* 渐变背景动画 */
+@keyframes fadeInOut {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        visibility: hidden;
+    }
+}
+
+/* 页眉样式 */
+header {
+    width: 100%;
+    background: #007BFF;
+    color: #fff;
+    padding: 10px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 60px;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+/* 导航栏链接样式 */
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+nav ul li {
+    margin: 0 10px;
+}
+
+nav ul li a {
+    text-decoration: none;
+    color: #fff;
     font-size: 18px;
-    margin-bottom: 30px;
-}
-
-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #333;
-    color: white;
-    border: none;
+    border-radius: 20px;
+    transition: background-color 0.3s, color 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
-    transition: background-color 0.3s;
+    padding: 10px 15px;
 }
 
-button:hover {
-    background-color: #555;
+nav ul li a:hover {
+    background-color: #0056b3;
+    color: #fff;
+}
+
+/* 语言选择和重置按钮样式 */
+.language-controls {
+    display: flex;
+    align-items: center;
+}
+
+.language-controls select,
+.language-controls button {
+    margin-left: 10px;
+    border-radius: 20px;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 16px;
+    background-color: #ffffff;
+    color: #007BFF;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.language-controls button {
+    background-color: #007BFF;
+    color: #ffffff;
+}
+
+.language-controls select {
+    text-align: center;
+    text-align-last: center; /* 确保文本居中对齐 */
+}
+
+.language-controls button:hover,
+.language-controls select:hover {
+    background-color: #e0e0e0;
+    border-color: #0056b3;
+}
+
+.language-controls button:hover {
+    background-color: #0056b3;
+    color: #ffffff;
+}
+
+/* 主要内容样式 */
+.container {
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    width: 80%;
+    max-width: 600px;
+    text-align: center;
+    margin-top: 70px;
+}
+
+/* 标题样式 */
+.title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #007BFF;
+}
+
+/* 页脚样式 */
+footer {
+    margin-top: 20px;
+    font-size: 14px;
+    color: #666;
 }
