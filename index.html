@@ -3,22 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Website</title>
+    <title></title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div id="gradient-overlay">
-        <div id="welcome-message">Welcome to My Website!</div>
+        <div id="welcome-message">Welcome to My Website!</div> <!-- 欢迎文字 -->
     </div>
     <header>
         <nav>
-            <ul>
-                <li><a href="#about-me" id="nav-about-me">About Me</a></li>
-                <li><a href="#my-mission" id="nav-my-mission">My Mission</a></li>
-                <li><a href="#my-projects" id="nav-my-projects">My Projects</a></li>
-            </ul>
             <div class="language-controls">
-                <button id="reset-language">Reset Language</button>
                 <select id="language-selector">
                     <option value="en">English</option>
                     <option value="zh">简体中文</option>
@@ -26,32 +20,33 @@
                     <option value="ja">日本語</option>
                 </select>
             </div>
+            <div class="game-link">
+                <a href="snake-game/">Play Snake Game</a>
+            </div>
         </nav>
     </header>
     
     <div class="container">
-        <section id="about-me">
-            <div class="title">About Me</div>
-            <p>Welcome to my personal website! This is a space to showcase my creations, projects, and personal interests. Whether you're here to learn about my latest work or are interested in my projects, I hope you find what you're looking for.</p>
+        <section id="home">
+            <p class="title" data-key="about_me">About Me</p>
+            <p class="welcome-text" data-key="welcome_text">Welcome to my personal website! This is a space to showcase my creations, projects, and personal interests. Whether you’re here to learn about my latest work or are interested in my projects, I hope you find what you’re looking for.</p>
         </section>
-        <section id="my-mission">
-            <div class="title">My Mission</div>
-            <p>My mission is to share my creations and ideas, and to engage with people around the world. I am passionate about creating interesting and useful content that I hope will inspire and assist you.</p>
-        </section>
-        <section id="my-projects">
-            <div class="title">My Projects</div>
-            <p>Game Development: I am working on a unique game that explores the combination of mechanical and natural elements, providing a novel gaming experience.<br>Website Design: I design and maintain this personal website to share my projects and achievements.</p>
+        <section id="about">
+            <p class="title" data-key="my_mission">My Mission</p>
+            <p class="mission-text" data-key="mission_text">My mission is to share my creations and ideas, and to connect with people around the world. I am passionate about creating engaging and useful content, and I hope it inspires and helps you.</p>
         </section>
         <section id="contact">
-            <div class="title">Contact Me</div>
-            <p>If you have any questions or suggestions about my projects or want to discuss collaboration, please contact me through the following:<br>Email: Timothyf20222022@outlook.com<br>I look forward to hearing from you!</p>
+            <p class="title" data-key="my_projects">My Projects</p>
+            <p class="game-dev" data-key="game_dev">Game Development: I am developing a unique game that explores the fusion of mechanical and natural elements, offering a fresh gaming experience.</p>
+            <p class="web-design" data-key="web_design">Website Design: I design and maintain this personal website to share my projects and achievements.</p>
         </section>
     </div>
 
     <footer>
-        <p>© 2024 My Company</p>
+        <p>© 2024 Timothy Fu. All rights reserved.</p>
     </footer>
 
     <script src="language-switch.js"></script>
+    <script src="welcome-animation.js"></script>
 </body>
 </html>

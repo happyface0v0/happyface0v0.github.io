@@ -8,7 +8,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-x: hidden; /* 防止水平溢出 */
+    overflow-x: hidden;
 }
 
 /* 渐变动画样式 */
@@ -38,10 +38,10 @@ body {
 
 /* 欢迎文字渐变动画 */
 @keyframes fadeIn {
-    0% {
+    from {
         opacity: 0;
     }
-    100% {
+    to {
         opacity: 1;
     }
 }
@@ -65,92 +65,93 @@ header {
     width: 100%;
     background: #007BFF;
     color: #fff;
-    padding: 10px 0;
+    padding: 10px 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     position: fixed;
     top: 0;
     left: 0;
     z-index: 1000;
-}
-
-nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    height: 60px;
-    padding: 0 20px;
     box-sizing: border-box;
 }
 
-/* 导航栏链接样式 */
-nav ul {
-    list-style: none;
-    padding: 0;
+/* 基本导航栏样式 */
+header nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* 导航项样式 */
+header nav ul {
+    list-style-type: none;
     margin: 0;
+    padding: 0;
     display: flex;
-    align-items: center;
 }
 
-nav ul li {
-    margin: 0 10px;
+header nav ul li {
+    margin-right: 1rem;
 }
 
-nav ul li a {
+header nav ul li a {
+    color: #fff;
     text-decoration: none;
-    color: #fff;
-    font-size: 18px;
-    border-radius: 20px;
-    transition: background-color 0.3s, color 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    padding: 10px 15px;
+    padding: 0.5rem 1rem;
+    display: block;
 }
 
-nav ul li a:hover {
-    background-color: #0056b3;
-    color: #fff;
+header nav ul li a:hover {
+    background-color: #555;
+    border-radius: 5px;
 }
 
-/* 语言选择和重置按钮样式 */
+/* 语言选择器样式 */
 .language-controls {
     display: flex;
     align-items: center;
 }
 
-.language-controls select,
-.language-controls button {
-    margin-left: 10px;
-    border-radius: 20px;
-    border: none;
-    padding: 10px 15px;
-    cursor: pointer;
-    font-size: 16px;
-    background-color: #ffffff;
-    color: #007BFF;
-    transition: background-color 0.3s, border-color 0.3s;
-}
-
-.language-controls button {
-    background-color: #007BFF;
-    color: #ffffff;
-}
-
 .language-controls select {
-    text-align: center;
-    text-align-last: center; /* 确保文本居中对齐 */
+    padding: 8px 12px;
+    font-size: 16px;
+    border-radius: 5px; /* 更改圆角半径 */
+    border: 1px solid #007BFF; /* 边框颜色 */
+    cursor: pointer;
+    background-color: #f9f9f9; /* 背景颜色 */
+    color: #333; /* 字体颜色 */
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
 }
 
-.language-controls button:hover,
+.language-controls select:focus {
+    outline: none;
+    background-color: #e9ecef; /* 选中时背景颜色 */
+    color: #007BFF; /* 选中时字体颜色 */
+    border-color: #007BFF; /* 选中时边框颜色 */
+}
+
 .language-controls select:hover {
-    background-color: #e0e0e0;
-    border-color: #0056b3;
+    background-color: #e2e6ea; /* 鼠标悬停时背景颜色 */
+    color: #007BFF; /* 鼠标悬停时字体颜色 */
 }
 
-.language-controls button:hover {
+/* 贪吃蛇游戏链接样式 */
+.game-link {
+    margin-left: 1rem
+}
+
+.game-link a {
+    color: #fff;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    border-radius: 5px;
+}
+
+.game-link a:hover {
     background-color: #0056b3;
-    color: #ffffff;
 }
 
 /* 主要内容样式 */
@@ -160,9 +161,10 @@ nav ul li a:hover {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     padding: 20px;
     width: 90%;
-    max-width: 600px;
+    max-width: 800px;
     text-align: center;
-    margin-top: 70px;
+    margin-top: 80px;
+    box-sizing: border-box;
 }
 
 /* 标题样式 */
@@ -170,6 +172,7 @@ nav ul li a:hover {
     font-size: 24px;
     margin-bottom: 20px;
     color: #007BFF;
+    line-height: 1.2;
 }
 
 /* 页脚样式 */
@@ -179,67 +182,23 @@ footer {
     color: #666;
 }
 
-/* 媒体查询：平板和手机 */
-@media (max-width: 768px) {
-    /* 调整导航栏 */
-    nav {
-        flex-direction: column;
-        align-items: flex-start;
-    }
-    
-    /* 调整导航栏链接样式 */
-    nav ul {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-    }
-
-    nav ul li {
-        margin: 5px 0;
-    }
-
-    nav ul li a {
-        padding: 10px;
-        width: 100%;
-        text-align: center;
-    }
-
-    /* 调整语言选择和重置按钮 */
-    .language-controls {
-        margin-top: 10px;
-    }
-
-    .language-controls select,
-    .language-controls button {
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    /* 调整主要内容样式 */
+/* 移动端适配 */
+@media (max-width: 600px) {
     .container {
         width: 95%;
-        max-width: 100%;
-        margin-top: 70px;
-    }
-}
-
-/* 更小的手机设备 */
-@media (max-width: 480px) {
-    /* 调整字体大小 */
-    .title {
-        font-size: 20px;
-    }
-
-    .container {
         padding: 15px;
-    }
-
-    nav ul li a {
-        font-size: 16px;
-    }
-
-    .language-controls select,
-    .language-controls button {
         font-size: 14px;
+        margin-top: 100px;
+    }
+
+    .language-controls {
+        flex-direction: column;
+        align-items: flex-end;
+    }
+
+    .language-controls select {
+        font-size: 14px;
+        padding: 8px;
+        margin: 5px 0;
     }
 }
