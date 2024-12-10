@@ -18,7 +18,7 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: linear-gradient(45deg, #007BFF, #00C851);
+    background: linear-gradient(45deg, #007BDD, #00C851);
     z-index: 9999;
     display: flex;
     justify-content: center;
@@ -63,7 +63,7 @@ body {
 /* 页眉样式 */
 header {
     width: 100%;
-    background: #007BFF;
+    background: #007BDD;
     color: #fff;
     padding: 10px 20px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -118,7 +118,7 @@ header nav ul li a:hover {
     padding: 8px 12px;
     font-size: 16px;
     border-radius: 5px; /* 更改圆角半径 */
-    border: 1px solid #007BFF; /* 边框颜色 */
+    border: 1px solid #007BDD; /* 边框颜色 */
     cursor: pointer;
     background-color: #f9f9f9; /* 背景颜色 */
     color: #333; /* 字体颜色 */
@@ -128,13 +128,13 @@ header nav ul li a:hover {
 .language-controls select:focus {
     outline: none;
     background-color: #e9ecef; /* 选中时背景颜色 */
-    color: #007BFF; /* 选中时字体颜色 */
-    border-color: #007BFF; /* 选中时边框颜色 */
+    color: #007BDD; /* 选中时字体颜色 */
+    border-color: #007BDD; /* 选中时边框颜色 */
 }
 
 .language-controls select:hover {
     background-color: #e2e6ea; /* 鼠标悬停时背景颜色 */
-    color: #007BFF; /* 鼠标悬停时字体颜色 */
+    color: #007BDD; /* 鼠标悬停时字体颜色 */
 }
 
 /* 链接样式 */
@@ -146,7 +146,7 @@ header nav ul li a:hover {
     color: #fff;
     text-decoration: none;
     padding: 0.5rem 1rem;
-    background-color: #007bff;
+    background-color: #007bdd;
     border-radius: 5px;
 }
 
@@ -171,7 +171,7 @@ header nav ul li a:hover {
 .title {
     font-size: 24px;
     margin-bottom: 20px;
-    color: #007BFF;
+    color: #007BDD;
     line-height: 1.2;
 }
 
