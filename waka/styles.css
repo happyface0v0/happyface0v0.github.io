@@ -1,204 +1,78 @@
-/* 全局样式 */
 body {
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 0;
-    background: #f0f0f0;
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow-x: hidden;
+  font-family: 'Noto Sans', sans-serif;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(to right, #e0eafc, #cfdef3);
+  color: #333;
 }
 
-/* 渐变动画样式 */
-#gradient-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: linear-gradient(45deg, #007BFF, #00C851);
-    z-index: 9999;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    animation: fadeInOut 4s ease-out forwards;
-}
-
-/* 欢迎文字样式 */
-#welcome-message {
-    color: #fff;
-    font-size: 36px;
-    font-weight: bold;
-    text-align: center;
-    margin: 0;
-    animation: fadeIn 2s ease-out forwards;
-}
-
-/* 欢迎文字渐变动画 */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
-}
-
-/* 渐变背景动画 */
-@keyframes fadeInOut {
-    0% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-        visibility: hidden;
-    }
-}
-
-/* 页眉样式 */
-header {
-    width: 100%;
-    background: #007BFF;
-    color: #fff;
-    padding: 10px 20px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 1000;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    box-sizing: border-box;
-}
-
-/* 基本导航栏样式 */
-header nav {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* 导航项样式 */
-header nav ul {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-}
-
-header nav ul li {
-    margin-right: 1rem;
-}
-
-header nav ul li a {
-    color: #fff;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    display: block;
-}
-
-header nav ul li a:hover {
-    background-color: #555;
-    border-radius: 5px;
-}
-
-/* 语言选择器样式 */
-.language-controls {
-    display: flex;
-    align-items: center;
-}
-
-.language-controls select {
-    padding: 8px 12px;
-    font-size: 16px;
-    border-radius: 5px; /* 更改圆角半径 */
-    border: 1px solid #007BFF; /* 边框颜色 */
-    cursor: pointer;
-    background-color: #f9f9f9; /* 背景颜色 */
-    color: #333; /* 字体颜色 */
-    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
-}
-
-.language-controls select:focus {
-    outline: none;
-    background-color: #e9ecef; /* 选中时背景颜色 */
-    color: #007BFF; /* 选中时字体颜色 */
-    border-color: #007BFF; /* 选中时边框颜色 */
-}
-
-.language-controls select:hover {
-    background-color: #e2e6ea; /* 鼠标悬停时背景颜色 */
-    color: #007BFF; /* 鼠标悬停时字体颜色 */
-}
-
-/* 贪吃蛇游戏链接样式 */
-.game-link {
-    margin-left: 1rem
-}
-
-.game-link a {
-    color: #fff;
-    text-decoration: none;
-    padding: 0.5rem 1rem;
-    background-color: #007bff;
-    border-radius: 5px;
-}
-
-.game-link a:hover {
-    background-color: #0056b3;
-}
-
-/* 主要内容样式 */
 .container {
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    padding: 20px;
-    width: 90%;
-    max-width: 800px;
-    text-align: center;
-    margin-top: 80px;
-    box-sizing: border-box;
+  max-width: 800px;
+  margin: 40px auto;
+  background-color: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  border: 1px solid #ddd;
 }
 
-/* 标题样式 */
-.title {
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #007BFF;
-    line-height: 1.2;
+h1 {
+  text-align: center;
+  color: #444;
+  margin-bottom: 20px;
+  font-size: 2em;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-/* 页脚样式 */
-footer {
-    margin-top: 20px;
-    font-size: 14px;
-    color: #666;
+.poem-list {
+  list-style-type: none;
+  padding: 0;
 }
 
-/* 移动端适配 */
+.poem-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  transition: background-color 0.3s, transform 0.3s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+.poem-item:hover {
+  background-color: #e0eafc;
+  transform: translateY(-3px);
+}
+
+.half-line {
+  width: 48%;
+  padding: 5px;
+  font-size: 1.1em;
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.left {
+  text-align: left;
+  color: #2c3e50;
+}
+
+.right {
+  text-align: right;
+  color: #8e44ad;
+}
+
 @media (max-width: 600px) {
-    .container {
-        width: 95%;
-        padding: 15px;
-        font-size: 14px;
-        margin-top: 100px;
-    }
+  .poem-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-    .language-controls {
-        flex-direction: column;
-        align-items: flex-end;
-    }
-
-    .language-controls select {
-        font-size: 14px;
-        padding: 8px;
-        margin: 5px 0;
-    }
+  .left, .right {
+    width: 100%;
+    text-align: left;
+  }
 }
