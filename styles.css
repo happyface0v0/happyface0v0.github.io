@@ -137,12 +137,12 @@ header nav ul li a:hover {
     color: #007BFF; /* 鼠标悬停时字体颜色 */
 }
 
-/* 贪吃蛇游戏链接样式 */
-.game-link {
+/* 链接样式 */
+.link {
     margin-left: 1rem
 }
 
-.game-link a {
+.link a {
     color: #fff;
     text-decoration: none;
     padding: 0.5rem 1rem;
@@ -150,7 +150,7 @@ header nav ul li a:hover {
     border-radius: 5px;
 }
 
-.game-link a:hover {
+.link a:hover {
     background-color: #0056b3;
 }
 
