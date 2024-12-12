@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>titleeeeee</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .image-container {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    img {
+      width: 200px;
+      margin: 10px;
+      user-select: none;  /* 禁止选中图片 */
+      pointer-events: none; /* 禁止图片的鼠标事件 */
+    }
+    .inline-row {
+      display: flex;
+      gap: 20px;
+      margin: 20px 0;
+    }
+    .small {
+      position: absolute;
+      top: 10000px;  /* 调整图片垂直位置 */
+      left: 300px; /* 调整图片水平位置 */
+    }
+    #overlayCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 17500px;
+      background: transparent;
+      cursor: crosshair;
+      z-index: 10;
+    }
+    .controls {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 10px;
+      border-radius: 8px;
+      z-index: 15;
+    }
+    button, input {
+      margin: 5px;
+      padding: 5px 10px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <button id="clearCanvas">Clear</button>
+    <label for="colorPicker">Color:</label>
+    <input type="color" id="colorPicker" value="#ff0000">
+    <label for="brushSize">Brush Size:</label>
+    <input type="number" id="brushSize" value="5" min="1" max="50">
+  </div>
+
+  <!-- 图片内容容器 -->
+  <div class="image-container">
+    <img src="start.jpg" alt="Image 1">
+    <img src="d.jpg" alt="Image 2">
+    <img src="i.jpg" alt="Image 3">
+
+    <div class="inline-row">
+      <img src="d-.jpg" alt="Image 4">
+      <img src="while.jpg" alt="Image 5" class="small"> <!-- 此图片单独移动 -->
+    </div>
+
+    <img src="cd1.jpg" alt="Image 6">
+    <img src="end1.jpg" alt="Image 7">
+    <img src="end2.jpg" alt="Image 8">
+  </div>
+
+  <canvas id="overlayCanvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('overlayCanvas');
+    const ctx = canvas.getContext('2d');
+    const clearButton = document.getElementById('clearCanvas');
+    const colorPicker = document.getElementById('colorPicker');
+    const brushSizeInput = document.getElementById('brushSize');
+
+    let painting = false;
+    let brushColor = '#ff0000';
+    let brushSize = 5;
+    let lastX, lastY;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;  
+      canvas.height = 17500;  
+    }
+
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas(); 
+
+    canvas.addEventListener('mousedown', (e) => {
+      painting = true;
+      lastX = e.clientX;
+      lastY = e.clientY + window.scrollY; // Consider scroll position
+      draw(e);
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      painting = false;
+      ctx.beginPath(); 
+    });
+
+    canvas.addEventListener('mousemove', draw);
+
+    colorPicker.addEventListener('input', (e) => {
+      brushColor = e.target.value;
+    });
+
+    brushSizeInput.addEventListener('input', (e) => {
+      brushSize = e.target.value;
+    });
+
+    clearButton.addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    function draw(e) {
+      if (!painting) return;
+
+      const offsetX = e.clientX;
+      const offsetY = e.clientY + window.scrollY;
+
+      // Use quadratic bezier curve to smooth out the line between two points
+      ctx.lineWidth = brushSize;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = brushColor;
+
+      // Draw a quadratic bezier curve between the previous and current mouse positions
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.quadraticCurveTo(lastX, lastY, offsetX, offsetY);
+      ctx.stroke();
+
+      // Update last position for next segment
+      lastX = offsetX;
+      lastY = offsetY;
+    }
+  </script>
+</body>
+</html>
