@@ -1,5 +1,5 @@
 ﻿// 示例数据：使用你提供的格式
-const hyakuninIsshu = [
+const hyakuninIssh = [
     { "first_half": "秋の田の　かりほの庵の　苫をあらみ", "second_half": "わが衣手は　露にぬれつつ" },
     { "first_half": "春過ぎて　夏来にけらし　白妙の", "second_half": "衣干すてふ　天の香具山" },
     { "first_half": "あしびきの　山鳥の尾の　しだり尾の", "second_half": "ながながし夜を　ひとりかも寝む" },
@@ -101,6 +101,10 @@ const hyakuninIsshu = [
     { "first_half": "人も惜し　人も恨めし　あぢきなく", "second_half": "世を思ふゆゑに　物思ふ身は" },
     { "first_half": "百敷や　古き軒端の　しのぶにも", "second_half": "なほ余りある　昔なりけり" }
 ];
+
+const hyakuninIsshu = [
+    { "first_half": "更新の停止", "second_half": "（；_；）" }
+]
 
 // 获取要插入诗歌的容器
 const poemListContainer = document.querySelector('.poem-list');
