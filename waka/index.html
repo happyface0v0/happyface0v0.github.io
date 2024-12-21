@@ -10,6 +10,19 @@
 
   <div class="container">
     <h1>百人一首</h1>
+    
+    <!-- 排序选择器 -->
+    <label for="sortSelect">排序方式:</label>
+    <select id="sortSelect">
+      <option value="default">默认</option>
+      <option value="kanaFirst">上句假名</option>
+      <option value="kimarijiFirstKana">上句決まり字+假名</option>
+      <option value="kanaSecond">下句假名</option>
+      <option value="kimarijiSecondKana">下句決まり字+假名</option>
+    </select>
+
+    
+    <!-- 诗歌列表 -->
     <div class="poem-list"></div>
   </div>
 

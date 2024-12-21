@@ -1,5 +1,5 @@
 ﻿// 示例数据：使用你提供的格式
-const hyakuninIssh = [
+const hyakuninIsshuKanji = [
     { "first_half": "秋の田の　かりほの庵の　苫をあらみ", "second_half": "わが衣手は　露にぬれつつ" },
     { "first_half": "春過ぎて　夏来にけらし　白妙の", "second_half": "衣干すてふ　天の香具山" },
     { "first_half": "あしびきの　山鳥の尾の　しだり尾の", "second_half": "ながながし夜を　ひとりかも寝む" },
@@ -103,31 +103,255 @@ const hyakuninIssh = [
 ];
 
 const hyakuninIsshu = [
-    { "first_half": "更新の停止", "second_half": "（；_；）" }
-]
+    { "first_half": "あきのたの　かりほのいほの　とまをあらみ", "second_half": "わがころもでは　つゆにぬれつつ" },
+    { "first_half": "はるすぎて　なつきにけらし　しろたへの", "second_half": "ころもほすてふ　あまのかぐやま" },
+    { "first_half": "あしびきの　やまどりのをの　しだりをの", "second_half": "ながながしよを　ひとりかもねむ" },
+    { "first_half": "たごのうらに　うちいでてみれば　しろたへの", "second_half": "ふじのたかねに　ゆきはふりつつ" },
+    { "first_half": "おくやまに　もみぢふみわけ　なくしかの", "second_half": "こゑきくときぞ　あきはかなしき" },
+    { "first_half": "かささぎの　わたせるはしに　おくしもの", "second_half": "しろきをみれば　よぞふけにける" },
+    { "first_half": "あまのはら　ふりさけみれば　かすがなる", "second_half": "みかさのやまに　いでしつきかも" },
+    { "first_half": "わがいほは　みやこのたつみ　しかぞすむ", "second_half": "よをうぢやまと　ひとはいふなり" },
+    { "first_half": "はなのいろは　うつりにけりな　いたづらに", "second_half": "わがみよにふる　ながめせしまに" },
+    { "first_half": "これやこの　いくもかへるもわかれては", "second_half": "しるもしらぬも　あふさかのせき" },
+    { "first_half": "わたのはら　やそしまかけて　こぎいでぬと", "second_half": "ひとにはつげよ　あまのつりぶね" },
+    { "first_half": "あまつかぜ　くものかよひぢ　ふきとぢよ", "second_half": "をとめのすがた　しばしとどめむ" },
+    { "first_half": "つくばねの　みねよりおつる　みなのがは", "second_half": "こひぞつもりて　ふちとなりぬる" },
+    { "first_half": "みちのくの　しのぶもぢずり　たれゆゑに", "second_half": "みだれそめにし　われならなくに" },
+    { "first_half": "きみがため　はるののにいでて　わかなつむ", "second_half": "わがころもでに　ゆきはふりつつ" },
+    { "first_half": "たちわかれ　いなばのやまの　みねにおふる", "second_half": "まつとしきかば　いまかへりこむ" },
+    { "first_half": "ちはやぶる　かみよもきかず　たつたがは", "second_half": "からくれなゐに　みづくくるとは" },
+    { "first_half": "すみのえの　きしによるなみ　よるさへや", "second_half": "ゆめのかよひぢ　ひとめよくらむ" },
+    { "first_half": "なにはがた　みじかきあしの　ふしのまも", "second_half": "あはでこのよを　すぐしてよとや" },
+    { "first_half": "わびぬれば　いまはたおなじ　なにはなる", "second_half": "みをつくしても　あはむとぞおもふ" },
+    { "first_half": "いまこむと　いひしばかりに　ながつきの", "second_half": "ありあけのつきを　まちいでつるかな" },
+    { "first_half": "ふくからに　あきのくさきの　しをるれば", "second_half": "むべやまかぜを　あらしといふらむ" },
+    { "first_half": "つきみれば　ちぢにものこそ　かなしけれ", "second_half": "わがみひとつの　あきにはあらねど" },
+    { "first_half": "このたびは　ぬさもとりあへず　たむけやま", "second_half": "もみぢのにしき　かみのまにまに" },
+    { "first_half": "なにしおはば　あふさかやまの　さねかづら", "second_half": "ひとにしられで　くるよしもがな" },
+    { "first_half": "をぐらやま　みねのもみぢば　こころあらば", "second_half": "いまひとたびの　みゆきまたなむ" },
+    { "first_half": "みかのはら　わきてながるる　いづみがは", "second_half": "いつみきとてか　こひしかるらむ" },
+    { "first_half": "やまざとは　ふゆぞさびしさ　まさりける", "second_half": "ひとめもくさも　かれぬとおもへば" },
+    { "first_half": "こころあてに　をらばやをらむ　はつしもの", "second_half": "おきまどはせる　しらぎくのはな" },
+    { "first_half": "ありあけの　つれなくみえし　わかれより", "second_half": "あかつきばかり　うきものはなし" },
+    { "first_half": "あさぼらけ　ありあけのつきと　みるまでに", "second_half": "よしののさとに　ふれるしらゆき" },
+    { "first_half": "やまがはに　かぜのかけたる　しがらみは", "second_half": "ながれもあへぬ　もみぢなりけり" },
+    { "first_half": "ひさかたの　ひかりのどけき　はるのひに", "second_half": "しづこころなく　はなのちるらむ" },
+    { "first_half": "たれをかも　しるひとにせむ　たかさごの", "second_half": "まつもむかしの　ともならなくに" },
+    { "first_half": "ひとはいさ　こころもしらず　ふるさとは", "second_half": "はなぞむかしの　かににほひける" },
+    { "first_half": "なつのよは　まだよひながら　あけぬるを", "second_half": "くものいづこに　つきやどるらむ" },
+    { "first_half": "しらつゆに　かぜのふきしく　あきののは", "second_half": "つらぬきとめぬ　たまぞちりける" },
+    { "first_half": "わすらるる　みをばおもはず　ちかひてし", "second_half": "ひとのいのちの　をしくもあるかな" },
+    { "first_half": "あさぢふの　をののしのはら　しのぶれど", "second_half": "あまりてなどか　ひとのこひしき" },
+    { "first_half": "しのぶれど　いろにいでにけり　わがこひは", "second_half": "ものやおもふと　ひとのとふまで" },
+    { "first_half": "こひすてふ　わがなはまだき　たちにけり", "second_half": "ひとしれずこそ　おもひそめしか" },
+    { "first_half": "ちぎりきな　かたみにそでを　しぼりつつ", "second_half": "すゑのまつやま　なみこさじとは" },
+    { "first_half": "あひみての　のちのこころに　くらぶれば", "second_half": "むかしはものを　おもはざりけり" },
+    { "first_half": "あふことの　たえてしなくは　なかなかに", "second_half": "ひとをもみをも　うらみざらまし" },
+    { "first_half": "あはれとも　いふべきひとは　おもほえで", "second_half": "みのいたづらに　なりぬべきかな" },
+    { "first_half": "ゆらのとを　わたるふなびと　かぢをたえ", "second_half": "ゆくへもしらぬ　こひのみちかな" },
+    { "first_half": "やへむぐら　しげれるやどの　さびしきに", "second_half": "ひとこそみえね　あきはきにけり" },
+    { "first_half": "かぜをいたみ　いはうつなみの　おのれのみ", "second_half": "くだけてものを　おもふころかな" },
+    { "first_half": "みかきもり　ゑじのたくひの　よるはもえ", "second_half": "ひるはきえつつ　ものをこそおもへ" },
+    { "first_half": "きみがため　をしからざりし　いのちさへ", "second_half": "ながくもがなと　おもひけるかな" },
+    { "first_half": "かくとだに　えやはいぶきの　さしもぐさ", "second_half": "さしもしらじな　もゆるおもひを" },
+    { "first_half": "あけぬれば　くるるものとは　しりながら", "second_half": "なほうらめしき　あさぼらけかな" },
+    { "first_half": "なげきつつ　ひとりねるよの　あくるまは", "second_half": "いかにひさしき　ものとかはしる" },
+    { "first_half": "わすれじの　ゆくすゑまでは　かたければ", "second_half": "けふをかぎりの　いのちともがな" },
+    { "first_half": "たきのおとは　たえてひさしく　なりぬれど", "second_half": "なこそながれて　なほきこえけれ" },
+    { "first_half": "あらざらむ　このよのほかの　おもひでに", "second_half": "いまひとたびの　あふこともがな" },
+    { "first_half": "めぐりあひて　みしやそれとも　わかぬまに", "second_half": "くもがくれにし　よはのつきかな" },
+    { "first_half": "ありまやま　ゐなのささはら　かぜふけば", "second_half": "いでそよひとを　わすれやはする" },
+    { "first_half": "やすらはで　ねなましものを　さよふけて", "second_half": "かたぶくまでの　つきをみしかな" },
+    { "first_half": "おほえやま　いくののみちの　とほければ", "second_half": "まだふみもみず　あまのはしだて" },
+    { "first_half": "いにしへの　ならのみやこの　やへざくら", "second_half": "けふここのへに　にほひぬるかな" },
+    { "first_half": "よをこめて　とりのそらねは　はかるとも", "second_half": "よにあふさかの　せきはゆるさじ" },
+    { "first_half": "いまはただ　おもひたえなむ　とばかりを", "second_half": "ひとづてならで　いふよしもがな" },
+    { "first_half": "あさぼらけ　うぢのかはぎり　たえだえに", "second_half": "あらはれわたる　せぜのあじろぎ" },
+    { "first_half": "うらみわび　ほさぬそでだに　あるものを", "second_half": "こひにくちなむ　なこそをしけれ" },
+    { "first_half": "もろともに　あはれとおもへ　やまざくら", "second_half": "はなよりほかに　しるひともなし" },
+    { "first_half": "はるのよの　ゆめばかりなる　たまくらに", "second_half": "かひなくたたむ　なこそをしけれ" },
+    { "first_half": "こころにも　あらでうきよに　ながらへば", "second_half": "こひしかるべき　よはのつきかな" },
+    { "first_half": "あらしふく　みむろのやまの　もみぢばは", "second_half": "たつたのかはの　にしきなりけり" },
+    { "first_half": "さびしさに　やどをたちいでて　ながむれば", "second_half": "いづこもおなじ　あきのゆふぐれ" },
+    { "first_half": "ゆふされば　かどたのいなば　おとづれて", "second_half": "あしのまろやに　あきかぜぞふく" },
+    { "first_half": "おとにきく　たかしのはまの　あだなみは", "second_half": "かけじやそでの　ぬれもこそすれ" },
+    { "first_half": "たかさごの　をのへのさくら　さきにけり", "second_half": "とやまのかすみ　たたずもあらなむ" },
+    { "first_half": "うかりける　ひとをはつせの　やまおろしよ", "second_half": "はげしかれとは　いのらぬものを" },
+    { "first_half": "ちぎりおきし　させもがつゆを　いのちにて", "second_half": "あはれことしの　あきもいぬめり" },
+    { "first_half": "わたのはら　こぎいでてみれば　ひさかたの", "second_half": "くもゐにまがふ　おきつしらなみ" },
+    { "first_half": "せをはやみ　いはにせかるる　たきがはの", "second_half": "われてもすゑに　あはむとぞおもふ" },
+    { "first_half": "あはぢしま　かよふちどりの　なくこゑに", "second_half": "いくよねざめぬ　すまのせきもり" },
+    { "first_half": "あきかぜに　たなびくくもの　たえまより", "second_half": "もれいづるつきの　かげのさやけさ" },
+    { "first_half": "ながからむ　こころもしらず　くろかみの", "second_half": "みだれてけさは　ものをこそおもへ" },
+    { "first_half": "ほととぎす　なきつるかたを　ながむれば", "second_half": "ただありあけの　つきぞのこれる" },
+    { "first_half": "おもひわび　さてもいのちは　あるものを", "second_half": "うきにたへぬは　なみだなりけり" },
+    { "first_half": "よのなかよ　みちこそなけれ　おもひいる", "second_half": "やまのおくにも　しかぞなくなる" },
+    { "first_half": "ながらへば　またこのごろや　しのばれむ", "second_half": "うしとみしよぞ　いまはこひしき" },
+    { "first_half": "よもすがら　ものおもふころは　あけやらで", "second_half": "ねやのひまさへ　つれなかりけり" },
+    { "first_half": "なげけとて　つきやはものを　おもはする", "second_half": "かこちがほなる　わがなみだかな" },
+    { "first_half": "むらさめの　つゆもまだひぬ　まきのはに", "second_half": "きりたちのぼる　あきのゆふぐれ" },
+    { "first_half": "なにはえの　あしのかりねの　ひとよゆゑ", "second_half": "みをつくしてや　こひわたるべき" },
+    { "first_half": "たまのをよ　たえなばたえね　ながらへば", "second_half": "しのぶることの　よわりもぞする" },
+    { "first_half": "みせばやな　をじまのあまの　そでだにも", "second_half": "ぬれにぞぬれし　いろはかはらず" },
+    { "first_half": "きりぎりす　なくやしもよの　さむしろに", "second_half": "ころもかたしき　ひとりかもねむ" },
+    { "first_half": "わがそでは　しほひにみえぬ　おきのいしの", "second_half": "ひとこそしらね　かわくまもなし" },
+    { "first_half": "よのなかは　つねにもがもな　なぎさこぐ", "second_half": "あまのをぶねの　つなでかなしも" },
+    { "first_half": "みよしのの　やまのあきかぜ　さよふけて", "second_half": "ふるさとさむく　ころもうつなり" },
+    { "first_half": "おほけなく　うきよのたみに　おほふかな", "second_half": "わがたつそまに　すみぞめのそで" },
+    { "first_half": "はなさそふ　あらしのにはの　ゆきならで", "second_half": "ふりゆくものは　わがみなりけり" },
+    { "first_half": "こぬひとを　まつほのうらの　ゆふなぎに", "second_half": "やくやもしほの　みもこがれつつ" },
+    { "first_half": "かぜそよぐ　ならのをがはの　ゆふぐれは", "second_half": "みそぎぞなつの　しるしなりける" },
+    { "first_half": "ひともをし　ひともうらめし　あぢきなく", "second_half": "よをおもふゆゑに　ものおもふみは" },
+    { "first_half": "ももしきや　ふるきのきばの　しのぶにも", "second_half": "なほあまりある　むかしなりけり" }
+];
+
 
 // 获取要插入诗歌的容器
 const poemListContainer = document.querySelector('.poem-list');
 
-// 遍历每一首诗歌，并创建相应的 HTML 元素
-hyakuninIsshu.forEach(poem => {
-  // 创建一个诗歌项的容器
-  const poemItem = document.createElement('div');
-  poemItem.classList.add('poem-item');
+// 计算決まり字
+function calculateKimariji(poems) {
+  const kimarijiMap = new Map();
 
-  // 创建并设置上半句和下半句的元素
-  const topLine = document.createElement('div');
-  topLine.classList.add('half-line', 'left');
-  topLine.textContent = poem.first_half;
+  poems.forEach(poem => {
+    let uniquePrefixFirstHalf = "";
+    let uniquePrefixSecondHalf = "";
 
-  const bottomLine = document.createElement('div');
-  bottomLine.classList.add('half-line', 'right');
-  bottomLine.textContent = poem.second_half;
+    // 计算上半句的決まり字
+    for (let i = 0; i < poem.first_half.length; i++) {
+      uniquePrefixFirstHalf += poem.first_half[i];
+      const isUniqueFirstHalf = poems.every(p => p === poem || !p.first_half.startsWith(uniquePrefixFirstHalf));
+      if (isUniqueFirstHalf) {
+        kimarijiMap.set(poem.first_half, { kimarijiFirstHalf: uniquePrefixFirstHalf });
+        break;
+      }
+    }
 
-  // 将上半句和下半句加入诗歌项容器
-  poemItem.appendChild(topLine);
-  poemItem.appendChild(bottomLine);
+    // 计算下半句的決まり字
+    for (let i = 0; i < poem.second_half.length; i++) {
+      uniquePrefixSecondHalf += poem.second_half[i];
+      const isUniqueSecondHalf = poems.every(p => p === poem || !p.second_half.startsWith(uniquePrefixSecondHalf));
+      if (isUniqueSecondHalf) {
+        kimarijiMap.set(poem.first_half, { 
+          ...kimarijiMap.get(poem.first_half), 
+          kimarijiSecondHalf: uniquePrefixSecondHalf 
+        });
+        break;
+      }
+    }
+  });
 
-  // 将诗歌项加入到列表容器中
-  poemListContainer.appendChild(poemItem);
+  return kimarijiMap;
+}
+
+// 高亮決まり字的函数
+function highlightKimariji(text, kimariji) {
+  if (!kimariji) return text;
+
+  let matchCount = 0;
+  const regex = new RegExp(`(${kimariji})`, 'g');
+
+  return text.replace(regex, (match) => {
+    matchCount++;
+    if (matchCount === 1) {
+      return `<span class="kimariji-highlight">${match}</span>`;
+    }
+    return match;
+  });
+}
+
+// 渲染诗句
+function renderPoems(poems, kimarijiMap) {
+  poemListContainer.innerHTML = ''; 
+  poems.forEach(poem => {
+    const poemItem = document.createElement('div');
+    poemItem.classList.add('poem-item');
+
+    // 上半句
+    const topLine = document.createElement('div');
+    topLine.classList.add('half-line', 'left');
+    topLine.innerHTML = highlightKimariji(poem.first_half, kimarijiMap.get(poem.first_half)?.kimarijiFirstHalf);
+
+    // 下半句
+    const bottomLine = document.createElement('div');
+    bottomLine.classList.add('half-line', 'right');
+    bottomLine.innerHTML = highlightKimariji(poem.second_half, kimarijiMap.get(poem.first_half)?.kimarijiSecondHalf);
+
+    poemItem.appendChild(topLine);
+    poemItem.appendChild(bottomLine);
+
+    poemListContainer.appendChild(poemItem);
+  });
+}
+
+// 默认显示按默认顺序排列的诗句
+let currentPoems = hyakuninIsshu;
+
+// 调用计算決まり字的函数
+const kimarijiMap = calculateKimariji([...hyakuninIsshu]);
+
+// 初次渲染诗句
+renderPoems(currentPoems, kimarijiMap);
+
+// 监听排序选择变化
+document.getElementById('sortSelect').addEventListener('change', (event) => {
+  const sortType = event.target.value;
+  currentPoems = getSortedPoems(sortType, [...hyakuninIsshu], kimarijiMap);
+  renderPoems(currentPoems, kimarijiMap);
 });
+
+// 根据排序类型获取排序后的诗句
+function getSortedPoems(sortType, poems, kimarijiMap) {
+  switch (sortType) {
+    case 'kanaFirst':
+      return poems.sort((a, b) => (a.first_half + a.second_half).localeCompare(b.first_half + b.second_half, 'ja'));
+      
+    case 'kimarijiFirstKana':
+      return sortByKimarijiAndKana(poems, kimarijiMap, 'firstHalf');
+      
+    case 'kanaSecond':
+      return poems.sort((a, b) => (a.second_half + a.first_half).localeCompare(b.second_half + b.first_half, 'ja'));
+      
+    case 'kimarijiSecondKana':
+      return sortByKimarijiAndKana(poems, kimarijiMap, 'secondHalf');
+      
+    case 'default':
+      return hyakuninIsshu;  // 默认顺序
+  }
+}
+
+// 根据決まり字长度和假名排序诗句
+// 根据決まり字长度和假名排序诗句
+function sortByKimarijiAndKana(poems, kimarijiMap, half) {
+  return poems.sort((a, b) => {
+    const kimarijiA = kimarijiMap.get(a.first_half);
+    const kimarijiB = kimarijiMap.get(b.first_half);
+
+    // 如果是上句
+    if (half === 'firstHalf') {
+      const kimarijiLengthA = kimarijiA.kimarijiFirstHalf.length;
+      const kimarijiLengthB = kimarijiB.kimarijiFirstHalf.length;
+
+      if (kimarijiLengthA !== kimarijiLengthB) {
+        return kimarijiLengthA - kimarijiLengthB;  // 长度从短到长
+      }
+
+      const kanaA = a.first_half + a.second_half;
+      const kanaB = b.first_half + b.second_half;
+      return kanaA.localeCompare(kanaB, 'ja');
+    }
+
+    // 如果是下句
+    const kimarijiLengthA = kimarijiA.kimarijiSecondHalf.length;
+    const kimarijiLengthB = kimarijiB.kimarijiSecondHalf.length;
+
+    if (kimarijiLengthA !== kimarijiLengthB) {
+      return kimarijiLengthA - kimarijiLengthB;  // 长度从短到长
+    }
+
+    const kanaA = a.second_half + a.first_half;
+    const kanaB = b.second_half + b.first_half;
+    return kanaA.localeCompare(kanaB, 'ja');
+  });
+}
+
