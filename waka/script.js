@@ -112,7 +112,7 @@ const hyakuninIsshu = [
     { "first_half": "あまのはら　ふりさけみれば　かすがなる", "second_half": "みかさのやまに　いでしつきかも" },
     { "first_half": "わがいほは　みやこのたつみ　しかぞすむ", "second_half": "よをうぢやまと　ひとはいふなり" },
     { "first_half": "はなのいろは　うつりにけりな　いたづらに", "second_half": "わがみよにふる　ながめせしまに" },
-    { "first_half": "これやこの　いくもかへるもわかれては", "second_half": "しるもしらぬも　あふさかのせき" },
+    { "first_half": "これやこの　いくもかへるも　わかれては", "second_half": "しるもしらぬも　あふさかのせき" },
     { "first_half": "わたのはら　やそしまかけて　こぎいでぬと", "second_half": "ひとにはつげよ　あまのつりぶね" },
     { "first_half": "あまつかぜ　くものかよひぢ　ふきとぢよ", "second_half": "をとめのすがた　しばしとどめむ" },
     { "first_half": "つくばねの　みねよりおつる　みなのがは", "second_half": "こひぞつもりて　ふちとなりぬる" },
@@ -155,7 +155,7 @@ const hyakuninIsshu = [
     { "first_half": "きみがため　をしからざりし　いのちさへ", "second_half": "ながくもがなと　おもひけるかな" },
     { "first_half": "かくとだに　えやはいぶきの　さしもぐさ", "second_half": "さしもしらじな　もゆるおもひを" },
     { "first_half": "あけぬれば　くるるものとは　しりながら", "second_half": "なほうらめしき　あさぼらけかな" },
-    { "first_half": "なげきつつ　ひとりねるよの　あくるまは", "second_half": "いかにひさしき　ものとかはしる" },
+    { "first_half": "なげきつつ　ひとりぬるよの　あくるまは", "second_half": "いかにひさしき　ものとかはしる" },
     { "first_half": "わすれじの　ゆくすゑまでは　かたければ", "second_half": "けふをかぎりの　いのちともがな" },
     { "first_half": "たきのおとは　たえてひさしく　なりぬれど", "second_half": "なこそながれて　なほきこえけれ" },
     { "first_half": "あらざらむ　このよのほかの　おもひでに", "second_half": "いまひとたびの　あふこともがな" },
@@ -205,6 +205,130 @@ const hyakuninIsshu = [
     { "first_half": "ももしきや　ふるきのきばの　しのぶにも", "second_half": "なほあまりある　むかしなりけり" }
 ];
 
+const redPoems = [
+    {"first_half": "なげけとて　つきやはものを　おもはする", "second_half": "かこちがほなる　わがなみだかな", "color": "r", "index": 1},
+    {"first_half": "こぬひとを　まつほのうらの　ゆふなぎに", "second_half": "やくやもしほの　みもこがれつつ", "color": "r", "index": 2},
+    {"first_half": "もろともに　あはれとおもへ　やまざくら", "second_half": "はなよりほかに　しるひともなし", "color": "r", "index": 3},
+    {"first_half": "おとにきく　たかしのはまの　あだなみは", "second_half": "かけじやそでの　ぬれもこそすれ", "color": "r", "index": 4},
+    {"first_half": "たかさごの　をのへのさくら　さきにけり", "second_half": "とやまのかすみ　たたずもあらなむ", "color": "r", "index": 5},
+    {"first_half": "ながからむ　こころもしらず　くろかみの", "second_half": "みだれてけさは　ものをこそおもへ", "color": "r", "index": 6},
+    {"first_half": "かくとだに　えやはいぶきの　さしもぐさ", "second_half": "さしもしらじな　もゆるおもひを", "color": "r", "index": 7},
+    {"first_half": "ありまやま　ゐなのささはら　かぜふけば", "second_half": "いでそよひとを　わすれやはする", "color": "r", "index": 8},
+    {"first_half": "うらみわび　ほさぬそでだに　あるものを", "second_half": "こひにくちなむ　なこそをしけれ", "color": "r", "index": 9},
+    {"first_half": "たれをかも　しるひとにせむ　たかさごの", "second_half": "まつもむかしの　ともならなくに", "color": "r", "index": 10},
+    {"first_half": "しのぶれど　いろにいでにけり　わがこひは", "second_half": "ものやおもふと　ひとのとふまで", "color": "r", "index": 11},
+    {"first_half": "かぜをいたみ　いはうつなみの　おのれのみ", "second_half": "くだけてものを　おもふころかな", "color": "r", "index": 12},
+    {"first_half": "たちわかれ　いなばのやまの　みねにおふる", "second_half": "まつとしきかば　いまかへりこむ", "color": "r", "index": 13},
+    {"first_half": "ふくからに　あきのくさきの　しをるれば", "second_half": "むべやまかぜを　あらしといふらむ", "color": "r", "index": 14},
+    {"first_half": "やまざとは　ふゆぞさびしさ　まさりける", "second_half": "ひとめもくさも　かれぬとおもへば", "color": "r", "index": 15},
+    {"first_half": "あきのたの　かりほのいほの　とまをあらみ", "second_half": "わがころもでは　つゆにぬれつつ", "color": "r", "index": 16},
+    {"first_half": "たごのうらに　うちいでてみれば　しろたへの", "second_half": "ふじのたかねに　ゆきはふりつつ", "color": "r", "index": 17},
+    {"first_half": "つくばねの　みねよりおつる　みなのがは", "second_half": "こひぞつもりて　ふちとなりぬる", "color": "r", "index": 18},
+    {"first_half": "よのなかよ　みちこそなけれ　おもひいる", "second_half": "やまのおくにも　しかぞなくなる", "color": "r", "index": 19},
+    {"first_half": "ながらへば　またこのごろや　しのばれむ", "second_half": "うしとみしよぞ　いまはこひしき", "color": "r", "index": 20}
+]
+
+const yellowPoems = [
+    {"first_half": "はるすぎて　なつきにけらし　しろたへの", "second_half": "ころもほすてふ　あまのかぐやま", "color": "y", "index": 1},
+    {"first_half": "あまのはら　ふりさけみれば　かすがなる", "second_half": "みかさのやまに　いでしつきかも", "color": "y", "index": 2},
+    {"first_half": "これやこの　いくもかへるも　わかれては", "second_half": "しるもしらぬも　あふさかのせき", "color": "y", "index": 3},
+    {"first_half": "すみのえの　きしによるなみ　よるさへや", "second_half": "ゆめのかよひぢ　ひとめよくらむ", "color": "y", "index": 4},
+    {"first_half": "やまがはに　かぜのかけたる　しがらみは", "second_half": "ながれもあへぬ　もみぢなりけり", "color": "y", "index": 5},
+    {"first_half": "ひさかたの　ひかりのどけき　はるのひに", "second_half": "しづごころなく　はなのちるらむ", "color": "y", "index": 6},
+    {"first_half": "しらつゆに　かぜのふきしく　あきののは", "second_half": "つらぬきとめぬ　たまぞちりける", "color": "y", "index": 7},
+    {"first_half": "あさぢふの　をののしのはら　しのぶれど", "second_half": "あまりてなどか　ひとのこひしき", "color": "y", "index": 8},
+    {"first_half": "ゆらのとを　わたるふなびと　かぢをたえ", "second_half": "ゆくへもしらぬ　こひのみちかな", "color": "y", "index": 9},
+    {"first_half": "やへむぐら　しげれるやどの　さびしきに", "second_half": "ひとこそみえね　あきはきにけり", "color": "y", "index": 10},
+    {"first_half": "たきのおとは　たえてひさしく　なりぬれど", "second_half": "なこそながれて　なおきこえけれ", "color": "y", "index": 11},
+    {"first_half": "おほえやま　いくののみちの　とほければ", "second_half": "まだふみもみず　あまのはしだて", "color": "y", "index": 12},
+    {"first_half": "あはぢしま　かよふちどりの　なくこゑに", "second_half": "いくよねざめぬ　すまのせきもり", "color": "y", "index": 13},
+    {"first_half": "あきかぜに　たなびくくもの　たえまより", "second_half": "もれいづるつきの　かげのさやけさ", "color": "y", "index": 14},
+    {"first_half": "ほととぎす　なきつるかたを　ながむれば", "second_half": "ただありあけの　つきぞのこれる", "color": "y", "index": 15},
+    {"first_half": "むらさめの　つゆもまだひぬ　まきのはに", "second_half": "きりたちのぼる　あきのゆふぐれ", "color": "y", "index": 16},
+    {"first_half": "みよしのの　やまのあきかぜ　さよふけて", "second_half": "ふるさとさむく　ころもうつなり", "color": "y", "index": 17},
+    {"first_half": "はなさそふ　あらしのにはの　ゆきならで", "second_half": "ふりゆくものは　わがみなりけり", "color": "y", "index": 18},
+    {"first_half": "よもすがら　ものおもふころは　あけやらで", "second_half": "ねやのひまさへ　つれなかりけり", "color": "y", "index": 19},
+    {"first_half": "たまのをよ　たえなばたえね　ながらへば", "second_half": "しのぶることの　よわりもぞする", "color": "y", "index": 20}
+];
+
+const greenPoems = [
+    {"first_half": "わがいほは　みやこのたつみ　しかぞすむ", "second_half": "よをうぢやまと　ひとはいふなり", "color": "g", "index": 1},
+    {"first_half": "はなのいろは　うつりにけりな　いたづらに", "second_half": "わがみよにふる　ながめせしまに", "color": "g", "index": 2},
+    {"first_half": "わたのはら　やそしまかけて　こぎいでぬと", "second_half": "ひとにはつげよ　あまのつりぶね", "color": "g", "index": 3},
+    {"first_half": "きみがため　はるののにいでて　わかなつむ", "second_half": "わがころもでに　ゆきはふりつつ", "color": "g", "index": 4},
+    {"first_half": "ちはやぶる　かみよもきかず　たつたがは", "second_half": "からくれなゐに　みずくくるとは", "color": "g", "index": 5},
+    {"first_half": "わびぬれば　いまはたおなじ　なにはなる", "second_half": "みをつくしても　あはむとぞおもふ", "color": "g", "index": 6},
+    {"first_half": "つきみれば　ちぢにものこそ　かなしけれ", "second_half": "わがみひとつの　あきにはあらねど", "color": "g", "index": 7},
+    {"first_half": "をぐらやま　みねのもみぢば　こころあらば", "second_half": "いまひとたびの　みゆきまたなむ", "color": "g", "index": 8},
+    {"first_half": "こころあてに　をらばやをらむ　はつしもの", "second_half": "おきまどはせる　しらぎくのはな", "color": "g", "index": 9},
+    {"first_half": "ひとはいさ　こころもしらず　ふるさとは", "second_half": "はなぞむかしの　かににほひける", "color": "g", "index": 10},
+    {"first_half": "なつのよは　まだよひながら　あけぬるを", "second_half": "くものいづこに　つきやどるらむ", "color": "g", "index": 11},
+    {"first_half": "わすらるる　みをばおもはず　ちかひてし", "second_half": "ひとのいのちの　をしくもあるかな", "color": "g", "index": 12},
+    {"first_half": "こひすてふ　わがなはまだき　たちにけり", "second_half": "ひとしれずこそ　おもひそめしか", "color": "g", "index": 13},
+    {"first_half": "ちぎりきな　かたみにそでを　しぼりつつ", "second_half": "すゑのまつやま　なみこさじとは", "color": "g", "index": 14},
+    {"first_half": "わすれじの　ゆくすゑまでは　かたければ", "second_half": "けふをかぎりの　いのちともがな", "color": "g", "index": 15},
+    {"first_half": "やすらはで　ねなましものを　さよふけて", "second_half": "かたぶくまでの　つきをみしかな", "color": "g", "index": 16},
+    {"first_half": "こころにも　あらでうきよに　ながらへば", "second_half": "こひしかるべき　よはのつきかな", "color": "g", "index": 17},
+    {"first_half": "ゆふされば　かどたのいなば　おとづれて", "second_half": "あしのまろやに　あきかぜぞふく", "color": "g", "index": 18},
+    {"first_half": "わがそでは　しほひにみえぬ　おきのいしの", "second_half": "ひとこそしらね　かわくまもなし", "color": "g", "index": 19},
+    {"first_half": "よのなかは　つねにもがもな　なぎさこぐ", "second_half": "あまのをぶねの　つなでかなしも", "color": "g", "index": 20}
+];
+
+const bluePoems = [
+    {"first_half": "あしびきの　やまどりのをの　しだりをの", "second_half": "ながながしよを　ひとりかもねむ", "color": "b", "index": 1},
+    {"first_half": "ありあけの　つれなくみえし　わかれより", "second_half": "あかつきばかり　うきものはなし", "color": "b", "index": 2},
+    {"first_half": "あらしふく　みむろのやまの　もみぢばは", "second_half": "たつたのかわの　にしきなりけり", "color": "b", "index": 3},
+    {"first_half": "おくやまに　もみぢふみわけ　なくしかの", "second_half": "こゑきくときぞ　あきはかなしき", "color": "b", "index": 4},
+    {"first_half": "あさぼらけ　ありあけのつきと　みるまでに", "second_half": "よしののさとに　ふれるしらゆき", "color": "b", "index": 5},
+    {"first_half": "さびしさに　やどをたちいでて　ながむれば", "second_half": "いづこもおなじ　あきのゆふぐれ", "color": "b", "index": 6},
+    {"first_half": "かささぎの　わたせるはしに　おくしもの", "second_half": "しろきをみれば　よぞふけにける", "color": "b", "index": 7},
+    {"first_half": "きみがため　をしからざりし　いのちさへ", "second_half": "ながくもがなと　おもひけるかな", "color": "b", "index": 8},
+    {"first_half": "うかりける　ひとをはつせの　やまおろしよ", "second_half": "はげしかれとは　いのらぬものを", "color": "b", "index": 9},
+    {"first_half": "あまつかぜ　くものかよひぢ　ふきとぢよ", "second_half": "をとめのすがた　しばしとどめむ", "color": "b", "index": 10},
+    {"first_half": "めぐりあひて　みしやそれとも　わかぬまに", "second_half": "くもがくれにし　よはのつきかな", "color": "b", "index": 11},
+    {"first_half": "わたのはら　こぎいでてみれば　ひさかたの", "second_half": "くもゐにまごう　おきつしらなみ", "color": "b", "index": 12},
+    {"first_half": "みちのくの　しのぶもぢずり　たれゆゑに", "second_half": "みだれそめにし　われならなくに", "color": "b", "index": 13},
+    {"first_half": "いにしへの　ならのみやこの　やへざくら", "second_half": "けふここのへに　にほひぬるかな", "color": "b", "index": 14},
+    {"first_half": "きりぎりす　なくやしもよの　さむしろに", "second_half": "ころもかたしき　ひとりかもねむ", "color": "b", "index": 15},
+    {"first_half": "このたびは　ぬさもとりあへず　たむけやま", "second_half": "もみぢのにしき　かみのまにまに", "color": "b", "index": 16},
+    {"first_half": "よをこめて　とりのそらねは　はかるとも", "second_half": "よにあふさかの　せきはゆるさじ", "color": "b", "index": 17},
+    {"first_half": "ももしきや　ふるきのきばの　しのぶにも", "second_half": "なほあまりある　むかしなりけり", "color": "b", "index": 18},
+    {"first_half": "ちぎりおきし　させもがつゆを　いのちにて", "second_half": "あはれことしの　あきもいぬめり", "color": "b", "index": 19},
+    {"first_half": "おもひわび　さてもいのちは　あるものを", "second_half": "うきにたへぬは　なみだなりけり", "color": "b", "index": 20}
+];
+
+const orangePoems = [
+    {"first_half": "あけぬれば　くるるものとは　しりながら", "second_half": "なほうらめしき　あさぼらけかな", "color": "o", "index": 1},
+    {"first_half": "あさぼらけ　うぢのかはぎり　たえだえに", "second_half": "あらはれわたる　せぜのあじろぎ", "color": "o", "index": 2},
+    {"first_half": "あはれとも　いふべきひとは　おもほえで", "second_half": "みのいたづらに　なりぬべきかな", "color": "o", "index": 3},
+    {"first_half": "あひみての　のちのこころに　くらぶれば", "second_half": "むかしはものを　おもはざりけり", "color": "o", "index": 4},
+    {"first_half": "あふことの　たえてしなくは　なかなかに", "second_half": "ひとをもみをも　うらみざらまし", "color": "o", "index": 5},
+    {"first_half": "あらざらむ　このよのほかの　おもひでに", "second_half": "いまひとたびの　あふこともがな", "color": "o", "index": 6},
+    {"first_half": "いまこむと　いひしばかりに　ながつきの", "second_half": "ありあけのつきを　まちいでつるかな", "color": "o", "index": 7},
+    {"first_half": "いまはただ　おもひたえなむ　とばかりを", "second_half": "ひとづてならで　いふよしもがな", "color": "o", "index": 8},
+    {"first_half": "せをはやみ　いはにせかるる　たきがはの", "second_half": "われてもすゑに　あはむとぞおもふ", "color": "o", "index": 9},
+    {"first_half": "なげきつつ　ひとりぬるよの　あくるまは", "second_half": "いかにひさしき　ものとかはしる", "color": "o", "index": 10},
+    {"first_half": "なにしおはば　あふさかやまの　さねかづら", "second_half": "ひとにしられで　くるよしもがな", "color": "o", "index": 11},
+    {"first_half": "なにはえの　あしのかりねの　ひとよゆゑ", "second_half": "みをつくしてや　こひわたるべき", "color": "o", "index": 12},
+    {"first_half": "なにはがた　みじかきあしの　ふしのまも", "second_half": "あはでこのよを　すぐしてよとや", "color": "o", "index": 13},
+    {"first_half": "はるのよの　ゆめばかりなる　たまくらに", "second_half": "かひなくたたむ　なこそをしけれ", "color": "o", "index": 14},
+    {"first_half": "ひともをし　ひともうらめし　あぢきなく", "second_half": "よをおもふゆゑに　ものおもふみは", "color": "o", "index": 15},
+    {"first_half": "みかきもり　ゑじのたくひの　よるはもえ", "second_half": "ひるはきえつつ　ものをこそおもへ", "color": "o", "index": 16},
+    {"first_half": "みかのはら　わきてながるる　いづみがは", "second_half": "いつみきとてか　こひしかるらむ", "color": "o", "index": 17},
+    {"first_half": "みせばやな　をじまのあまの　そでだにも", "second_half": "ぬれにぞぬれし　いろはかはらず", "color": "o", "index": 18},
+    {"first_half": "おほけなく　うきよのたみに　おほふかな", "second_half": "わがたつそまに　すみぞめのそで", "color": "o", "index": 19},
+    {"first_half": "かぜそよぐ　ならのをがはの　ゆふぐれは", "second_half": "みそぎぞなつの　しるしなりける", "color": "o", "index": 20}
+];
+
+const colorCombined = [...redPoems, ...yellowPoems, ...greenPoems, ...bluePoems, ...orangePoems];
+
+hyakuninIsshu.forEach(poemObj => {
+  const match = colorCombined.find(item => item.first_half === poemObj.first_half);
+  if (match) {
+    poemObj.color = match.color;
+    poemObj.index = match.index;
+  }
+});
 
 // 获取要插入诗歌的容器
 const poemListContainer = document.querySelector('.poem-list');
@@ -265,24 +389,37 @@ function renderPoems(poems, kimarijiMap) {
   poemListContainer.innerHTML = ''; 
   poems.forEach(poem => {
     const poemItem = document.createElement('div');
-    poemItem.classList.add('poem-item');
+    poemItem.classList.add('poem-item', `color-${poem.color}`);
 
-    // 上半句
+    // 左侧区域：颜色 + 索引
+    const poemMeta = document.createElement('div');
+    poemMeta.classList.add('poem-meta');
+    poemMeta.textContent = poem.index; // 显示索引数字
+
+    // 右侧区域：诗句内容
+    const poemContent = document.createElement('div');
+    poemContent.classList.add('poem-content');
+
     const topLine = document.createElement('div');
     topLine.classList.add('half-line', 'left');
     topLine.innerHTML = highlightKimariji(poem.first_half, kimarijiMap.get(poem.first_half)?.kimarijiFirstHalf);
 
-    // 下半句
     const bottomLine = document.createElement('div');
     bottomLine.classList.add('half-line', 'right');
     bottomLine.innerHTML = highlightKimariji(poem.second_half, kimarijiMap.get(poem.first_half)?.kimarijiSecondHalf);
 
-    poemItem.appendChild(topLine);
-    poemItem.appendChild(bottomLine);
+    poemContent.appendChild(topLine);
+    poemContent.appendChild(bottomLine);
+
+    // 整合元素
+    poemItem.appendChild(poemMeta); // 左侧索引与颜色
+    poemItem.appendChild(poemContent); // 右侧诗句内容
 
     poemListContainer.appendChild(poemItem);
   });
 }
+
+
 
 // 默认显示按默认顺序排列的诗句
 let currentPoems = hyakuninIsshu;
@@ -303,6 +440,9 @@ document.getElementById('sortSelect').addEventListener('change', (event) => {
 // 根据排序类型获取排序后的诗句
 function getSortedPoems(sortType, poems, kimarijiMap) {
   switch (sortType) {
+    case 'fiveColors':
+      return colorCombined;
+
     case 'kanaFirst':
       return poems.sort((a, b) => (a.first_half + a.second_half).localeCompare(b.first_half + b.second_half, 'ja'));
       
