@@ -5,6 +5,8 @@ body {
   padding: 0;
   background: linear-gradient(to right, #e0eafc, #cfdef3);
   color: #333;
+  font-size: 16px; /* 默认字体大小 */
+  line-height: 1.6;
 }
 
 /* 容器 */
@@ -13,7 +15,7 @@ body {
   margin: 40px auto;
   background-color: #ffffff;
   padding: 30px;
-  border-radius: 16px; /* 柔和的圆角 */
+  border-radius: 16px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   overflow: hidden;
   border: 1px solid #eaeaea;
@@ -24,9 +26,9 @@ h1 {
   text-align: center;
   color: #2c3e50;
   margin-bottom: 30px;
-  font-size: 2.8em;
+  font-size: 2.4em; /* 标题稍作缩小 */
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
   font-weight: bold;
 }
 
@@ -59,10 +61,10 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 55px;
-  height: 55px;
-  border-radius: 12px; /* 更明显的圆角 */
-  font-size: 1.1em;
+  width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  font-size: 1em;
   font-weight: bold;
   color: #fff;
   flex-shrink: 0;
@@ -89,9 +91,10 @@ h1 {
 .half-line {
   width: 48%;
   padding: 5px 0;
-  font-size: 1.2em;
+  font-size: 1.1em; /* 调整为稍小字体 */
   line-height: 1.8;
   word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .left {
@@ -117,8 +120,8 @@ h1 {
 /* 下拉选择框 */
 select {
   margin: 20px 0;
-  padding: 10px 15px;
-  font-size: 1em;
+  padding: 8px 12px;
+  font-size: 0.95em; /* 调整下拉框字体 */
   border-radius: 6px;
   border: 1px solid #ccc;
   background-color: #fff;
@@ -132,21 +135,12 @@ select:hover {
 }
 
 /* 响应式设计 */
+
+/* 中等屏幕 */
 @media (max-width: 768px) {
-  .container {
-    padding: 20px;
-    margin: 20px;
-    border-radius: 12px;
-  }
-
-  h1 {
-    font-size: 2.2em;
-    margin-bottom: 20px;
-  }
-
   .poem-item {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
     padding: 15px;
     gap: 10px;
   }
@@ -155,7 +149,7 @@ select:hover {
     width: 45px;
     height: 45px;
     font-size: 0.9em;
-    margin-bottom: 10px;
+    align-self: center;
   }
 
   .poem-content {
@@ -166,47 +160,38 @@ select:hover {
 
   .half-line {
     width: 100%;
-    font-size: 1.1em;
+    font-size: 1em;
     line-height: 1.6;
   }
 
-  select {
-    font-size: 0.9em;
-    padding: 8px 12px;
-  }
+  .half-line.right {
+  text-align: left;
+}
 }
 
+/* 小屏幕 */
 @media (max-width: 480px) {
-  .container {
-    padding: 15px;
-    margin: 10px;
-    border-radius: 8px;
-  }
-
-  h1 {
-    font-size: 1.8em;
-    margin-bottom: 15px;
+  .poem-item {
+    flex-direction: row;
+    align-items: center;
+    padding: 10px;
+    gap: 8px;
   }
 
   .poem-meta {
     width: 40px;
     height: 40px;
     font-size: 0.8em;
-    margin-bottom: 8px;
+    align-self: center;
   }
 
-  .poem-item {
-    padding: 10px;
+  .poem-content {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 8px;
   }
 
-  .half-line {
-    font-size: 1em;
-    line-height: 1.5;
-  }
-
-  select {
-    font-size: 0.8em;
-    padding: 6px 10px;
-  }
+  .half-line.right {
+  text-align: left;
+}
 }
