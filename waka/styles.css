@@ -133,6 +133,102 @@ select:hover {
   background-color: #f0f4ff;
   border-color: #b0c4de;
 }
+/* 弹窗的样式 */
+.kimariji-popup {
+  display: none; /* 初始时隐藏弹窗 */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* 更深的半透明背景 */
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  opacity: 0; /* 初始透明度为 0 */
+  transition: opacity 0.5s ease-in-out; /* 淡入淡出效果 */
+}
+
+/* 弹窗显示时 */
+.kimariji-popup.show {
+  display: flex; /* 显示弹窗 */
+  opacity: 1; /* 显示时透明度为 1 */
+}
+
+/* 弹窗内容区域 */
+.kimariji-popup-content {
+  background: #fff;
+  padding: 30px;
+  border-radius: 15px;
+  width: 85%;
+  max-width: 700px;
+  max-height: 85%;
+  overflow-y: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* 添加阴影效果 */
+  position: relative; /* 为关闭按钮提供位置 */
+  transform: translateY(-20px); /* 初始位置向上偏移 */
+  animation: slideIn 0.5s ease-out forwards; /* 弹窗内容的滑入效果 */
+}
+
+/* 关闭按钮样式 */
+.kimariji-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  font-size: 2em;
+  cursor: pointer;
+  color: #333;
+  font-weight: bold;
+}
+
+.kimariji-close:hover {
+  color: #e57373; /* 悬停时变色 */
+  transform: scale(1.2); /* 悬停时稍微放大 */
+  transition: transform 0.2s ease-in-out;
+}
+
+/* 弹窗中的诗句列表样式 */
+.kimariji-poem-list {
+  list-style-type: none;
+  padding: 0;
+  margin-top: 20px;
+  max-height: 500px;
+  overflow-y: auto;
+}
+
+/* 仅在弹窗内应用的样式 */
+.kimariji-popup .half-line.right {
+  text-align: left;
+}
+
+.kimariji-popup .poem-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+.kimariji-popup .half-line {
+    width: 100%;
+}
+
+.no-poems-message {
+  text-align: center;
+  font-size: 20px;
+  color: #999;
+  margin-top: 20px;
+}
+
+/* 弹窗滑入动画 */
+@keyframes slideIn {
+  0% {
+    transform: translateY(-20px); /* 初始位置向上偏移 */
+    opacity: 0; /* 初始透明度为 0 */
+  }
+  100% {
+    transform: translateY(0); /* 最终位置 */
+    opacity: 1; /* 最终透明度为 1 */
+  }
+}
+
 
 /* 响应式设计 */
 

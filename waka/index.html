@@ -14,17 +14,25 @@
     <!-- ソート選択肢 -->
     <label for="sortSelect">並べ替え方法:</label>
     <select id="sortSelect">
-      <option value="default">デフォルト</option>
       <option value="fiveColors">五色</option>
+      <option value="default">デフォルト</option>
       <option value="kanaFirst">上句の仮名</option>
       <option value="kimarijiFirstKana">上句の決まり字 + 仮名</option>
       <option value="kanaSecond">下句の仮名</option>
       <option value="kimarijiSecondKana">下句の決まり字 + 仮名</option>
     </select>
 
-    
     <!-- 詩のリスト -->
     <div class="poem-list"></div>
+  </div>
+
+  <!-- 弹窗容器 -->
+  <div id="kimarijiPopup" class="kimariji-popup">
+    <div class="kimariji-popup-content">
+      <span id="kimarijiClose" class="kimariji-close">&times;</span>
+      <h2>類似の決まり字を含む歌</h2>
+      <div id="kimarijiPoemsList" class="kimariji-poem-list"></div> <!-- 使用 kimariji-poem-list -->
+    </div>
   </div>
 
   <script src="script.js"></script>
