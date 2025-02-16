@@ -1,36 +1,28 @@
 ﻿<!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>伪装网站</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Load and Replace Page</title>
 </head>
 <body>
-  <h1>欢迎来到 XYZ 搜索</h1>
-  <form id="searchForm">
-    <input type="text" id="searchInput" placeholder="输入网址">
-    <button type="submit">搜索</button>
-  </form>
-  <div id="content"></div>
+    <h1>Welcome to the page</h1>
 
-  <script>
-    document.getElementById('searchForm').addEventListener('submit', async function(event) {
-      event.preventDefault();
-      var url = document.getElementById('searchInput').value;
-      var contentDiv = document.getElementById('content');
+    <button id="loadPageButton">Load New Page</button>
 
-      if (url) {
-        try {
-          let response = await fetch("https://chat.happyface0v0-bili.workers.dev/?url=" + encodeURIComponent(url));
-          let html = await response.text();
-          contentDiv.innerHTML = html; // 直接插入 HTML
-        } catch (error) {
-          contentDiv.innerHTML = "<p>加载失败，请稍后重试</p>";
-        }
-      } else {
-        alert("请输入有效的网址");
-      }
-    });
-  </script>
+    <script>
+        document.getElementById("loadPageButton").onclick = function() {
+            // 使用fetch加载另一个网页的HTML内容
+            fetch('https://example.com')
+                .then(response => response.text())
+                .then(data => {
+                    // 替换当前页面的内容为新页面的HTML
+                    document.documentElement.innerHTML = data;
+                })
+                .catch(error => {
+                    console.error('Error loading page:', error);
+                });
+        };
+    </script>
 </body>
 </html>
