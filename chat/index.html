@@ -15,7 +15,7 @@
     <script>
         async function fetchResource() {
             const urlInput = document.getElementById("urlInput").value;
-            const workerUrl = `https://your-worker-url?url=${encodeURIComponent(urlInput)}`;
+            const workerUrl = `https://chat.happyface0v0-bili.workers.dev/?url=${encodeURIComponent(urlInput)}`;
             
             try {
                 const response = await fetch(workerUrl);
