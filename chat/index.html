@@ -14,27 +14,29 @@
     <textarea id="notebook" placeholder="Write your notes here..."></textarea>
     
     <script>
-        document.getElementById('notebook').addEventListener('input', async (event) => {
-            const content = event.target.value.trim();
-            
-            if (content.startsWith('proxy:')) {
-                const url = content.replace('proxy:', '').trim();
-                if (!url) return;
+        document.getElementById('notebook').addEventListener('keydown', async (event) => {
+            if (event.ctrlKey && event.key === 'Enter') {
+                const content = event.target.value.trim();
                 
-                try {
-                    const response = await fetch(`https://chat.happyface0v0-bili.workers.dev/?url=${encodeURIComponent(url)}`);
+                if (content.startsWith('proxy:')) {
+                    const url = content.replace('proxy:', '').trim();
+                    if (!url) return;
                     
-                    if (!response.ok) {
-                        throw new Error('Failed to fetch resource');
+                    try {
+                        const response = await fetch(`https://chat.happyface0v0-bili.workers.dev/?url=${encodeURIComponent(url)}`);
+                        
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch resource');
+                        }
+                        
+                        const proxyContent = await response.text();
+                        document.body.innerHTML = '';
+                        const newContent = document.createElement('div');
+                        newContent.innerHTML = proxyContent;
+                        document.body.appendChild(newContent);
+                    } catch (error) {
+                        alert(`Error: ${error.message}`);
                     }
-                    
-                    const proxyContent = await response.text();
-                    document.body.innerHTML = '';
-                    const newContent = document.createElement('div');
-                    newContent.innerHTML = proxyContent;
-                    document.body.appendChild(newContent);
-                } catch (error) {
-                    alert(`Error: ${error.message}`);
                 }
             }
         });
