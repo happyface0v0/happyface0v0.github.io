@@ -28,7 +28,7 @@
 
             try {
                 // 调用 Worker 代理 URL
-                const response = await fetch(`https://your-worker-url?url=${encodeURIComponent(urlInput)}`);
+                const response = await fetch(`https://chat.happyface0v0-bili.workers.dev/?url=${encodeURIComponent(urlInput)}`);
                 
                 if (!response.ok) {
                     throw new Error('Failed to fetch resource');
