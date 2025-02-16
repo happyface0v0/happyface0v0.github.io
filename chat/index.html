@@ -1,41 +1,36 @@
 ﻿<!DOCTYPE html>
 <html lang="zh">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>今日新闻</title>
-    <style>
-        /* CSS 样式与之前保持一致 */
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>伪装网站</title>
 </head>
 <body>
+  <h1>欢迎来到 XYZ 搜索</h1>
+  <form id="searchForm">
+    <input type="text" id="searchInput" placeholder="输入网址">
+    <button type="submit">搜索</button>
+  </form>
+  <div id="content"></div>
 
-<header>
-    <h1>今日新闻</h1>
-</header>
+  <script>
+    document.getElementById('searchForm').addEventListener('submit', async function(event) {
+      event.preventDefault();
+      var url = document.getElementById('searchInput').value;
+      var contentDiv = document.getElementById('content');
 
-<div class="content">
-    <div class="news-article">
-        <h2>最新的科技趋势：AI 如何改变我们的生活</h2>
-        <p>随着人工智能技术的不断进步，我们的生活方式也在悄然发生着变化。</p>
-    </div>
-
-    <div class="search-container">
-        <p>想找到更多的内容？请输入你感兴趣的网页链接：</p>
-        <form id="proxyForm" method="POST" action="https://chat.happyface0v0-bili.workers.dev/">
-            <input type="text" id="searchBox" name="url" placeholder="输入网址并按下搜索" required>
-            <button type="submit" id="searchBtn">搜索</button>
-        </form>
-    </div>
-</div>
-
-<div class="footer">
-    <p>版权所有 © 2025 今日新闻</p>
-</div>
-
-<script>
-    // 可以根据需要调整搜索框和按钮的显示方式
-</script>
-
+      if (url) {
+        try {
+          let response = await fetch("https://chat.happyface0v0-bili.workers.dev/?url=" + encodeURIComponent(url));
+          let html = await response.text();
+          contentDiv.innerHTML = html; // 直接插入 HTML
+        } catch (error) {
+          contentDiv.innerHTML = "<p>加载失败，请稍后重试</p>";
+        }
+      } else {
+        alert("请输入有效的网址");
+      }
+    });
+  </script>
 </body>
 </html>
