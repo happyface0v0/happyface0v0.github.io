@@ -4,44 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proxy via Worker</title>
-    <script>
-        // 调用 Worker 的函数
-        async function fetchResource() {
-            const url = document.getElementById("targetUrl").value;
-            
-            if (!url) {
-                alert("Please enter a URL to proxy.");
-                return;
-            }
-
-            // 构建 Worker 请求 URL
-            const workerUrl = `https://chat.happyface0v0-bili.workers.dev/?url=${encodeURIComponent(url)}`;
-            
-            try {
-                const response = await fetch(workerUrl);
-                
-                if (response.ok) {
-                    const text = await response.text();
-                    // 将 Worker 返回的内容显示在页面上
-                    document.getElementById("result").innerHTML = text;
-                } else {
-                    document.getElementById("result").innerHTML = "Failed to fetch the resource.";
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                document.getElementById("result").innerHTML = "Error occurred while fetching the resource.";
-            }
-        }
-    </script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #content { margin-top: 20px; }
+        input, button { padding: 10px; margin: 5px 0; }
+    </style>
 </head>
 <body>
     <h1>Proxy via Worker</h1>
-    <label for="targetUrl">Enter the URL you want to proxy:</label><br>
-    <input type="text" id="targetUrl" placeholder="Enter URL" size="50">
-    <button onclick="fetchResource()">Fetch Resource</button>
+    <p>Enter the URL you want to proxy:</p>
+    <input type="text" id="url-input" placeholder="Enter URL here" style="width: 300px;">
+    <button id="fetch-button">Fetch Resource</button>
 
-    <div id="result" style="margin-top: 20px;">
-        <!-- The fetched content will be displayed here -->
-    </div>
+    <div id="content"></div>
+
+    <script>
+        document.getElementById('fetch-button').addEventListener('click', async () => {
+            const urlInput = document.getElementById('url-input').value;
+            if (!urlInput) {
+                alert('Please enter a valid URL');
+                return;
+            }
+
+            try {
+                // 调用 Worker 代理 URL
+                const response = await fetch(`https://your-worker-url?url=${encodeURIComponent(urlInput)}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch resource');
+                }
+
+                const proxyContent = await response.text();
+
+                // 删除页面现有内容
+                document.body.innerHTML = '';
+
+                // 添加代理的内容
+                const newContent = document.createElement('div');
+                newContent.innerHTML = proxyContent;
+                document.body.appendChild(newContent);
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        });
+    </script>
 </body>
 </html>
