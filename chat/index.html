@@ -4,28 +4,49 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Proxy via Worker</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        #content { margin-top: 20px; }
+        input, button { padding: 10px; margin: 5px 0; }
+    </style>
 </head>
 <body>
     <h1>Proxy via Worker</h1>
-    <label for="urlInput">Enter the URL you want to proxy:</label>
-    <input type="text" id="urlInput" placeholder="https://example.com">
-    <button onclick="fetchResource()">Fetch Resource</button>
-    <div id="output"></div>
+    <p>Enter the URL you want to proxy:</p>
+    <input type="text" id="url-input" placeholder="Enter URL here" style="width: 300px;">
+    <button id="fetch-button">Fetch Resource</button>
+
+    <div id="content"></div>
 
     <script>
-        async function fetchResource() {
-            const urlInput = document.getElementById("urlInput").value;
-            const workerUrl = `https://chat.happyface0v0-bili.workers.dev/?url=${encodeURIComponent(urlInput)}`;
-            
-            try {
-                const response = await fetch(workerUrl);
-                const text = await response.text();
-                document.getElementById("output").innerHTML = text;
-            } catch (error) {
-                console.error("Error:", error);
-                document.getElementById("output").innerText = "Error fetching resource.";
+        document.getElementById('fetch-button').addEventListener('click', async () => {
+            const urlInput = document.getElementById('url-input').value;
+            if (!urlInput) {
+                alert('Please enter a valid URL');
+                return;
             }
-        }
+
+            try {
+                // 调用 Worker 代理 URL
+                const response = await fetch(`https://chat.happyface0v0-bili.workers.dev/?url=${encodeURIComponent(urlInput)}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch resource');
+                }
+
+                const proxyContent = await response.text();
+
+                // 删除页面现有内容
+                document.body.innerHTML = '';
+
+                // 添加代理的内容
+                const newContent = document.createElement('div');
+                newContent.innerHTML = proxyContent;
+                document.body.appendChild(newContent);
+            } catch (error) {
+                alert(`Error: ${error.message}`);
+            }
+        });
     </script>
 </body>
 </html>
