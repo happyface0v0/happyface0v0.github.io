@@ -1,36 +1,47 @@
 ﻿<!DOCTYPE html>
-<html lang="zh">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>伪装网站</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proxy via Worker</title>
+    <script>
+        // 调用 Worker 的函数
+        async function fetchResource() {
+            const url = document.getElementById("targetUrl").value;
+            
+            if (!url) {
+                alert("Please enter a URL to proxy.");
+                return;
+            }
+
+            // 构建 Worker 请求 URL
+            const workerUrl = `https://chat.happyface0v0-bili.workers.dev/?url=${encodeURIComponent(url)}`;
+            
+            try {
+                const response = await fetch(workerUrl);
+                
+                if (response.ok) {
+                    const text = await response.text();
+                    // 将 Worker 返回的内容显示在页面上
+                    document.getElementById("result").innerHTML = text;
+                } else {
+                    document.getElementById("result").innerHTML = "Failed to fetch the resource.";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                document.getElementById("result").innerHTML = "Error occurred while fetching the resource.";
+            }
+        }
+    </script>
 </head>
 <body>
-  <h1>欢迎来到 XYZ 搜索</h1>
-  <form id="searchForm">
-    <input type="text" id="searchInput" placeholder="输入网址">
-    <button type="submit">搜索</button>
-  </form>
-  <div id="content"></div>
+    <h1>Proxy via Worker</h1>
+    <label for="targetUrl">Enter the URL you want to proxy:</label><br>
+    <input type="text" id="targetUrl" placeholder="Enter URL" size="50">
+    <button onclick="fetchResource()">Fetch Resource</button>
 
-  <script>
-    document.getElementById('searchForm').addEventListener('submit', async function(event) {
-      event.preventDefault();
-      var url = document.getElementById('searchInput').value;
-      var contentDiv = document.getElementById('content');
-
-      if (url) {
-        try {
-          let response = await fetch("https://chat.happyface0v0-bili.workers.dev/?url=" + encodeURIComponent(url));
-          let html = await response.text();
-          contentDiv.innerHTML = html; // 直接插入 HTML
-        } catch (error) {
-          contentDiv.innerHTML = "<p>加载失败，请稍后重试</p>";
-        }
-      } else {
-        alert("请输入有效的网址");
-      }
-    });
-  </script>
+    <div id="result" style="margin-top: 20px;">
+        <!-- The fetched content will be displayed here -->
+    </div>
 </body>
 </html>
