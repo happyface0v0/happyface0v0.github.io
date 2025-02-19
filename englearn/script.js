@@ -81,7 +81,6 @@ function showWord() {
 function markKnown(word) {
     knownWords.push(word);
     localStorage.setItem("knownWords", JSON.stringify(knownWords));
-    alert(`🎉 你已学会 ${word} ！`);
     showFirework();
     nextWord();
 }
