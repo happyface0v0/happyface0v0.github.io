@@ -108,7 +108,7 @@ function showFirework() {
 
     const firework = document.createElement('div');
     firework.className = 'firework';
-    firework.style.width = `${Math.random() * 20 + 10}px`;
+    firework.style.width = `${Math.random() * 500 + 10}px`;
     firework.style.height = firework.style.width;
     firework.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; // 随机颜色
     firework.style.left = `${x}px`;
@@ -119,6 +119,10 @@ function showFirework() {
     firework.addEventListener('animationend', () => {
         firework.remove();
     });
+
+    if (Math.floor(Math.random() * 2) == 0){
+        showFirework()
+    }
 
     incrementCombo();
 }
