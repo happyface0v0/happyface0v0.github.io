@@ -81,9 +81,17 @@ function showWord() {
 function markKnown(word) {
     knownWords.push(word);
     localStorage.setItem("knownWords", JSON.stringify(knownWords));
-    showFirework();
+    alert(`🎉 你已学会 ${word} ！`);
+
+    // 随机放置多个烟花
+    const numFireworks = Math.floor(Math.random() * 5) + 3; // 随机放置 1 到 5 个烟花
+    for (let i = 0; i < numFireworks; i++) {
+        showFirework();
+    }
+
     nextWord();
 }
+
 
 function markUnknown(word) {
     const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(word)}+meaning`;
@@ -119,10 +127,6 @@ function showFirework() {
     firework.addEventListener('animationend', () => {
         firework.remove();
     });
-
-    if (Math.floor(Math.random() * 2) == 0){
-        showFirework()
-    }
 
     incrementCombo();
 }
