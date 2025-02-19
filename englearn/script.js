@@ -84,7 +84,7 @@ function markKnown(word) {
     alert(`🎉 你已学会 ${word} ！`);
 
     // 随机放置多个烟花
-    const numFireworks = Math.floor(Math.random() * 5) + 3; // 随机放置 1 到 5 个烟花
+    const numFireworks = Math.floor(Math.random() * 20) + 10 + 1; // 随机放置 10 到 20 个烟花
     for (let i = 0; i < numFireworks; i++) {
         showFirework();
     }
@@ -116,7 +116,7 @@ function showFirework() {
 
     const firework = document.createElement('div');
     firework.className = 'firework';
-    firework.style.width = `${Math.random() * 500 + 10}px`;
+    firework.style.width = `${Math.random() * 500 + 50}px`;
     firework.style.height = firework.style.width;
     firework.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; // 随机颜色
     firework.style.left = `${x}px`;
