@@ -2,6 +2,7 @@
 let currentIndex = 0; // 当前单词索引
 let knownWords = JSON.parse(localStorage.getItem("knownWords")) || [];
 let order = "normal"; // 学习顺序（默认正序）
+let comboCount = 0; // 连击数
 
 document.addEventListener("DOMContentLoaded", () => {
     loadDefaultWords(); // 页面加载时自动加载单词
@@ -58,7 +59,7 @@ function showWord() {
     }
 
     const word = words[currentIndex];
-    
+
     // 如果单词已经学过，自动跳过
     if (knownWords.includes(word)) {
         currentIndex++;
@@ -81,6 +82,7 @@ function markKnown(word) {
     knownWords.push(word);
     localStorage.setItem("knownWords", JSON.stringify(knownWords));
     alert(`🎉 你已学会 ${word} ！`);
+    showFirework();
     nextWord();
 }
 
@@ -99,4 +101,30 @@ function reloadWords() {
     knownWords = [];
     localStorage.removeItem("knownWords");
     loadDefaultWords();
+}
+
+function showFirework() {
+    const x = Math.random() * window.innerWidth; // 随机位置
+    const y = Math.random() * window.innerHeight; // 随机位置
+
+    const firework = document.createElement('div');
+    firework.className = 'firework';
+    firework.style.width = `${Math.random() * 20 + 10}px`;
+    firework.style.height = firework.style.width;
+    firework.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; // 随机颜色
+    firework.style.left = `${x}px`;
+    firework.style.top = `${y}px`;
+    document.body.appendChild(firework);
+    
+    // 移除烟花元素
+    firework.addEventListener('animationend', () => {
+        firework.remove();
+    });
+
+    incrementCombo();
+}
+
+function incrementCombo() {
+    comboCount++;
+    document.getElementById('hit-counter').innerText = `连击数: ${comboCount}`;
 }
