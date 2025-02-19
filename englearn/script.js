@@ -125,5 +125,5 @@ function showFirework() {
 
 function incrementCombo() {
     comboCount++;
-    document.getElementById('hit-counter').innerText = `连击数: ${comboCount}`;
+    document.getElementById('hit-counter').innerText = `连击数: -${comboCount}-`;
 }
