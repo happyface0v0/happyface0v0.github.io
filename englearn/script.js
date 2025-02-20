@@ -82,3 +82,26 @@ function maybeShowCyberFireworks() {
         }
     }
 }
+
+function reloadWords() {
+    knownWords = [];
+    localStorage.removeItem("knownWords");
+    
+    fetch("words.txt")
+        .then(response => response.text())
+        .then(text => {
+            words = text.split(/\r?\n/).map(word => word.trim()).filter(word => word.length > 0);
+            if (words.length === 0) {
+                alert("⚠ 默认单词文件为空！");
+                return;
+            }
+            applyOrder();
+            currentIndex = 0;
+            showWord();
+        })
+        .catch(error => {
+            console.error("加载默认单词失败:", error);
+            alert("❌ 无法加载默认单词文件！");
+        });
+}
+
