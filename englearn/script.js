@@ -98,7 +98,7 @@ function showFirework() {
 }
 
 /* ✨ 粒子背景 */
-function initParticleAnimation() {
+function initStarfield() {
     let canvas = document.getElementById("particleCanvas");
     let ctx = canvas.getContext("2d");
     let w, h, stars = [];
