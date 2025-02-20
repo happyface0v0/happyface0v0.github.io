@@ -1,211 +1,220 @@
-To buckle up  
-Patients  
-Clients  
-Customers  
-Thermometer  
-Fever  
-Sneeze  
-Cough  
-Paw  
-Plural  
-Hobby  
-Suitcase  
-Luggage  
-Tourists  
-Tour  
-appropriate/suitable  
-Affectionate  
-Aggressive  
-Anxious  
-Bossy  
-Jealous  
-Moody  
-Reliable/to depend on  
-Sociable  
-Stubborn  
-Advice  
-Headache  
-Sore  
-Yawn  
-Fancy  
-To convince someone  
-I am convinced  
-Curious  
-To long for  
-Opportunity  
-Novel  
-Neither  
-Athlete  
-To speak highly of  
-To qualify  
-To examine  
-To insist  
-Request  
-Coast  
-Thief  
-Theft  
-On duty  
-I’m off tonight  
-Food goes off  
-Switch off the light  
-Particularly  
-Cottage  
-Wink  
-Addicted to something/hooked on something  
-No option  
-To limp  
-Recognise  
-Admire  
-Sailing boat  
-To sail  
-Right next to  
-Snorkeling  
-Sledging  
-Rowboat  
-Oars  
-Torn  
-Related to  
-ill/illness  
-Relatives  
-Oral  
-Aural  
-To pick up things in the shop  
-Running late  
-On time  
-Academic  
-Stun  
-Injury  
-Bruise  
-To motivate  
-In pursuit of  
-Desire  
-variety/a range of things  
-To probe into  
-Investigate  
-Lack  
-Fiction (novel)  
-Non-fiction (novel)  
-When something is due  
-The due date is _____  
-Hand in a project  
-Accessible  
-To trip over something  
-Teenager  
-Toddler  
-Child  
-Adult  
-Habits  
-Although  
-Passionate  
-Entrepreneur  
-A heading  
-Apostrophe  
-Measure  
-Determine  
-Ordinary  
-Extraordinary  
-Superior  
-Inferior  
-Brand  
-Content  
-Grateful  
-Relieved  
-Offended  
-Frustrated  
-Disappointed  
-Guilty  
-Depressed  
-Overcast  
-Disease  
-Cure  
-Cinema  
-Confidence  
-Collar of a shirt  
-Prefer  
-Comparison  
-Scared stiff  
-Overwhelmed  
-Coral  
-Reef  
-Strip  
-Narrow  
-Broad  
-Shrink  
-Have in common  
-Alike  
-Having trouble with something  
-Gerund  
-Tutor  
-Out of touch  
-Familiar  
-Lawn  
-Maintain  
-Maintenance  
-Vegetation  
-Recap  
-Summarise  
-Revise  
-Immigrant  
-Refugee  
-To flee  
-Groceries  
-Furniture  
-Storey  
-I am pleased  
-Slum  
-Salary  
-Stressed  
-Bring up/raised  
-Suburb  
-Hyphen  
-Dash  
-Unite  
-union/unification  
-Reunion  
-Pharmacy  
-I’d appreciate it if  
-Fiance  
-Fiancee  
-Engaged people  
-Bride  
-Groom  
-When a person goes off something  
-Eg  
-Abbreviation  
-To take part in something  
-To get on with someone  
-Company with someone  
-To compete  
-Casual  
-Disturb/bother  
-Identify  
-Human organs  
-Musical organ  
-Harbour  
-Monument  
-Amusement park  
-It’s a pity  
-canoe/kayak  
-Souvenir  
-Attract (verb)  
-Attraction (noun)  
-Attractive (adjective)  
-Cathedral  
-Mosque  
-Temple  
-District  
-Cross  
-Embarrassed  
-Envious  
-Frightened  
-Relieved  
-Comprehend  
-Pollution  
-Industry  
-Deck  
-Patio  
-Vowel  
-Consonant  
-Punctuate  
+To buckle up
+Patients
+Clients
+Customers
+Thermometer
+Fever
+Sneeze
+Cough
+Paw
+Plural
+Hobby
+Suitcase
+Luggage
+Tourists
+Tour
+appropriate
+suitable
+Affectionate
+Aggressive
+Anxious
+Bossy
+Jealous
+Moody
+Reliable
+to depend on
+Sociable
+Stubborn
+Advice
+Headache
+Sore
+Yawn
+Fancy
+To convince someone
+I am convinced
+Curious
+To long for
+Opportunity
+Novel
+Neither
+Athlete
+To speak highly of
+To qualify
+To examine
+To insist
+Request
+Coast
+Thief
+Theft
+On duty
+I'm off tonight
+Food goes off
+Switch off the light
+Particularly
+Cottage
+Wink
+Addicted to something
+hooked on something
+No option
+To limp
+Recognize
+Admire
+Sailing boat
+To sail
+Right next to
+Snorkeling
+Sledging
+Rowboat
+Oars
+Torn
+Related to
+ill
+illness
+Relatives
+Oral
+Aural
+To pick up things in the shop
+Running late
+On time
+Academic
+Stun
+Injury
+Bruise
+To motivate
+In pursuit of
+Desire
+variety
+a range of things
+To probe into
+Investigate
+Lack
+Fiction (novel)
+Non-fiction (novel)
+When something is due
+The due date is _____
+Hand in a project
+Accessible
+To trip over something
+Teenager
+Toddler
+Child
+Adult
+Habits
+Although
+Passionate
+Entrepreneur
+A heading
+Apostrophe
+Measure
+Determine
+Ordinary
+Extraordinary
+Superior
+Inferior
+Brand
+Content
+Grateful
+Relieved
+Offended
+Frustrated
+Disappointed
+Guilty
+Depressed
+Overcast
+Disease
+Cure
+Cinema
+Confidence
+Collar of a shirt
+Prefer
+Comparison
+Scared stiff
+Overwhelmed
+Coral
+Reef
+Strip
+Narrow
+Broad
+Shrink
+Have in common
+Alike
+Having trouble with something
+Gerund
+Tutor
+Out of touch
+Familiar
+Lawn
+Maintain
+Maintenance
+Vegetation
+Recap
+Summarise
+Revise
+Immigrant
+Refugee
+To flee
+Groceries
+Furniture
+Storey
+I am pleased
+Slum
+Salary
+Stressed
+Bring up
+raised
+Suburb
+Hyphen
+Dash
+Unite
+union
+unification
+Reunion
+Pharmacy
+I'd appreciate it if
+Fiance
+Fiancee
+Engaged people
+Bride
+Groom
+When a person goes off something
+Eg
+Abbreviation
+To take part in something
+To get on with someone
+Company with someone
+To compete
+Casual
+Disturb
+bother
+Identify
+Human organs
+Musical organ
+Harbour
+Monument
+Amusement park
+It’s a pity
+canoe
+kayak
+Souvenir
+Attract
+Attraction
+Attractive
+Cathedral
+Mosque
+Temple
+District
+Cross
+Embarrassed
+Envious
+Frightened
+Relieved
+Comprehend
+Pollution
+Industry
+Deck
+Patio
+Vowel
+Consonant
+Punctuate
 Punctuation
 Exclamation
