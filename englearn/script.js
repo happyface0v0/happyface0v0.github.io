@@ -1,11 +1,12 @@
-﻿let words = []; // 存储所有单词
-let currentIndex = 0; // 当前单词索引
+﻿let words = [];
+let currentIndex = 0;
 let knownWords = JSON.parse(localStorage.getItem("knownWords")) || [];
-let order = "normal"; // 学习顺序（默认正序）
+let order = "normal";
+let combo = 0;
 
 document.addEventListener("DOMContentLoaded", () => {
-    loadDefaultWords(); // 页面加载时自动加载单词
-    setupCanvas(); // 设置粒子动画画布
+    loadDefaultWords();
+    initParticleAnimation();
 });
 
 function loadDefaultWords() {
@@ -13,27 +14,16 @@ function loadDefaultWords() {
         .then(response => response.text())
         .then(text => {
             words = text.split(/\r?\n/).map(word => word.trim()).filter(word => word.length > 0);
-            if (words.length === 0) {
-                alert("⚠ 默认单词文件为空！");
-                return;
-            }
             applyOrder();
             document.getElementById("word-box").style.display = "block";
             currentIndex = 0;
             showWord();
-        })
-        .catch(error => {
-            console.error("加载默认单词失败:", error);
-            alert("❌ 无法加载默认单词文件！");
         });
 }
 
 function applyOrder() {
-    if (order === "reverse") {
-        words.reverse();
-    } else if (order === "random") {
-        words = shuffleArray(words);
-    }
+    if (order === "reverse") words.reverse();
+    else if (order === "random") words = shuffleArray(words);
 }
 
 function changeOrder() {
@@ -42,25 +32,16 @@ function changeOrder() {
 }
 
 function shuffleArray(array) {
-    let shuffled = array.slice();
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
+    return array.sort(() => Math.random() - 0.5);
 }
 
 function showWord() {
     if (currentIndex >= words.length) {
-        alert("🎉 你已经学习完所有单词！");
-        document.getElementById("word-list").innerHTML = "<p>所有单词已学习完毕！</p>";
-        document.getElementById("next-btn").style.display = "none";
+        document.getElementById("word-list").innerHTML = "<p>🎉 所有单词已学习完毕！</p>";
         return;
     }
+    let word = words[currentIndex];
 
-    const word = words[currentIndex];
-
-    // 如果单词已经学过，自动跳过
     if (knownWords.includes(word)) {
         currentIndex++;
         showWord();
@@ -68,27 +49,33 @@ function showWord() {
     }
 
     document.getElementById("word-list").innerHTML = `
-        <div class="word-card" id="wordCard">
-            <strong>${word}</strong>
+        <div class="word-card">
+            <strong id="word-text">${word}</strong>
             <p>你知道这个单词吗？</p>
             <button class="known" onclick="markKnown('${word}')">✔ 知道</button>
             <button class="unknown" onclick="markUnknown('${word}')">❌ 不知道</button>
         </div>
     `;
-    document.getElementById("next-btn").style.display = "none";
 }
 
 function markKnown(word) {
     knownWords.push(word);
     localStorage.setItem("knownWords", JSON.stringify(knownWords));
-    explodeWord(); // 添加爆炸特效
-    nextWord();
+
+    document.getElementById("word-text").classList.add("explode");
+    document.body.classList.add("shake");
+
+    combo++;
+    if (Math.random() < 0.5) showFirework();
+
+    setTimeout(() => {
+        document.body.classList.remove("shake");
+        nextWord();
+    }, 300);
 }
 
 function markUnknown(word) {
-    const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(word)}+meaning`;
-    window.open(googleSearchUrl, "_blank");
-    document.getElementById("next-btn").style.display = "block";
+    window.open(`https://www.google.com/search?q=${word}+meaning`, "_blank");
 }
 
 function nextWord() {
@@ -96,65 +83,89 @@ function nextWord() {
     showWord();
 }
 
-function reloadWords() {
-    knownWords = [];
-    localStorage.removeItem("knownWords");
-    loadDefaultWords();
-}
-
-// 粒子动画和烟花效果
-const canvas = document.getElementById("fireworkCanvas");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-function setupCanvas() {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    animateParticles();
-}
-
+/* 🎆 烟花特效 */
 function showFirework() {
-    for (let i = 0; i < 5; i++) {
-        createFirework();
-    }
-}
+    let canvas = document.getElementById("fireworkCanvas");
+    let ctx = canvas.getContext("2d");
 
-function createFirework() {
-    const x = Math.random() * canvas.width;
-    const y = Math.random() * canvas.height;
-    const size = Math.random() * 5 + 5; // 随机烟花大小
-    const color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+    let x = Math.random() * canvas.width;
+    let y = Math.random() * canvas.height / 2;
     
+    ctx.fillStyle = `hsl(${Math.random() * 360}, 100%, 50%)`;
     ctx.beginPath();
-    ctx.arc(x, y, size, 0, Math.PI * 2);
-    ctx.fillStyle = color;
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
     ctx.fill();
 }
 
-function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // 粒子动画逻辑
-    ctx.fillStyle = "rgba(255, 255, 255, 0.05)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    requestAnimationFrame(animateParticles);
-}
+/* ✨ 粒子背景 */
+function initParticleAnimation() {
+    let canvas = document.getElementById("particleCanvas");
+    let ctx = canvas.getContext("2d");
+    let w, h, stars = [];
+    const numStars = 5000; // 星星数量
+    let speed = 50; // 飞船前进速度
+    let angleX = 0, angleY = 0; // 旋转角度
 
-// 添加爆炸特效
-function explodeWord() {
-    const wordCard = document.getElementById("wordCard");
-    wordCard.style.animation = "explode 0.5s forwards";
-    setTimeout(() => {
-        wordCard.style.animation = "";
-    }, 500);
-}
-
-// 连击功能
-let comboCount = 0;
-
-function checkCombo() {
-    comboCount++;
-    if (comboCount > 1) {
-        showFirework(); // 触发烟花
+    function resize() {
+        canvas.width = w = window.innerWidth;
+        canvas.height = h = window.innerHeight;
+        stars = [];
+        for (let i = 0; i < numStars; i++) {
+            let x = (Math.random() - 0.5) * 10000;
+            let y = (Math.random() - 0.5) * 10000;
+            let z = Math.random() * 5000 + 500;
+            stars.push({x, y, z});
+        }
     }
+
+    function updateStars() {
+        angleX += (Math.random() - 0.5) * 0.005;
+        angleY += (Math.random() - 0.5) * 0.005;
+
+        ctx.clearRect(0, 0, w, h);
+
+        for (let star of stars) {
+            // 模拟飞船前进
+            star.z -= speed;
+            if (star.z < 0) {
+                star.x = (Math.random() - 0.5) * 10000;
+                star.y = (Math.random() - 0.5) * 10000;
+                star.z = 5000;
+            }
+
+            // 3D 旋转（让飞船摇摆）
+            let tempX = star.x * Math.cos(angleY) - star.z * Math.sin(angleY);
+            let tempZ = star.x * Math.sin(angleY) + star.z * Math.cos(angleY);
+            let tempY = star.y * Math.cos(angleX) - tempZ * Math.sin(angleX);
+            let finalZ = star.y * Math.sin(angleX) + tempZ * Math.cos(angleX);
+
+            // 透视投影
+            if (finalZ > 0) {
+                scale = 1000 / finalZ;
+            } else {
+                scale = 0; // 或者设置为其他合适的值，比如一个默认的缩放比例
+            }
+            let screenX = tempX * scale + w / 2;
+            let screenY = tempY * scale + h / 2;
+
+            // 计算星星亮度
+            let brightness = Math.max(0, 255 - (finalZ / 5000) * 255);
+            ctx.fillStyle = `rgb(${brightness}, ${brightness}, ${brightness})`;
+
+            // 绘制星星（近的星星更大）
+            ctx.beginPath();
+            ctx.arc(screenX, screenY, Math.max(0, scale * 2), 0, Math.PI * 2);
+            ctx.fill();
+        }
+        requestAnimationFrame(updateStars);
+    }
+
+    window.addEventListener("resize", resize);
+    resize();
+    updateStars();
 }
+
+// 在页面加载后启动星空背景
+document.addEventListener("DOMContentLoaded", () => {
+    initStarfield();
+});
