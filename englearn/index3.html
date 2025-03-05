@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>单词学习助手</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <canvas id="particleCanvas"></canvas> <!-- 粒子动画 -->
+    <canvas id="fireworkCanvas"></canvas> <!-- 烟花动画 -->
+
+    <div class="container">
+        <h1>📖 单词学习助手</h1>
+
+        <div class="controls">
+            <label>学习顺序：</label>
+            <select id="orderSelect" onchange="changeOrder()">
+                <option value="normal">正序</option>
+                <option value="reverse">逆序</option>
+                <option value="random">随机</option>
+            </select>
+        </div>
+
+        <button onclick="reloadWords()">🔄 重新加载单词</button>
+
+        <div id="word-box" style="display: none;">
+            <div id="word-list"></div>
+            <button id="next-btn" onclick="nextWord()" style="display: none;">➡ 下一个单词</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

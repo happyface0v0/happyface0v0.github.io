@@ -3,33 +3,181 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>单词学习助手</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>vocabulary</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        #word {
+            font-size: 3em;
+            margin: 50px 0;
+            font-weight: bold;
+            color: #007acc;
+        }
+        #progressContainer {
+            width: 80%;
+            background-color: #ddd;
+            margin: 20px auto;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #progressBar {
+            height: 20px;
+            width: 0;
+            background-color: #4CAF50;
+            transition: width 0.3s;
+        }
+        button {
+            margin: 15px;
+            padding: 15px 30px;
+            font-size: 1.2em;
+            border: 2px solid #333;
+            border-radius: 5px;
+            cursor: pointer;
+            background: none;
+            color: #333;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #333;
+            color: white;
+        }
+        #knowBtn {
+            border-color: #4CAF50;
+        }
+        #knowBtn:hover {
+            background: #4CAF50;
+            color: white;
+        }
+        #dontKnowBtn {
+            border-color: #f44336;
+        }
+        #dontKnowBtn:hover {
+            background: #f44336;
+            color: white;
+        }
+        #resetBtn {
+            border-color: #ff9800;
+        }
+        #resetBtn:hover {
+            background: #ff9800;
+            color: white;
+        }
+        #wordListBtn {
+            border-color: #007acc;
+        }
+        #wordListBtn:hover {
+            background: #007acc;
+            color: white;
+        }
+        input[type="file"] {
+            margin: 20px;
+            padding: 10px;
+            font-size: 1.2em;
+            border: 2px solid #333;
+            background: white;
+            color: #333;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
-    <canvas id="particleCanvas"></canvas> <!-- 粒子动画 -->
-    <canvas id="fireworkCanvas"></canvas> <!-- 烟花动画 -->
+    <h1>VOCABULARY</h1>
+    <input type="file" id="fileInput" accept=".txt">
+    <div id="word">N/A</div>
+    <div id="progressContainer"><div id="progressBar"></div></div>
+    <button id="knowBtn" accesskey="j" disabled>知道</button>
+    <button id="dontKnowBtn" accesskey="f" disabled>不知道</button>
+    <button id="resetBtn">重置进度</button>
+    <button id="wordListBtn">单词列表</button>
+    
+    <script>
+        let words = [];
+        let currentIndex = 0;
+        let completionMessage = "---* Complete *---";
 
-    <div class="container">
-        <h1>📖 单词学习助手</h1>
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                words = e.target.result.split('\n').map(w => w.trim()).filter(w => w);
+                currentIndex = parseInt(localStorage.getItem('wordIndex')) || 0;
+                if (currentIndex >= words.length) currentIndex = 0;
+                showWord();
+                updateProgress();
+            };
+            reader.readAsText(file);
+        });
 
-        <div class="controls">
-            <label>学习顺序：</label>
-            <select id="orderSelect" onchange="changeOrder()">
-                <option value="normal">正序</option>
-                <option value="reverse">逆序</option>
-                <option value="random">随机</option>
-            </select>
-        </div>
+        function showWord() {
+            if (words.length === 0) return;
+            document.getElementById('word').innerText = words[currentIndex];
+            document.getElementById('knowBtn').disabled = false;
+            document.getElementById('dontKnowBtn').disabled = false;
+            updateProgress();
+        }
 
-        <button onclick="reloadWords()">🔄 重新加载单词</button>
+        function updateProgress() {
+            if (words.length === 0) return;
+            if (words[0] === completionMessage) {
+                document.getElementById('progressBar').style.width = '100%';
+                return;
+            }
+            let progress = (currentIndex / words.length) * 100;
+            document.getElementById('progressBar').style.width = progress + '%';
+        }
 
-        <div id="word-box" style="display: none;">
-            <div id="word-list"></div>
-            <button id="next-btn" onclick="nextWord()" style="display: none;">➡ 下一个单词</button>
-        </div>
-    </div>
+        document.getElementById('knowBtn').addEventListener('click', function() {
+            currentIndex++;
+            if (currentIndex >= words.length) {
+                currentIndex = 0;
+                words = [completionMessage]
+            }
+            localStorage.setItem('wordIndex', currentIndex);
+            showWord();
+        });
 
-    <script src="script.js"></script>
+        document.getElementById('dontKnowBtn').addEventListener('click', function() {
+            const searchQuery = encodeURIComponent(words[currentIndex] + ' meaning');
+            window.open('https://www.google.com/search?q=' + searchQuery, '_blank');
+        });
+
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            localStorage.removeItem('wordIndex');
+            currentIndex = 0;
+            showWord();
+        });
+
+        document.getElementById('wordListBtn').addEventListener('click', function() {
+            if (words.length === 0) {
+                alert('请先加载单词文件');
+                return;
+            }
+            let wordListWindow = window.open('', '单词列表', 'width=400,height=600');
+            wordListWindow.document.write('<html><head><title>单词列表</title></head><body><h2>单词列表</h2><ul>');
+            words.forEach(word => {
+                wordListWindow.document.write('<li>' + word + '</li>');
+            });
+            wordListWindow.document.write('</ul></body></html>');
+            wordListWindow.document.close();
+        });
+        // 监听键盘事件
+        document.addEventListener('keydown', function(event) {
+            // 检查按下的键
+            if (event.key === 'j') {
+                // 模拟按钮点击
+                document.getElementById('knowBtn').click();
+            }
+            if (event.key === 'f') {
+                // 模拟按钮点击
+                document.getElementById('dontKnowBtn').click();
+            }
+        });
+    </script>
 </body>
 </html>
