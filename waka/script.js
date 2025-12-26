@@ -319,270 +319,352 @@ const orangePoems = [
     {"first_half": "おほけなく　うきよのたみに　おほふかな", "second_half": "わがたつそまに　すみぞめのそで", "color": "o", "index": 19},
     {"first_half": "かぜそよぐ　ならのをがはの　ゆふぐれは", "second_half": "みそぎぞなつの　しるしなりける", "color": "o", "index": 20}
 ];
+/**
+ * 1. 数据准备与初始化
+ */
 
+/**
+ * 建立假名 -> 索引 的快速查找 Map
+ * 因为 hyakuninIsshu 和 hyakuninIsshuKanji 的顺序完全一致
+ */
+const kanaToIndexMap = new Map();
+hyakuninIsshu.forEach((poem, idx) => {
+    // 将假名去除空格作为 Key，存入它在数组中的索引
+    const key = (poem.first_half + poem.second_half).replace(/[\s　]/g, "");
+    kanaToIndexMap.set(key, idx);
+});
+
+// 合并五组数据并标准化 index
 const colorCombined = [...redPoems, ...yellowPoems, ...greenPoems, ...bluePoems, ...orangePoems];
+const mainData = colorCombined.map((poem, idx) => ({
+    ...poem,
+    index: poem.index || (idx + 1)
+}));
 
-hyakuninIsshu.forEach(poemObj => {
-  const match = colorCombined.find(item => item.first_half === poemObj.first_half);
-  if (match) {
-    poemObj.color = match.color;
-    poemObj.index = match.index;
-  }
-});
+// 五色对应的日语组名映射
+const colorNamesJP = {
+    'red': '赤グループ',
+    'blue': '青グループ',
+    'yellow': '黄グループ',
+    'green': '緑グループ',
+    'orange': '橙グループ'
+};
 
-// 获取要插入诗歌的容器
-const poemListContainer = document.querySelector('.poem-list');
-
-// 计算決まり字
+// 计算决まり字算法 (全局唯一性计算)
 function calculateKimariji(poems) {
-  const kimarijiMap = new Map();
-
-  poems.forEach(poem => {
-    let uniquePrefixFirstHalf = "";
-    let uniquePrefixSecondHalf = "";
-
-    // 计算上半句的決まり字
-    for (let i = 0; i < poem.first_half.length; i++) {
-      uniquePrefixFirstHalf += poem.first_half[i];
-      const isUniqueFirstHalf = poems.every(p => p === poem || !p.first_half.startsWith(uniquePrefixFirstHalf));
-      if (isUniqueFirstHalf) {
-        kimarijiMap.set(poem.first_half, { kimarijiFirstHalf: uniquePrefixFirstHalf });
-        break;
-      }
-    }
-
-    // 计算下半句的決まり字
-    for (let i = 0; i < poem.second_half.length; i++) {
-      uniquePrefixSecondHalf += poem.second_half[i];
-      const isUniqueSecondHalf = poems.every(p => p === poem || !p.second_half.startsWith(uniquePrefixSecondHalf));
-      if (isUniqueSecondHalf) {
-        kimarijiMap.set(poem.first_half, { 
-          ...kimarijiMap.get(poem.first_half), 
-          kimarijiSecondHalf: uniquePrefixSecondHalf 
-        });
-        break;
-      }
-    }
-  });
-
-  return kimarijiMap;
-}
-
-// 高亮決まり字的函数
-function highlightKimariji(text, kimariji, additionalClass = '') {
-  if (!kimariji) return text;
-
-  let matchCount = 0;
-  const regex = new RegExp(`(${kimariji})`, 'g');
-
-  return text.replace(regex, (match) => {
-    matchCount++;
-    if (matchCount === 1) {
-      // 为高亮的決まり字添加点击事件和额外的class
-      return `<span class="kimariji-highlight ${additionalClass}" data-kimariji="${match}">${match}</span>`;
-    }
-    return match;
-  });
-}
-
-
-// 监听点击事件
-document.addEventListener('click', (event) => {
-  const kimarijiElement = event.target;
-
-  // 检查点击的元素是否是一个高亮的決まり字
-  if (kimarijiElement.classList.contains('kimariji-highlight')) {
-    const clickedKimariji = kimarijiElement.dataset.kimariji;
-
-    // 检测是左侧（left）还是右侧（right），并传递给 findSimilarPoems
-    const isTopHalf = kimarijiElement.classList.contains('left'); // true: 是左侧, false: 是右侧
-
-    // 查找所有含有相同決まり字的诗句，并传递布尔值
-    const similarPoems = findSimilarPoems(clickedKimariji, isTopHalf);
-
-    // 显示弹窗并加载诗句
-    showKimarijiPopup(similarPoems, isTopHalf);
-  }
-});
-
-
-// 查找包含相同決まり字的诗句，排除自己
-function findSimilarPoems(kimariji, isTopHalf) {
-  const kimarijiWithoutLastChar = kimariji.slice(0, -1);
-
-  return hyakuninIsshu.filter(poem => {
-    // 先检查是否是当前诗句，排除自己
-    const poemKimariji = isTopHalf ? kimarijiMap.get(poem.first_half)?.kimarijiFirstHalf : kimarijiMap.get(poem.first_half)?.kimarijiSecondHalf;
-    return kimarijiWithoutLastChar && poemKimariji !== kimariji && poemKimariji?.slice(0, -1).includes(kimarijiWithoutLastChar);
-  });
-}
-
-// 显示弹窗并加载诗句
-function showKimarijiPopup(poems, isTopHalf) {
-  const popup = document.getElementById('kimarijiPopup');
-  const poemsList = document.getElementById('kimarijiPoemsList');
-  
-  // 清空当前的诗句列表
-  poemsList.innerHTML = '';
-
-  // 如果没有诗句，则显示提示信息
-  if (poems.length === 0) {
-    const noPoemsMessage = document.createElement('div');
-    noPoemsMessage.classList.add('no-poems-message');
-    noPoemsMessage.textContent = '類似の決まり字を含む詩句は見つかりませんでした。'; // 这里可以根据需要修改提示文本
-    poemsList.appendChild(noPoemsMessage);
-  } else {
-    // 渲染诗句
+    const map = new Map();
     poems.forEach(poem => {
-      const poemItem = document.createElement('div');
-      poemItem.classList.add('poem-item', `color-${poem.color}`);
-
-      // 左侧区域：颜色 + 索引
-      const poemMeta = document.createElement('div');
-      poemMeta.classList.add('poem-meta');
-      poemMeta.textContent = poem.index;
-
-      // 右侧区域：诗句内容
-      const poemContent = document.createElement('div');
-      poemContent.classList.add('poem-content');
-
-      const topLine = document.createElement('div');
-      topLine.classList.add('half-line', 'left');
-      topLine.innerHTML = isTopHalf 
-          ? highlightKimariji(poem.first_half, kimarijiMap.get(poem.first_half)?.kimarijiFirstHalf) 
-          : poem.first_half;
-
-      const bottomLine = document.createElement('div');
-      bottomLine.classList.add('half-line', 'right');
-      bottomLine.innerHTML = !isTopHalf 
-          ? highlightKimariji(poem.second_half, kimarijiMap.get(poem.first_half)?.kimarijiSecondHalf)
-          : poem.second_half;
-
-      poemContent.appendChild(topLine);
-      poemContent.appendChild(bottomLine);
-
-      poemItem.appendChild(poemMeta); // 左侧索引与颜色
-      poemItem.appendChild(poemContent); // 右侧诗句内容
-
-      poemsList.appendChild(poemItem);
+        let uniquePrefixFirst = "";
+        let uniquePrefixSecond = "";
+        // 上句决定字
+        for (let i = 1; i <= poem.first_half.length; i++) {
+            uniquePrefixFirst = poem.first_half.substring(0, i);
+            if (poems.every(p => p === poem || !p.first_half.startsWith(uniquePrefixFirst))) {
+                map.set(poem.first_half + poem.second_half, { kimarijiFirstHalf: uniquePrefixFirst });
+                break;
+            }
+        }
+        // 下句决定字
+        for (let i = 1; i <= poem.second_half.length; i++) {
+            uniquePrefixSecond = poem.second_half.substring(0, i);
+            if (poems.every(p => p === poem || !p.second_half.startsWith(uniquePrefixSecond))) {
+                const key = poem.first_half + poem.second_half;
+                const existing = map.get(key) || {};
+                map.set(key, { ...existing, kimarijiSecondHalf: uniquePrefixSecond });
+                break;
+            }
+        }
     });
-  }
-
-  // 显示弹窗
-  document.querySelector('.kimariji-popup').classList.add('show');
+    return map;
 }
 
+const kimarijiMap = calculateKimariji(mainData);
+const poemListContainer = document.querySelector('.poem-list');
+const sortSelect = document.getElementById('sortSelect');
+const searchInput = document.getElementById('searchInput');
+const searchCount = document.getElementById('searchCount');
 
-// 关闭弹窗
-document.querySelector('.kimariji-close').addEventListener('click', () => {
-  document.querySelector('.kimariji-popup').classList.remove('show');
-});
+/**
+ * 2. UI 生成与高亮
+ */
+function highlightKimariji(text, kimariji, additionalClass = '') {
+    if (!kimariji) return text;
+    const prefix = kimariji.slice(0, -1);
+    const lastChar = kimariji.slice(-1);
+    return text.replace(kimariji,
+        `<span class="kimariji-highlight ${additionalClass}" data-kimariji="${kimariji}">${prefix}<span class="last-char">${lastChar}</span></span>`
+    );
+}
 
-
-// 渲染诗句
-function renderPoems(poems, kimarijiMap) {
-  poemListContainer.innerHTML = ''; 
-  poems.forEach(poem => {
+function createPoemElement(poem, focusTopHalf, isSource = false) {
     const poemItem = document.createElement('div');
-    poemItem.classList.add('poem-item', `color-${poem.color}`);
+    const colorClass = poem.color || 'default';
+    poemItem.className = `poem-item color-${colorClass} ${isSource ? 'source-item' : ''}`;
 
-    // 左侧区域：颜色 + 索引
-    const poemMeta = document.createElement('div');
-    poemMeta.classList.add('poem-meta');
-    poemMeta.textContent = poem.index; // 显示索引数字
+    // 只有在主列表中才需要 ID 用于跳转定位
+    if (!isSource && focusTopHalf === null) {
+        poemItem.id = `poem-${poem.color}-${poem.index}`;
+    }
 
-    // 右侧区域：诗句内容
-    const poemContent = document.createElement('div');
-    poemContent.classList.add('poem-content');
+    poemItem.dataset.poemJson = JSON.stringify(poem);
+    const kData = kimarijiMap.get(poem.first_half + poem.second_half);
 
-    const topLine = document.createElement('div');
-    topLine.classList.add('half-line', 'left');
-    topLine.innerHTML = highlightKimariji(poem.first_half, kimarijiMap.get(poem.first_half)?.kimarijiFirstHalf, "left");
-
-    const bottomLine = document.createElement('div');
-    bottomLine.classList.add('half-line', 'right');
-    bottomLine.innerHTML = highlightKimariji(poem.second_half, kimarijiMap.get(poem.first_half)?.kimarijiSecondHalf, "right");
-
-    poemContent.appendChild(topLine);
-    poemContent.appendChild(bottomLine);
-
-    // 整合元素
-    poemItem.appendChild(poemMeta); // 左侧索引与颜色
-    poemItem.appendChild(poemContent); // 右侧诗句内容
-
-    poemListContainer.appendChild(poemItem);
-  });
+    poemItem.innerHTML = `
+        <div class="poem-meta" style="cursor: pointer;">${poem.index}</div>
+        <div class="poem-content">
+            <div class="half-line left ${focusTopHalf === true ? 'focus-half' : ''}">
+                ${highlightKimariji(poem.first_half, kData?.kimarijiFirstHalf, "left")}
+            </div>
+            <div class="half-line right ${focusTopHalf === false ? 'focus-half' : ''}">
+                ${highlightKimariji(poem.second_half, kData?.kimarijiSecondHalf, "right")}
+            </div>
+        </div>
+    `;
+    return poemItem;
 }
 
-// 默认显示按默认顺序排列的诗句
-let currentPoems = colorCombined;
+/**
+ * 3. 渲染、排序与搜索
+ */
+function renderPoems(poems) {
+    if (!poemListContainer) return;
+    poemListContainer.innerHTML = '';
+    poems.forEach(p => poemListContainer.appendChild(createPoemElement(p, null)));
+}
 
-// 调用计算決まり字的函数
-const kimarijiMap = calculateKimariji([...hyakuninIsshu]);
+function getSortedPoems(sortType) {
+    const poems = [...mainData];
+    switch (sortType) {
+        case 'fiveColors': return mainData;
+        case 'kanaFirst': return poems.sort((a, b) => a.first_half.localeCompare(b.first_half, 'ja'));
+        case 'kanaSecond': return poems.sort((a, b) => a.second_half.localeCompare(b.second_half, 'ja'));
+        case 'default': return poems.sort((a, b) => a.index - b.index);
+        case 'kimarijiFirst': return sortByKimariji(poems, 'first');
+        case 'kimarijiSecond': return sortByKimariji(poems, 'second');
+        default: return poems;
+    }
+}
 
-// 初次渲染诗句
-renderPoems(currentPoems, kimarijiMap);
+function sortByKimariji(poems, half) {
+    return poems.sort((a, b) => {
+        const kA = kimarijiMap.get(a.first_half + a.second_half);
+        const kB = kimarijiMap.get(b.first_half + b.second_half);
+        const lenA = (half === 'first' ? kA?.kimarijiFirstHalf : kA?.kimarijiSecondHalf)?.length || 99;
+        const lenB = (half === 'first' ? kB?.kimarijiFirstHalf : kB?.kimarijiSecondHalf)?.length || 99;
+        if (lenA !== lenB) return lenA - lenB;
+        return (half === 'first' ? a.first_half : a.second_half).localeCompare((half === 'first' ? b.first_half : b.second_half), 'ja');
+    });
+}
 
-// 监听排序选择变化
-document.getElementById('sortSelect').addEventListener('change', (event) => {
-  const sortType = event.target.value;
-  currentPoems = getSortedPoems(sortType, [...hyakuninIsshu], kimarijiMap);
-  renderPoems(currentPoems, kimarijiMap);
+function executeSearch(term) {
+    const results = [];
+    mainData.forEach(poem => {
+        const kData = kimarijiMap.get(poem.first_half + poem.second_half);
+        let score = 0;
+        if (kData?.kimarijiFirstHalf?.startsWith(term) || kData?.kimarijiSecondHalf?.startsWith(term)) score = 100;
+        else if (poem.first_half.startsWith(term) || poem.second_half.startsWith(term)) score = 50;
+        else if (poem.first_half.includes(term) || poem.second_half.includes(term) || String(poem.index) === term) score = 10;
+        if (score > 0) results.push({ ...poem, searchScore: score });
+    });
+    results.sort((a, b) => b.searchScore - a.searchScore);
+    renderSearchFiltered(results);
+    searchCount.textContent = `${results.length} 首が一致`;
+}
+
+function renderSearchFiltered(poems) {
+    if (!poemListContainer) return;
+    poemListContainer.innerHTML = '';
+    poems.forEach(p => poemListContainer.appendChild(createPoemElement(p, null)));
+}
+
+/**
+ * 4. 弹窗显示逻辑 (汉字卡片 & 相似词)
+ */
+
+// 显示汉字卡片
+function showKanjiCardPopup(poem) {
+    const popup = document.getElementById('kimarijiPopup');
+    const kanjiContainer = document.getElementById('kanjiCardContent');
+    const similarContainer = document.getElementById('similarListContent');
+
+    // A. 查找汉字数据
+    const currentKey = (poem.first_half + poem.second_half).replace(/[\s　]/g, "");
+    const standardIdx = kanaToIndexMap.get(currentKey);
+    let kanjiData = { first_half: '---', second_half: '---' };
+
+    if (standardIdx !== undefined && typeof hyakuninIsshuKanji !== 'undefined') {
+        kanjiData = hyakuninIsshuKanji[standardIdx];
+    }
+
+    // B. 获取决定字高亮数据 (复用你已有的 kimarijiMap)
+    const kData = kimarijiMap.get(poem.first_half + poem.second_half);
+    const groupName = colorNamesJP[poem.color] || '';
+
+    // C. 切换容器
+    kanjiContainer.style.display = 'block';
+    similarContainer.style.display = 'none';
+
+    // D. 渲染界面 (假名在上，汉字在下，界面全日语)
+    kanjiContainer.innerHTML = `
+        <div class="kanji-display-card">
+            <div class="kanji-card-header">
+                <span class="group-badge color-${poem.color}">${groupName}</span>
+            </div>
+            <div class="kanji-card-body">
+                <div class="kanji-row">
+                    <span class="part-label">【上の句】</span>
+                    <p class="kana-text">${highlightKimariji(poem.first_half, kData?.kimarijiFirstHalf, "left")}</p>
+                    <h2 class="kanji-text">${kanjiData.first_half}</h2>
+                </div>
+                
+                <div class="kanji-divider-line"></div>
+                
+                <div class="kanji-row">
+                    <span class="part-label">【下の句】</span>
+                    <p class="kana-text">${highlightKimariji(poem.second_half, kData?.kimarijiSecondHalf, "right")}</p>
+                    <h2 class="kanji-text">${kanjiData.second_half}</h2>
+                </div>
+            </div>
+            <div class="kanji-card-footer">画面をタップして閉じる</div>
+        </div>
+    `;
+
+    popup.classList.add('show');
+    popup.style.display = 'flex';
+    document.body.classList.add('modal-open');
+}
+
+// 显示相似列表
+function showKimarijiPopup(similarPoems, isTopHalf, sourcePoem) {
+    const popup = document.getElementById('kimarijiPopup');
+    const kanjiContainer = document.getElementById('kanjiCardContent');
+    const similarContainer = document.getElementById('similarListContent');
+    const list = document.getElementById('kimarijiPoemsList');
+
+    kanjiContainer.style.display = 'none';
+    similarContainer.style.display = 'block';
+
+    list.innerHTML = '<h3>検索の起点:</h3>';
+    list.appendChild(createPoemElement(sourcePoem, isTopHalf, true));
+    list.innerHTML += '<hr><h3>類似の歌:</h3>';
+
+    if (similarPoems.length === 0) {
+        list.innerHTML += `<div class="no-poems-message">類似の歌は見つかりませんでした。</div>`;
+    } else {
+        similarPoems.forEach(p => list.appendChild(createPoemElement(p, isTopHalf, false)));
+    }
+
+    popup.classList.add('show');
+    popup.style.display = 'flex';
+    document.body.classList.add('modal-open');
+}
+
+function closePopup() {
+    const popup = document.getElementById('kimarijiPopup');
+    if (popup) {
+        popup.classList.remove('show');
+        setTimeout(() => { popup.style.display = 'none'; }, 300);
+        document.body.classList.remove('modal-open');
+    }
+}
+
+/**
+ * 5. 全局事件监听
+ */
+document.addEventListener('click', (event) => {
+    // 逻辑 A: 点击决定字高亮 (查相似)
+    const highlightSpan = event.target.closest('.kimariji-highlight');
+    if (highlightSpan) {
+        const clickedKimariji = highlightSpan.dataset.kimariji;
+        const isTopHalf = highlightSpan.classList.contains('left');
+        const parent = highlightSpan.closest('.poem-item');
+        const source = JSON.parse(parent.dataset.poemJson);
+        const prefix = clickedKimariji.slice(0, -1);
+        const similar = mainData.filter(p => {
+            if (p.first_half === source.first_half && p.second_half === source.second_half) return false;
+            const pData = kimarijiMap.get(p.first_half + p.second_half);
+            const target = isTopHalf ? pData?.kimarijiFirstHalf : pData?.kimarijiSecondHalf;
+            return target && prefix !== "" && target.startsWith(prefix);
+        });
+        showKimarijiPopup(similar, isTopHalf, source);
+        return;
+    }
+
+    // 逻辑 B: 点击编号 (区分位置)
+    const metaElement = event.target.closest('.poem-meta');
+    if (metaElement) {
+        const parentItem = metaElement.closest('.poem-item');
+        const poemData = JSON.parse(parentItem.dataset.poemJson);
+        const isInPopup = metaElement.closest('#kimarijiPopup');
+
+        if (isInPopup) {
+            handleJumpToMain(poemData); // 弹窗内点数字：回主页
+        } else {
+            showKanjiCardPopup(poemData); // 主页点数字：看汉字
+        }
+    }
+
+    // 逻辑 C: 点击遮罩层关闭
+    if (event.target.id === 'kimarijiPopup') closePopup();
 });
 
-// 根据排序类型获取排序后的诗句
-function getSortedPoems(sortType, poems, kimarijiMap) {
-  switch (sortType) {
-    case 'fiveColors':
-      return colorCombined;
-
-    case 'kanaFirst':
-      return poems.sort((a, b) => (a.first_half + a.second_half).localeCompare(b.first_half + b.second_half, 'ja'));
-      
-    case 'kimarijiFirstKana':
-      return sortByKimarijiAndKana(poems, kimarijiMap, 'firstHalf');
-      
-    case 'kanaSecond':
-      return poems.sort((a, b) => (a.second_half + a.first_half).localeCompare(b.second_half + b.first_half, 'ja'));
-      
-    case 'kimarijiSecondKana':
-      return sortByKimarijiAndKana(poems, kimarijiMap, 'secondHalf');
-      
-    case 'default':
-      return hyakuninIsshu;  // 默认顺序
-  }
+// 跳转与动画逻辑
+function handleJumpToMain(poemData) {
+    if (searchInput.value !== "") {
+        searchInput.value = "";
+        searchCount.textContent = "";
+        renderPoems(getSortedPoems(sortSelect.value));
+    }
+    const targetId = `poem-${poemData.color}-${poemData.index}`;
+    const targetElement = document.getElementById(targetId);
+    if (targetElement) {
+        closePopup();
+        targetElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        playRefinedAnimation(targetElement);
+    }
 }
 
-// 根据決まり字长度和假名排序诗句
-function sortByKimarijiAndKana(poems, kimarijiMap, half) {
-  return poems.sort((a, b) => {
-    const kimarijiA = kimarijiMap.get(a.first_half);
-    const kimarijiB = kimarijiMap.get(b.first_half);
-
-    // 如果是上句
-    if (half === 'firstHalf') {
-      const kimarijiLengthA = kimarijiA.kimarijiFirstHalf.length;
-      const kimarijiLengthB = kimarijiB.kimarijiFirstHalf.length;
-
-      if (kimarijiLengthA !== kimarijiLengthB) {
-        return kimarijiLengthA - kimarijiLengthB;  // 长度从短到长
-      }
-
-      const kanaA = a.first_half + a.second_half;
-      const kanaB = b.first_half + b.second_half;
-      return kanaA.localeCompare(kanaB, 'ja');
-    }
-
-    // 如果是下句
-    const kimarijiLengthA = kimarijiA.kimarijiSecondHalf.length;
-    const kimarijiLengthB = kimarijiB.kimarijiSecondHalf.length;
-
-    if (kimarijiLengthA !== kimarijiLengthB) {
-      return kimarijiLengthA - kimarijiLengthB;  // 长度从短到长
-    }
-
-    const kanaA = a.second_half + a.first_half;
-    const kanaB = b.second_half + b.first_half;
-    return kanaA.localeCompare(kanaB, 'ja');
-  });
+function playRefinedAnimation(el) {
+    el.style.transition = "none";
+    el.style.zIndex = "9999";
+    void el.offsetWidth;
+    el.style.transition = "all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+    el.style.outline = "6px solid #f1c40f";
+    el.style.outlineOffset = "12px";
+    el.style.boxShadow = "0 0 40px rgba(241, 196, 15, 0.8)";
+    el.style.transform = "scale(1.03)";
+    setTimeout(() => {
+        el.style.transition = "all 0.8s ease-out";
+        el.style.outline = "0px solid transparent";
+        el.style.boxShadow = "none";
+        el.style.transform = "scale(1)";
+        setTimeout(() => { el.style.zIndex = ""; }, 800);
+    }, 700);
 }
+
+/**
+ * 6. 初始绑定
+ */
+if (sortSelect) {
+    sortSelect.addEventListener('change', (e) => renderPoems(getSortedPoems(e.target.value)));
+}
+if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.trim().toLowerCase();
+        if (term === "") {
+            renderPoems(getSortedPoems(sortSelect.value));
+            searchCount.textContent = "";
+        } else {
+            executeSearch(term);
+        }
+    });
+}
+const popupClose = document.getElementById('kimarijiClose');
+if (popupClose) popupClose.onclick = closePopup;
+
+const closeGuideBtn = document.getElementById('closeGuide');
+if (closeGuideBtn) {
+    closeGuideBtn.onclick = () => { document.getElementById('guidePanel').style.display = 'none'; };
+}
+
+renderPoems(mainData);

@@ -8,32 +8,66 @@
 </head>
 <body>
 
-  <div class="container">
-    <h1>百人一首</h1>
-    
-    <!-- ソート選択肢 -->
-    <label for="sortSelect">並べ替え方法:</label>
-    <select id="sortSelect">
-      <option value="fiveColors">五色</option>
-      <option value="default">デフォルト</option>
-      <option value="kanaFirst">上句の仮名</option>
-      <option value="kimarijiFirstKana">上句の決まり字 + 仮名</option>
-      <option value="kanaSecond">下句の仮名</option>
-      <option value="kimarijiSecondKana">下句の決まり字 + 仮名</option>
-    </select>
+    <div class="container">
+        <h1>百人一首</h1>
 
-    <!-- 詩のリスト -->
-    <div class="poem-list"></div>
-  </div>
+        <div class="guide-panel" id="guidePanel">
+            <div class="guide-header">
+                <span>📖 クイックガイド (初心者の方へ)</span>
+                <button id="closeGuide">了解！</button>
+            </div>
+            <div class="guide-steps">
+                <div class="step">
+                    <span class="step-icon">🔍</span>
+                    <p><strong>高速検索</strong>：検索ボックスに「あ」など入力。<strong>決まり字</strong>が優先的に表示されます。</p>
+                </div>
+                <div class="step">
+                    <span class="step-icon">🎯</span>
+                    <p><strong>決まり字確認</strong>：赤や青の<strong>ハイライト</strong>をタップすると、似た決まり字の札を一覧表示します。</p>
+                </div>
+                <div class="step">
+                    <span class="step-icon">📜</span>
+                    <p><strong>漢字表示</strong>：左の<strong>番号</strong>をタップすると、漢字と意味を確認できます。</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls-toolbar">
+            <div class="control-group">
+                <label for="sortSelect">並び替え:</label>
+                <select id="sortSelect">
+                    <option value="fiveColors">五色順</option>
+                    <option value="default">番号順</option>
+                    <option value="kanaFirst">上句(あいうえお)</option>
+                    <option value="kimarijiFirst">上句(決まり字順)</option>
+                    <option value="kanaSecond">下句(あいうえお)</option>
+                    <option value="kimarijiSecond">下句(決まり字順)</option>
+                </select>
+            </div>
+
+            <div class="control-group search-group">
+                <input type="text" id="searchInput" placeholder="仮名・番号で検索 (例: あ / 15)..." autocomplete="off">
+                <span id="searchCount" class="search-count"></span>
+            </div>
+        </div>
+
+        <!-- 詩のリスト -->
+        <div class="poem-list"></div>
+    </div>
 
   <!-- 弹窗容器 -->
-  <div id="kimarijiPopup" class="kimariji-popup">
-    <div class="kimariji-popup-content">
-      <span id="kimarijiClose" class="kimariji-close">&times;</span>
-      <h2>類似の決まり字を含む歌</h2>
-      <div id="kimarijiPoemsList" class="kimariji-poem-list"></div> <!-- 使用 kimariji-poem-list -->
+    <div id="kimarijiPopup" class="kimariji-popup">
+        <div class="kimariji-popup-content">
+            <span id="kimarijiClose" class="kimariji-close">&times;</span>
+
+            <div id="kanjiCardContent" style="display: none;"></div>
+
+            <div id="similarListContent" style="display: none;">
+                <h2 id="popupTitle">類似の決まり字を含む歌</h2>
+                <div id="kimarijiPoemsList" class="kimariji-poem-list"></div>
+            </div>
+        </div>
     </div>
-  </div>
 
   <script src="script.js"></script>
 </body>
