@@ -336,8 +336,16 @@ hyakuninIsshu.forEach((poem, idx) => {
 
 // 合并五组数据并标准化 index
 const colorCombined = [...redPoems, ...yellowPoems, ...greenPoems, ...bluePoems, ...orangePoems];
-const mainData = colorCombined.map((poem, idx) => ({
+// 修改合并逻辑：确保 color 属性被正确继承
+const mainData = [
+    ...redPoems.map(p => ({...p, color: 'red'})),
+    ...yellowPoems.map(p => ({...p, color: 'yellow'})),
+    ...greenPoems.map(p => ({...p, color: 'green'})),
+    ...bluePoems.map(p => ({...p, color: 'blue'})),
+    ...orangePoems.map(p => ({...p, color: 'orange'}))
+].map((poem, idx) => ({
     ...poem,
+    // 如果原始数据没有 index，则使用 1-100 的全局序号
     index: poem.index || (idx + 1)
 }));
 
@@ -435,10 +443,16 @@ function renderPoems(poems) {
 function getSortedPoems(sortType) {
     const poems = [...mainData];
     switch (sortType) {
-        case 'fiveColors': return mainData;
+        case 'fiveColors': return mainData; // 保持合并时的五色顺序
         case 'kanaFirst': return poems.sort((a, b) => a.first_half.localeCompare(b.first_half, 'ja'));
         case 'kanaSecond': return poems.sort((a, b) => a.second_half.localeCompare(b.second_half, 'ja'));
-        case 'default': return poems.sort((a, b) => a.index - b.index);
+        case 'default': 
+            // 标准排序：利用我们建立的 kanaToIndexMap 找到它在 100 首里的原始索引
+            return poems.sort((a, b) => {
+                const idxA = kanaToIndexMap.get((a.first_half + a.second_half).replace(/[\s　]/g, ""));
+                const idxB = kanaToIndexMap.get((b.first_half + b.second_half).replace(/[\s　]/g, ""));
+                return idxA - idxB;
+            });
         case 'kimarijiFirst': return sortByKimariji(poems, 'first');
         case 'kimarijiSecond': return sortByKimariji(poems, 'second');
         default: return poems;
@@ -458,15 +472,54 @@ function sortByKimariji(poems, half) {
 
 function executeSearch(term) {
     const results = [];
+    const lowerTerm = term.toLowerCase();
+
     mainData.forEach(poem => {
         const kData = kimarijiMap.get(poem.first_half + poem.second_half);
         let score = 0;
-        if (kData?.kimarijiFirstHalf?.startsWith(term) || kData?.kimarijiSecondHalf?.startsWith(term)) score = 100;
-        else if (poem.first_half.startsWith(term) || poem.second_half.startsWith(term)) score = 50;
-        else if (poem.first_half.includes(term) || poem.second_half.includes(term) || String(poem.index) === term) score = 10;
-        if (score > 0) results.push({ ...poem, searchScore: score });
+        let matchPart = null; // 用于记录匹配位置，增强 UI 反馈
+
+        // 1. 优先级最高：上半句决定字匹配 (Score: 1000)
+        if (kData?.kimarijiFirstHalf?.startsWith(lowerTerm)) {
+            score = 1000;
+            matchPart = 'top';
+        } 
+        // 2. 优先级第二：下半句决定字匹配 (Score: 500)
+        else if (kData?.kimarijiSecondHalf?.startsWith(lowerTerm)) {
+            score = 500;
+            matchPart = 'bottom';
+        }
+        // 3. 优先级第三：普通开头匹配 (Score: 100)
+        else if (poem.first_half.startsWith(lowerTerm)) {
+            score = 100;
+            matchPart = 'top';
+        }
+        else if (poem.second_half.startsWith(lowerTerm)) {
+            score = 100;
+            matchPart = 'bottom';
+        }
+        // 4. 优先级最低：包含匹配或编号匹配 (Score: 10)
+        else if (poem.first_half.includes(lowerTerm) || 
+                 poem.second_half.includes(lowerTerm) || 
+                 String(poem.index) === lowerTerm) {
+            score = 10;
+        }
+
+        if (score > 0) {
+            results.push({ 
+                ...poem, 
+                searchScore: score, 
+                suggestedFocus: matchPart 
+            });
+        }
     });
-    results.sort((a, b) => b.searchScore - a.searchScore);
+
+    // 排序：分数高的在前；分数相同时按编号排
+    results.sort((a, b) => {
+        if (b.searchScore !== a.searchScore) return b.searchScore - a.searchScore;
+        return a.index - b.index;
+    });
+
     renderSearchFiltered(results);
     searchCount.textContent = `${results.length} 首が一致`;
 }
@@ -474,7 +527,13 @@ function executeSearch(term) {
 function renderSearchFiltered(poems) {
     if (!poemListContainer) return;
     poemListContainer.innerHTML = '';
-    poems.forEach(p => poemListContainer.appendChild(createPoemElement(p, null)));
+    
+    poems.forEach(p => {
+        // 根据匹配位置动态设置 focusTopHalf
+        // 如果是 top 匹配，传入 true；bottom 匹配，传入 false；否则 null
+        const focus = p.suggestedFocus === 'top' ? true : (p.suggestedFocus === 'bottom' ? false : null);
+        poemListContainer.appendChild(createPoemElement(p, focus));
+    });
 }
 
 /**
@@ -487,28 +546,32 @@ function showKanjiCardPopup(poem) {
     const kanjiContainer = document.getElementById('kanjiCardContent');
     const similarContainer = document.getElementById('similarListContent');
 
-    // A. 查找汉字数据
+    // A. 查找汉字数据及标准番号
     const currentKey = (poem.first_half + poem.second_half).replace(/[\s　]/g, "");
     const standardIdx = kanaToIndexMap.get(currentKey);
-    let kanjiData = { first_half: '---', second_half: '---' };
+    
+    // 标准番号是 1-100，所以索引要 +1
+    const standardNumber = standardIdx !== undefined ? standardIdx + 1 : '??';
 
+    let kanjiData = { first_half: '---', second_half: '---' };
     if (standardIdx !== undefined && typeof hyakuninIsshuKanji !== 'undefined') {
         kanjiData = hyakuninIsshuKanji[standardIdx];
     }
 
-    // B. 获取决定字高亮数据 (复用你已有的 kimarijiMap)
     const kData = kimarijiMap.get(poem.first_half + poem.second_half);
     const groupName = colorNamesJP[poem.color] || '';
 
-    // C. 切换容器
     kanjiContainer.style.display = 'block';
     similarContainer.style.display = 'none';
 
-    // D. 渲染界面 (假名在上，汉字在下，界面全日语)
+    // D. 渲染界面：显示双番号
     kanjiContainer.innerHTML = `
         <div class="kanji-display-card">
             <div class="kanji-card-header">
-                <span class="group-badge color-${poem.color}">${groupName}</span>
+                <div class="badge-row">
+                    <span class="group-badge color-${poem.color}">${groupName} No.${poem.index}</span>
+                    <span class="standard-badge">歌番号 ${standardNumber}</span>
+                </div>
             </div>
             <div class="kanji-card-body">
                 <div class="kanji-row">
@@ -525,7 +588,6 @@ function showKanjiCardPopup(poem) {
                     <h2 class="kanji-text">${kanjiData.second_half}</h2>
                 </div>
             </div>
-            <div class="kanji-card-footer">画面をタップして閉じる</div>
         </div>
     `;
 

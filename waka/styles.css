@@ -1,5 +1,5 @@
 /* ============================================================
-   1. »ù´¡È«¾ÖÑùÊ½ (±£ÁôÔ­ÓĞÉè¼Æ)
+   1. ï¿½ï¿½ï¿½ï¿½È«ï¿½ï¿½ï¿½ï¿½Ê½ (ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½ï¿½ï¿½ï¿½)
    ============================================================ */
 body {
     font-family: 'Noto Sans', sans-serif;
@@ -32,7 +32,7 @@ h1 {
 }
 
 /* ============================================================
-   2. ¶¥²¿¹¤¾ßÀ¸ & ËÑË÷¿ò
+   2. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ & ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
    ============================================================ */
 .controls-toolbar {
     display: flex;
@@ -43,7 +43,7 @@ h1 {
     background: #f8f9fa;
     border-radius: 12px;
     margin-bottom: 20px;
-    /* Ä¬ÈÏ²»»»ĞĞ£¬±£³Ö²¢ÅÅ */
+    /* Ä¬ï¿½Ï²ï¿½ï¿½ï¿½ï¿½Ğ£ï¿½ï¿½ï¿½ï¿½Ö²ï¿½ï¿½ï¿½ */
 }
 
 .control-group {
@@ -74,7 +74,7 @@ h1 {
         border-color: #b0c4de;
     }
 
-/* ËÑË÷×é»ù´¡ÑùÊ½ */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ */
 .search-group {
     position: relative;
     flex-grow: 1;
@@ -86,7 +86,7 @@ h1 {
 #searchInput {
     width: 100%;
     padding: 8px 15px;
-    padding-right: 70px; /* Îª¼ÆÊıÁôÎ»ÖÃ */
+    padding-right: 70px; /* Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½ï¿½ */
     border-radius: 20px;
     border: 2px solid #eee;
     outline: none;
@@ -109,7 +109,7 @@ h1 {
 }
 
 /* ============================================================
-   3. Ê«¾äÁĞ±íÓë¿¨Æ¬ (±£ÁôÔ­ÓĞÉè¼Æ)
+   3. Ê«ï¿½ï¿½ï¿½Ğ±ï¿½ï¿½ë¿¨Æ¬ (ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½ï¿½ï¿½ï¿½)
    ============================================================ */
 .poem-list {
     list-style-type: none;
@@ -147,7 +147,7 @@ h1 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* ÑÕÉ«Çø¿é */
+/* ï¿½ï¿½É«ï¿½ï¿½ï¿½ï¿½ */
 .color-red .poem-meta, .color-r .poem-meta {
     background-color: #e57373;
 }
@@ -191,7 +191,7 @@ h1 {
     color: #8e44ad;
 }
 
-/* ¾ö¶¨×Ö¸ßÁÁÑùÊ½ */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ */
 .kimariji-highlight {
     color: #fff;
     font-weight: bold;
@@ -220,7 +220,7 @@ h1 {
 }
 
 /* ============================================================
-   4. µ¯´°ÑùÊ½ (±£ÁôÔ­ÓĞÂß¼­)
+   4. ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê½ (ï¿½ï¿½ï¿½ï¿½Ô­ï¿½ï¿½ï¿½ß¼ï¿½)
    ============================================================ */
 .kimariji-popup {
     display: none;
@@ -261,13 +261,13 @@ h1 {
 }
 
 /* ============================================================
-   5. ÏìÓ¦Ê½²¼¾Ö (ÕûÀíÓëºÏ²¢)
+   5. ï¿½ï¿½Ó¦Ê½ï¿½ï¿½ï¿½ï¿½ (ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï²ï¿½)
    ============================================================ */
 
-/* ÖĞµÈÆÁÄ»: Æ½°å²¼¾Ö */
+/* ï¿½Ğµï¿½ï¿½ï¿½Ä»: Æ½ï¿½å²¼ï¿½ï¿½ */
 @media (max-width: 768px) {
     .controls-toolbar {
-        flex-direction: column; /* ´¹Ö±ÅÅ²¼ */
+        flex-direction: column; /* ï¿½ï¿½Ö±ï¿½Å²ï¿½ */
         align-items: stretch;
         gap: 12px;
     }
@@ -287,7 +287,7 @@ h1 {
     }
 }
 
-/* Ğ¡ÆÁÄ»: ÊÖ»ú²¼¾Ö */
+/* Ğ¡ï¿½ï¿½Ä»: ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½ */
 @media (max-width: 480px) {
     .container {
         padding: 15px;
@@ -309,13 +309,13 @@ h1 {
         font-size: 0.8em;
     }
 
-    /* ËÑË÷¿òÔÚ¼«Ğ¡ÆÁÏÂÉÔÎ¢Ñ¹Ëõ×ÖÌå */
+    /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú¼ï¿½Ğ¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î¢Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
     #searchInput {
         font-size: 14px;
     }
 }
 
-/* µ¯´°×¨ÓÃ¶¯»­Óë½»»¥ */
+/* ï¿½ï¿½ï¿½ï¿½×¨ï¿½Ã¶ï¿½ï¿½ï¿½ï¿½ë½»ï¿½ï¿½ */
 @keyframes slideIn {
     0% {
         transform: translateY(-20px);
@@ -333,12 +333,12 @@ h1 {
 }
 
 
-/* µ±µ¯´°¼¤»îÊ±£¬³¹µ×ËøËÀ±³¾°¹ö¶¯ */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 body.modal-open, html.modal-open {
     overflow: hidden !important;
 }
 
-/* h×Ö±íÊ¾¤Î¥Õ¥©¥ó¥ÈÖ¸¶¨£¨Ã÷³¯Ìå¤¬¤ª¤¹¤¹¤á£© */
+/* ï¿½hï¿½Ö±ï¿½Ê¾ï¿½Î¥Õ¥ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½å¤¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½á£© */
 .main-kanji {
     font-family: "Sawarabi Mincho", "Hiragino Mincho ProN", "MS PMincho", serif;
     font-size: 1.8em;
@@ -347,9 +347,9 @@ body.modal-open, html.modal-open {
     line-height: 1.5;
 }
 
-/* ¥¬¥¤¥É¥Ñ¥Í¥ë¤Î¥¹¥¿¥¤¥ë */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½É¥Ñ¥Í¥ï¿½Î¥ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ */
 .guide-panel {
-    background: #fff9c4; /* Ã÷¤ë¤¤»ÆÉ« */
+    background: #fff9c4; /* ï¿½ï¿½ï¿½ë¤¤ï¿½ï¿½É« */
     border-left: 6px solid #fbc02d;
     padding: 15px 20px;
     margin-bottom: 20px;
@@ -363,7 +363,7 @@ body.modal-open, html.modal-open {
     margin-bottom: 10px;
 }
 
-/* h×Ö¥«©`¥É¤ÎÇøÇĞ¤ê¾€ */
+/* ï¿½hï¿½Ö¥ï¿½ï¿½`ï¿½É¤ï¿½ï¿½ï¿½ï¿½Ğ¤ê¾€ */
 .kanji-divider {
     height: 2px;
     background: radial-gradient(circle, #d4ac0d 0%, transparent 100%);
@@ -371,11 +371,11 @@ body.modal-open, html.modal-open {
 }
 
 html {
-    /* Ê¼ÖÕÎª¹ö¶¯ÌõÁô³öÎ»ÖÃ£¬·ÀÖ¹Ò³Ãæ¶¶¶¯ */
+    /* Ê¼ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î»ï¿½Ã£ï¿½ï¿½ï¿½Ö¹Ò³ï¿½æ¶¶ï¿½ï¿½ */
     scrollbar-gutter: stable;
 }
 
-/* ºº×Ö¿¨Æ¬×¨ÓÃÑùÊ½ */
+/* ï¿½ï¿½ï¿½Ö¿ï¿½Æ¬×¨ï¿½ï¿½ï¿½ï¿½Ê½ */
 .kanji-display-card {
     padding: 10px;
     text-align: center;
@@ -389,7 +389,7 @@ html {
 }
 
 .kanji-card-body {
-    background: #fffaf0; /* ·ÂÖ½É« */
+    background: #fffaf0; /* ï¿½ï¿½Ö½É« */
     padding: 30px 20px;
     border-radius: 15px;
     border: 1px solid #e0d5c0;
@@ -398,10 +398,10 @@ html {
 .kanji-text {
     font-size: 1.8em;
     margin: 10px 0;
-    font-family: serif; /* Ê¹ÓÃ³ÄÏßÌå¸üÓĞÖÊ¸Ğ */
+    font-family: serif; /* Ê¹ï¿½Ã³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¸ï¿½ */
 }
 
-/* ×éÃû±êÇ©ÑùÊ½ */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½Ê½ */
 .group-badge {
     padding: 4px 15px;
     border-radius: 20px;
@@ -411,14 +411,14 @@ html {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* ¸ù¾İÑÕÉ«·ÖÅä±³¾° */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ä±³ï¿½ï¿½ */
 .group-badge.color-red { background-color: #e74c3c; }
 .group-badge.color-blue { background-color: #3498db; }
-.group-badge.color-yellow { background-color: #f1c40f; color: #333; }
+.group-badge.color-yellow { background-color: #f1c40f; }
 .group-badge.color-green { background-color: #2ecc71; }
 .group-badge.color-orange { background-color: #e67e22; }
 
-/* ºº×Ö¿¨Æ¬µÄ×°ÊÎÏß */
+/* ï¿½ï¿½ï¿½Ö¿ï¿½Æ¬ï¿½ï¿½×°ï¿½ï¿½ï¿½ï¿½ */
 .kanji-divider-line {
     height: 1px;
     background: linear-gradient(to right, transparent, #ccc, transparent);
@@ -426,7 +426,7 @@ html {
     width: 80%;
 }
 
-/* ×éÃû±êÇ©ÑùÊ½ */
+/* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç©ï¿½ï¿½Ê½ */
 .group-badge {
     padding: 4px 15px;
     border-radius: 20px;
@@ -436,7 +436,7 @@ html {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-    /* ¸ù¾İÑÕÉ«·ÖÅä±³¾° */
+    /* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½É«ï¿½ï¿½ï¿½ä±³ï¿½ï¿½ */
     .group-badge.color-red {
         background-color: #e74c3c;
     }
@@ -447,7 +447,6 @@ html {
 
     .group-badge.color-yellow {
         background-color: #f1c40f;
-        color: #333;
     }
 
     .group-badge.color-green {
@@ -458,10 +457,35 @@ html {
         background-color: #e67e22;
     }
 
-/* ºº×Ö¿¨Æ¬µÄ×°ÊÎÏß */
+/* ï¿½ï¿½ï¿½Ö¿ï¿½Æ¬ï¿½ï¿½×°ï¿½ï¿½ï¿½ï¿½ */
 .kanji-divider-line {
     height: 1px;
     background: linear-gradient(to right, transparent, #ccc, transparent);
     margin: 25px auto;
     width: 80%;
+}
+
+.badge-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 15px;
+}
+
+.standard-badge {
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    color: #6c757d;
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: bold;
+}
+
+.group-badge {
+    padding: 2px 10px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: bold;
+    color: white;
 }
