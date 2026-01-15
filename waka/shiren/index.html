@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <title>閃光の試練 - 五色百人一首</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700&display=swap" rel="stylesheet">
+</head>
+<body class="setup-mode">
+
+    <div id="setup-screen" class="screen">
+        <div class="logo">閃光の試練</div>
+        <p class="subtitle">〜 音を聞き、誰よりも速く札を掴め 〜</p>
+        
+        <div class="deck-settings">
+            <p>修行する色を選択（複数可）：</p>
+            <div class="color-checkboxes">
+                <label class="btn-red"><input type="checkbox" name="color-pick" value="red" checked><span>赤</span></label>
+                <label class="btn-yellow"><input type="checkbox" name="color-pick" value="yellow" checked><span>黄</span></label>
+                <label class="btn-green"><input type="checkbox" name="color-pick" value="green" checked><span>緑</span></label>
+                <label class="btn-blue"><input type="checkbox" name="color-pick" value="blue" checked><span>青</span></label>
+                <label class="btn-orange"><input type="checkbox" name="color-pick" value="orange" checked><span>橙</span></label>
+            </div>
+        </div>
+
+        <div class="deck-info">
+            <span id="selected-count">100</span> 首の札がセットされました
+        </div>
+        <button id="start-btn">試練開始</button>
+    </div>
+
+    <div id="battle-screen" class="screen">
+        <div class="hud">
+            <div class="score-box">SCORE: <span id="score">0</span></div>
+            <div class="combo-box"><span id="combo">0</span> COMBO</div>
+        </div>
+
+        <div class="timer-wrapper">
+            <div id="timer-bar"></div>
+        </div>
+
+        <div class="question-container">
+            <div id="kami-no-ku" class="kami-text"></div>
+            <div id="status-label">詠み上げを待て...</div>
+        </div>
+
+        <div id="card-grid" class="card-grid">
+            </div>
+    </div>
+
+    <div id="result-screen" class="screen">
+        <h1 id="result-rank">段位：初段</h1>
+        <div class="final-score" id="final-score">0</div>
+        <button onclick="location.reload()">もう一度挑戦</button>
+    </div>
+
+    <script src="data.js"></script> <script src="game.js"></script>
+</body>
+</html>

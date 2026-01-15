@@ -1,0 +1,279 @@
+/* ============================================================
+   1. 核心变量与基础重置
+   ============================================================ */
+:root {
+    --primary-color: #2c3e50;
+    --accent-color: #f1c40f;    
+    --correct-color: #2ecc71;
+    --wrong-color: #e74c3c;
+    --card-bg: #fffaf0;         
+    --battle-bg: #efead8; /* 微调：加深了一点点底色，更有和风质感 */
+    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --shadow-strong: 0 10px 25px rgba(0, 0, 0, 0.12);
+}
+
+body, html {
+    margin: 0; padding: 0; height: 100%;
+    font-family: 'Sawarabi Mincho', 'Noto Serif JP', serif;
+    background-color: var(--battle-bg);
+    /* 微调：增加极淡的纹理感，模拟纸张 */
+    background-image: radial-gradient(#dcd7c5 1px, transparent 1px);
+    background-size: 20px 20px;
+    overflow: hidden;
+    user-select: none;
+    color: var(--primary-color);
+}
+
+.screen { display: none; height: 100%; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
+body.setup-mode #setup-screen { display: flex; }
+body.battle-mode #battle-screen { display: flex; }
+body.result-mode #result-screen { display: flex; }
+
+/* ============================================================
+   2. 顶部 HUD 与 进度条
+   ============================================================ */
+.hud { 
+    width: 90%; 
+    display: flex; 
+    justify-content: space-between; 
+    padding: 15px 5%; 
+    position: absolute; 
+    top: 0; 
+    font-size: 1.1rem; 
+    /* 微调：增强磨砂玻璃感 */
+    background: rgba(255,255,255,0.4); 
+    border-bottom: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(12px);
+    z-index: 10;
+}
+
+.hud span b { color: var(--accent-color); text-shadow: 1px 1px 0 rgba(0,0,0,0.1); }
+
+.timer-wrapper { 
+    width: 100%; height: 4px; background: rgba(0,0,0,0.05); 
+    position: absolute; top: 55px; z-index: 11;
+}
+
+#timer-bar { 
+    height: 100%; width: 100%; background: var(--accent-color); 
+    box-shadow: 0 0 12px rgba(241, 196, 15, 0.6);
+    transition: width 0.1s linear; 
+}
+
+/* ============================================================
+   3. 文本区域 (上句 Kami-no-ku)
+   ============================================================ */
+#status-label {
+    margin-bottom: 20px; 
+    font-weight: 900; 
+    letter-spacing: 4px; 
+    min-height: 4.5rem; 
+    color: rgba(44, 62, 80, 0.3); /* 改为更有质感的浅深灰色 */
+    text-transform: uppercase;
+    display: flex; 
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+}
+
+.kami-text {
+    font-size: 3.2rem;
+    min-height: 4.8rem;
+    display: block; 
+    text-align: center;
+    margin-bottom: 40px;
+    font-weight: bold;
+    color: var(--primary-color);
+    letter-spacing: 0.15em;
+    line-height: 1.2;
+}
+
+/* 保持原有动画逻辑不动 */
+.kami-text span {
+    opacity: 0;
+    transform: translateY(15px);
+    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    display: inline-block;
+}
+
+.kami-text span.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.kami-text span.active, .kami-text .last-char {
+    opacity: 1 !important; transform: none !important; visibility: visible !important;
+}
+
+.kimariji-display {
+    color: var(--accent-color) !important;
+    text-decoration: underline;
+    text-underline-offset: 8px;
+    font-weight: bold;
+    display: inline !important;
+}
+
+@keyframes text-pop {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.1); } /* 微调：缩放幅度减小，更稳重 */
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.status-godspeed {
+    color: #f1c40f !important;
+    text-shadow: 0 0 15px rgba(241, 196, 15, 0.6);
+    animation: text-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    font-size: 2.6rem;
+}
+
+.status-flash {
+    color: #3498db !important;
+    text-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
+    animation: text-pop 0.3s ease-out;
+}
+
+.status-correct {
+    color: #2ecc71 !important;
+    animation: text-pop 0.3s ease-out;
+}
+
+/* ============================================================
+   4. 竞技卡片 (下句 - 排版完全锁定)
+   ============================================================ */
+.card-grid {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    padding: 20px;
+}
+
+.card-grid.locked { pointer-events: none; opacity: 0.85; }
+
+.karuta-card {
+    width: 156px; 
+    height: 219px;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    display: block; 
+    background: var(--card-bg);
+    border: 8px solid #1a910bff; /* 严格保留色值与尺寸 */
+    padding: 20px 14px;
+    font-size: 2.2rem;
+    line-height: 1.5;
+    letter-spacing: 0.18em;
+    cursor: pointer;
+    box-shadow: var(--shadow-soft);
+    white-space: pre;
+    text-align: justify;
+    text-justify: inter-character;
+    position: relative;
+    transition: all 0.2s ease-out; /* 微调：缩短响应时间，感觉更灵敏 */
+}
+
+.karuta-card::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 8px; right: 8px; bottom: 8px;
+    border: 1px solid rgba(44, 62, 80, 0.04);
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+.karuta-card:hover {
+    transform: translateY(-10px); /* 微调：悬停高度略增 */
+    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    background: #fff;
+}
+
+.karuta-card.correct { 
+    background-color: #e8f5e9 !important; 
+    border-color: var(--correct-color) !important; 
+    box-shadow: 0 0 25px rgba(46, 204, 113, 0.4);
+}
+
+.karuta-card.wrong { 
+    background-color: #ffebee !important; 
+    border-color: var(--wrong-color) !important; 
+    animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; 
+}
+
+@keyframes shake {
+    10%, 90% { transform: translate3d(-2px, 0, 0); }
+    30%, 50%, 70% { transform: translate3d(-5px, 0, 0); }
+    40%, 60% { transform: translate3d(5px, 0, 0); }
+}
+
+.card-kimariji {
+    color: var(--accent-color) !important;
+    font-weight: bold;
+    display: inline;
+    background-color: rgba(241, 196, 15, 0.15);
+    border-radius: 4px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+.highlight-answer {
+    border: 8px solid var(--accent-color) !important;
+    animation: pulse-gold 1.5s infinite;
+}
+
+@keyframes pulse-gold {
+    0% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.5); }
+    70% { box-shadow: 0 0 0 15px rgba(241, 196, 15, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0); }
+}
+
+/* ============================================================
+   5. 按钮样式
+   ============================================================ */
+#start-btn {
+    padding: 20px 80px; /* 微调：加宽按钮，更显大气 */
+    font-size: 2rem; 
+    font-family: 'Sawarabi Mincho', serif;
+    background: var(--primary-color);
+    color: #fff; 
+    border: none; 
+    border-radius: 4px; /* 改为更有和风感的方正小圆角 */
+    cursor: pointer;
+    box-shadow: 0 6px 0 #1a252f; /* 增加 3D 效果 */
+    transition: all 0.1s;
+    letter-spacing: 8px;
+}
+
+#start-btn:hover {
+    background: #34495e;
+    transform: translateY(2px);
+    box-shadow: 0 4px 0 #1a252f;
+}
+
+#start-btn:active { 
+    transform: translateY(6px);
+    box-shadow: 0 0 0 #1a252f;
+}
+
+.color-checkboxes label {
+    cursor: pointer;
+    padding: 12px 20px;
+    border: 2px solid rgba(0,0,0,0.1);
+    border-radius: 8px;
+    background: #fff;
+    font-weight: bold;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 各颜色选中状态 */
+label.btn-red:has(input:checked)    { background: #e74c3c; color: white; border-color: #c0392b; }
+label.btn-yellow:has(input:checked) { background: #f1c40f; color: white; border-color: #f39c12; }
+label.btn-green:has(input:checked)  { background: #2ecc71; color: white; border-color: #27ae60; }
+label.btn-blue:has(input:checked)   { background: #3498db; color: white; border-color: #2980b9; }
+label.btn-orange:has(input:checked) { background: #e67e22; color: white; border-color: #d35400; }
+
+/* 未选中时的文字颜色修正 */
+.color-checkboxes span { color: var(--primary-color); }
+.color-checkboxes input:checked + span { color: #fff; }
+
+.color-checkboxes input { display: none; }
