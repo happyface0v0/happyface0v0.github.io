@@ -1,10 +1,10 @@
 /**
- * game.js - 竞技平衡版
+ * game.js - 竞技专业版 (多维度过滤 + 无重复洗牌)
  */
 
-let gamePool = [];      // 过滤后的题库
-let questionCount = 0;  // 已挑战题数
-let totalWeightedScore = 0; // 累计加权总分
+let gamePool = [];      // 当前选中的题目池
+let currentIndex = 0;   // 当前题目指针
+let totalWeightedScore = 0; 
 let currentPoem = null;
 let score = 0;
 let combo = 0;
@@ -16,24 +16,54 @@ let activeTimeouts = [];
 
 // --- 初始化与选歌逻辑 ---
 const startBtn = document.getElementById('start-btn');
-const checkboxes = document.querySelectorAll('input[name="color-pick"]');
+const colorCheckboxes = document.querySelectorAll('input[name="color-pick"]');
+const kCheckboxes = document.querySelectorAll('input[name="k-pick"]');
 
-// 更新显示选中的题目数量
+/**
+ * 核心筛选逻辑：获取颜色与长度的交集
+ */
 function updateCount() {
-    const selectedColors = Array.from(checkboxes).filter(i => i.checked).map(i => i.value);
-    const count = mainData.filter(p => selectedColors.includes(p.color)).length;
-    document.getElementById('selected-count').innerText = count;
+    const selectedColors = Array.from(colorCheckboxes).filter(i => i.checked).map(i => i.value);
+    const selectedKLens = Array.from(kCheckboxes).filter(i => i.checked).map(i => parseInt(i.value));
+    
+    // 筛选符合所有条件的牌
+    const pool = mainData.filter(p => {
+        // 1. 颜色匹配
+        if (!selectedColors.includes(p.color)) return false;
+        
+        // 2. 决句长度匹配 (从 map 获取实时长度)
+        const fullKey = p.first_half + p.second_half;
+        const kData = kimarijiMap.get(fullKey);
+        if (!kData) return false;
+        
+        const len = kData.kimarijiFirstHalf.length;
+        // 注意：HTML中 value=6 对应 6字决(大山札)
+        return selectedKLens.includes(len);
+    });
+
+    const countEl = document.getElementById('selected-count');
+    if (countEl) countEl.innerText = pool.length;
+    return pool;
 }
-checkboxes.forEach(box => box.addEventListener('change', updateCount));
+
+[...colorCheckboxes, ...kCheckboxes].forEach(box => {
+    box.addEventListener('change', updateCount);
+    
+});
 
 if (startBtn) {
     startBtn.addEventListener('click', () => {
-        const selectedColors = Array.from(checkboxes).filter(i => i.checked).map(i => i.value);
-        gamePool = mainData.filter(p => selectedColors.includes(p.color));
+        gamePool = updateCount();
         
         if (gamePool.length === 0) {
-            alert("札を少なくとも一色選んでください。");
+            alert("条件に合う札がありません。設定を変更してください。");
             return;
+        }
+
+        // 洗牌算法：打乱题目池顺序，确保不重复
+        for (let i = gamePool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [gamePool[i], gamePool[j]] = [gamePool[j], gamePool[i]];
         }
 
         document.body.className = 'battle-mode';
@@ -45,7 +75,7 @@ if (startBtn) {
 function resetGame() {
     score = 0;
     combo = 0;
-    questionCount = 0;
+    currentIndex = 0; // 重置指针
     correctCount = 0;
     totalWeightedScore = 0;
     updateUI();
@@ -85,11 +115,14 @@ function animateTextIn(text) {
  * 加载下一题
  */
 function nextQuestion() {
-    // 1. 随机选题 (修正了原代码中写死的 [86])
-    const randIdx = Math.floor(Math.random() * mainData.length);
-    currentPoem = mainData[randIdx];
+    if (currentIndex >= gamePool.length) {
+        showResults();
+        return;
+    }
 
-    // 2. UI 状态重置
+    // 从打乱后的池子里按顺序取
+    currentPoem = gamePool[currentIndex];
+
     const statusLabel = document.getElementById('status-label');
     const cardGrid = document.getElementById('card-grid');
     const timerBar = document.getElementById('timer-bar');
@@ -103,10 +136,8 @@ function nextQuestion() {
     
     canClick = true; 
 
-    // 3. 渲染选项
     renderOptions(currentPoem);
 
-    // 4. 音频处理
     const stdNum = String(currentPoem.standardNumber).padStart(3, '0');
     audio.src = `assets/audio/a${stdNum}.mp3`;
     
@@ -116,16 +147,10 @@ function nextQuestion() {
         requestAnimationFrame(updateTimer);
     };
     
-    // 自动播放处理
-    let playPromise = audio.play();
-    if (playPromise !== undefined) {
-        playPromise.catch(e => {
-            console.warn("等待用户交互后播放音频");
-            // 降级处理：即使音频不响，也要让游戏继续
-            startTime = Date.now();
-            animateTextIn(currentPoem.first_half);
-        });
-    }
+    audio.play().catch(e => {
+        startTime = Date.now();
+        animateTextIn(currentPoem.first_half);
+    });
 }
 
 /**
@@ -182,7 +207,7 @@ function handleChoice(isCorrect, cardElement) {
     
     document.getElementById('card-grid').classList.add('locked');
     audio.pause();
-    questionCount++;
+    currentIndex++; // 移动到下一张牌
 
     const elapsed = (Date.now() - startTime) / 1000;
     const statusLabel = document.getElementById('status-label');
@@ -191,47 +216,36 @@ function handleChoice(isCorrect, cardElement) {
         correctCount++;
         combo++;
         
-        // 1. 决定字长度加权 (根据你的数据结构取长度)
         const fullKey = currentPoem.first_half + currentPoem.second_half;
         const kData = kimarijiMap.get(fullKey);
         const kLen = (kData ? kData.kimarijiFirstHalf.length : 1);
         
-        // 平衡系数：字数越多，大脑检索负担越重，分数越高
+        // --- 竞技权重系统 ---
+        // 1. 难度分 (大山札等长句具有极高基础分)
         let weight = 1.0; 
         if (kLen === 2) weight = 1.2;
         else if (kLen === 3) weight = 1.4;
-        else if (kLen >= 4) weight = 1.7; // 4-6字决属于高级难度
+        else if (kLen === 4) weight = 1.6;
+        else if (kLen === 5) weight = 1.8;
+        else if (kLen === 6) weight = 2.0; // 大山札是实力的象征
 
-        // 2. 速度倍率 (神速/闪光/正解)
+        // 2. 速度倍率
         let multiplier = 1.0;
         let sfx = 'correct.wav';
-        if (elapsed < 3.0) {
-            multiplier = 3.0; // 神速 3 倍
-            sfx = 'godspeed.wav';
-            statusLabel.innerText = "神速！";
-            statusLabel.className = 'status-godspeed';
-        } else if (elapsed < 6.5) {
-            multiplier = 2.0; // 闪光 2 倍
-            sfx = 'flash.wav';
-            statusLabel.innerText = "閃光！";
-            statusLabel.className = 'status-flash';
-        } else {
-            statusLabel.innerText = "正解！";
-            statusLabel.className = 'status-correct';
-        }
+        if (elapsed < 3.0) { multiplier = 3.0; sfx = 'godspeed.wav'; statusLabel.innerText = "神速！"; statusLabel.className = 'status-godspeed'; }
+        else if (elapsed < 6.5) { multiplier = 2.0; sfx = 'flash.wav'; statusLabel.innerText = "閃光！"; statusLabel.className = 'status-flash'; }
+        else { statusLabel.innerText = "正解！"; statusLabel.className = 'status-correct'; }
 
-        // 3. 连击加成：每增加 1 Combo，提供 1% 的微小增益，上限 20%
+        // 3. 连击增益 (Combo)
         const comboBonus = 1 + Math.min(combo * 0.01, 0.20);
         
-        // 计算评价点
         const point = Math.round((weight * multiplier) * comboBonus * 100);
         totalWeightedScore += point;
-        score += point; // 这里的 score 用于页面顶部的实时动画展示
+        score += point; 
         
         cardElement.classList.add('correct');
         new Audio(`assets/sounds/${sfx}`).play().catch(()=>{});
     } else {
-        // 错误惩罚：连击中断，该题得分为 0
         combo = 0;
         statusLabel.innerText = "お手つき！";
         statusLabel.className = 'status-wrong';
@@ -244,11 +258,7 @@ function handleChoice(isCorrect, cardElement) {
     revealKimariji();
     updateUI();
 
-    if (questionCount >= gamePool.length) {
-        setTimeout(showResults, 2000);
-    } else {
-        setTimeout(nextQuestion, 2000);
-    }
+    setTimeout(nextQuestion, 2000);
 }
 
 /**
@@ -329,35 +339,38 @@ function updateTimer() {
 function showResults() {
     document.body.className = 'result-mode';
     
-    // 综合评价点 = 总权重点 / 总题数
-    const finalRating = Math.round(totalWeightedScore / questionCount);
-    const accuracy = Math.round((correctCount / questionCount) * 100);
+    // 综合评价点 (PTS) = 总加权分 / 总挑战数
+    // 无论选 10 题还是 100 题，只要平均表现好，PTS 就高
+    const finalRating = Math.round(totalWeightedScore / gamePool.length);
+    const accuracy = Math.round((correctCount / gamePool.length) * 100);
     
     document.getElementById('final-score').innerText = finalRating;
     
+    // 段位名称
     let rank = "";
-    if (finalRating >= 450) rank = "閃光の鬼神 (S+)";
-    else if (finalRating >= 350) rank = "疾風の達人 (A)";
-    else if (finalRating >= 200) rank = "修行中の身 (B)";
-    else rank = "駆け出し (C)";
+    if (finalRating >= 500) rank = "永世名人級 (S+)";
+    else if (finalRating >= 400) rank = "閃光の達人 (A)";
+    else if (finalRating >= 250) rank = "五段 (B)";
+    else rank = "修行中 (C)";
     
     document.getElementById('result-rank').innerText = `段位：${rank}`;
 
-    // 生成分享文本
-    const shareText = generateShareText(finalRating, rank, accuracy, combo);
-    
-    // 你可以在结果页面加个按钮调用下面的 copyToClipboard(shareText)
+    const shareText = generateShareText(finalRating, rank, accuracy, combo, gamePool.length);
+    // 可在此处绑定点击分享按钮事件
 }
 
-function generateShareText(score, rank, acc, maxCombo) {
-    // 简易校验码 (Hash)，防止小白改分
-    const checkCode = btoa(`${score}|${acc}`).substring(0, 8);
+function generateShareText(score, rank, acc, maxCombo, total) {
+    // 校验位逻辑
+    const vCode = ((score * 17) % 1000).toString(16).toUpperCase().padStart(3, '0');
     
-        return `【閃光の試練】戦績証明書
-                総合評価点：${score} pts
-                ランク：${rank}
-                正解率：${acc}% / 最大コンボ：${maxCombo}
-                #競技かるた #閃光の試练 #五色百人一首
-                認証コード: ${checkCode}
-                https://yourgame.link`;
+    return `【閃光の試練】競技記録証明
+--------------------------
+総合評価点：${score} pts
+段位：${rank}
+正確度：${acc}% (${total}首中)
+最大連撃：${maxCombo}
+--------------------------
+認証コード: ${vCode}
+#競技かるた #閃光の試練 #五色百人一首
+https://yourgame.link`;
 }

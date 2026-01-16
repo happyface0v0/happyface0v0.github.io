@@ -362,29 +362,98 @@ const colorNamesJP = {
     'green': '緑グループ',
     'orange': '橙グループ'
 };
+    
+/**
+ * 竞技百人一首标准标准化函数 (历史假名遣听感化)
+ */
+const normalizeTopHalf = (str) => {
+    if (!str) return "";
 
-// 计算决まり字算法 (基于 mainData)
+    // 1. 基础替换：将“を”统一为“お”
+    let n = str.replace(/を/g, "お");
+
+    // 2. 特殊映射：处理 No.44「あふ」以及其他可能产生的长音/音变冲突
+    // 将“あふ”映射为“おお”，确保在前两个音节与“お”系产生硬冲突
+    if (n.startsWith("あふ")) {
+        n = "おお" + n.substring(2);
+    }
+
+    // 3. 处理历史假名遣中的“ハ行转呼” (词中词尾音变)
+    // 规则：从第2位开始，は→わ、ひ→い、ふ→う、へ→え、ほ→お
+    if (n.length > 1) {
+        let chars = n.split('');
+        for (let i = 1; i < chars.length; i++) {
+            switch (chars[i]) {
+                case 'は': chars[i] = 'わ'; break;
+                case 'ひ': chars[i] = 'い'; break;
+                case 'ふ': chars[i] = 'う'; break;
+                case 'へ': chars[i] = 'え'; break;
+                case 'ほ': chars[i] = 'お'; break;
+                // 补充：ゐ(Wi) -> い(I), ゑ(We) -> え(E)
+                case 'ゐ': chars[i] = 'い'; break;
+                case 'ゑ': chars[i] = 'え'; break;
+            }
+        }
+        n = chars.join('');
+    }
+
+    // 4. 处理听感上的“长音化” (可选，根据竞技严谨度决定)
+    // 比如“あき(Aki)”与“あぎ(Agi)”在极速下也可能产生判定延迟
+    // 但百人一首主要解决的是假名遣冲突。
+    
+    return n;
+};
+
+/**
+ * 修改后的计算决定字算法
+ * 上半句：将 を/お 视为一致进行唯一性判定
+ * 下半句：保持精确匹配，不进行字符转换
+ */
 function calculateKimariji(poems) {
     const map = new Map();
-    poems.forEach(poem => {
-        let uniquePrefixFirst = "";
-        let uniquePrefixSecond = "";
-        const fullKey = poem.first_half + poem.second_half;
 
-        // 上句决定字
-        for (let i = 1; i <= poem.first_half.length; i++) {
-            uniquePrefixFirst = poem.first_half.substring(0, i);
-            if (poems.every(p => p === poem || !p.first_half.startsWith(uniquePrefixFirst))) {
-                map.set(fullKey, { kimarijiFirstHalf: uniquePrefixFirst });
+    // 预计算所有诗句的标准化版本，避免在循环中重复计算，提升性能
+    const normalizedList = poems.map(p => ({
+        original: p,
+        normFirst: normalizeTopHalf(p.first_half),
+        fullKey: p.first_half + p.second_half
+    }));
+
+    normalizedList.forEach(item => {
+        let kimarijiFirst = "";
+        const targetNorm = item.normFirst;
+
+        // --- 上句决定字计算 ---
+        for (let i = 1; i <= item.original.first_half.length; i++) {
+            // 关键：决定字字数是基于“标准化的听感长度”
+            const prefix = targetNorm.substring(0, i);
+
+            const isUnique = normalizedList.every(other => {
+                if (other === item) return true;
+                return !other.normFirst.startsWith(prefix);
+            });
+
+            if (isUnique) {
+                // 注意：这里存储的还是原始字符的截取，但长度由标准化的 i 决定
+                // 比如 あふこ (3字)
+                kimarijiFirst = item.original.first_half.substring(0, i);
+                map.set(item.fullKey, { kimarijiFirstHalf: kimarijiFirst });
                 break;
             }
         }
-        // 下句决定字
-        for (let i = 1; i <= poem.second_half.length; i++) {
-            uniquePrefixSecond = poem.second_half.substring(0, i);
-            if (poems.every(p => p === poem || !p.second_half.startsWith(uniquePrefixSecond))) {
-                const existing = map.get(fullKey) || {};
-                map.set(fullKey, { ...existing, kimarijiSecondHalf: uniquePrefixSecond });
+
+        // --- 下句决定字计算 (保持精确匹配) ---
+        // ... 原有逻辑无误 ...
+        let uniquePrefixSecond = "";
+        for (let i = 1; i <= item.original.second_half.length; i++) {
+            uniquePrefixSecond = item.original.second_half.substring(0, i);
+            const isUnique = poems.every(p => {
+                if (p.first_half + p.second_half === item.fullKey) return true;
+                return !p.second_half.startsWith(uniquePrefixSecond);
+            });
+            if (isUnique) {
+                const existing = map.get(item.fullKey) || {};
+                map.set(item.fullKey, { ...existing, kimarijiSecondHalf: uniquePrefixSecond });
                 break;
             }
         }
@@ -397,6 +466,7 @@ const poemListContainer = document.querySelector('.poem-list');
 const sortSelect = document.getElementById('sortSelect');
 const searchInput = document.getElementById('searchInput');
 const searchCount = document.getElementById('searchCount');
+
 /**
  * 2. UI 生成与高亮
  */
@@ -644,16 +714,38 @@ document.addEventListener('click', (event) => {
     const highlightSpan = event.target.closest('.kimariji-highlight');
     if (highlightSpan) {
         const clickedKimariji = highlightSpan.dataset.kimariji;
-        const isTopHalf = highlightSpan.classList.contains('left');
+        const isTopHalf = highlightSpan.classList.contains('left'); // 判断是否点击的上半句
         const parent = highlightSpan.closest('.poem-item');
         const source = JSON.parse(parent.dataset.poemJson);
-        const prefix = clickedKimariji.slice(0, -1);
+        
         const similar = mainData.filter(p => {
+            // 排除掉自身
             if (p.first_half === source.first_half && p.second_half === source.second_half) return false;
+            
             const pData = kimarijiMap.get(p.first_half + p.second_half);
-            const target = isTopHalf ? pData?.kimarijiFirstHalf : pData?.kimarijiSecondHalf;
-            return target && prefix !== "" && target.startsWith(prefix);
+            const targetRaw = isTopHalf ? pData?.kimarijiFirstHalf : pData?.kimarijiSecondHalf;
+            if (!targetRaw) return false;
+
+            if (isTopHalf) {
+                // --- 上半句：应用 を/お 等价逻辑 ---
+                const normClicked = normalizeTopHalf(clickedKimariji);
+                const normPrefix = normClicked.slice(0, -1);
+                const normTarget = normalizeTopHalf(targetRaw);
+
+                if (normPrefix === "") { // 处理一字决情况
+                    return normTarget.length === 1 && normTarget === normClicked;
+                }
+                return normTarget.startsWith(normPrefix);
+            } else {
+                // --- 下半句：保留原始精确匹配逻辑 ---
+                const prefix = clickedKimariji.slice(0, -1);
+                if (prefix === "") {
+                    return targetRaw.length === 1 && targetRaw === clickedKimariji;
+                }
+                return targetRaw.startsWith(prefix);
+            }
         });
+
         showKimarijiPopup(similar, isTopHalf, source);
         return;
     }
