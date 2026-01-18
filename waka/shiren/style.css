@@ -1,108 +1,329 @@
 /* ============================================================
-   1. 核心变量与基础重置
+   1. 核心变量与状态切换 (已修正结果页显示逻辑)
    ============================================================ */
 :root {
     --primary-color: #2c3e50;
-    --accent-color: #f1c40f;    
+    --accent-color: #f1c40f;
     --correct-color: #2ecc71;
     --wrong-color: #e74c3c;
-    --card-bg: #fffaf0;         
-    --battle-bg: #efead8; /* 微调：加深了一点点底色，更有和风质感 */
+    --card-bg: #fffaf0;
+    --battle-bg: #efead8;
     --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
-    --shadow-strong: 0 10px 25px rgba(0, 0, 0, 0.12);
+    --washi-texture: radial-gradient(#dcd7c5 1px, transparent 1px);
 }
 
 body, html {
     margin: 0; padding: 0; height: 100%;
     font-family: 'Sawarabi Mincho', 'Noto Serif JP', serif;
     background-color: var(--battle-bg);
-    /* 微调：增加极淡的纹理感，模拟纸张 */
-    background-image: radial-gradient(#dcd7c5 1px, transparent 1px);
+    background-image: var(--washi-texture);
     background-size: 20px 20px;
-    overflow: hidden;
     user-select: none;
     color: var(--primary-color);
 }
 
-.screen { display: none; height: 100%; flex-direction: column; align-items: center; justify-content: center; width: 100%; }
-body.setup-mode #setup-screen { display: flex; }
-body.battle-mode #battle-screen { display: flex; }
-body.result-mode #result-screen { display: flex; }
-
-/* ============================================================
-   2. 顶部 HUD 与 进度条
-   ============================================================ */
-.hud { 
-    width: 90%; 
-    display: flex; 
-    justify-content: space-between; 
-    padding: 15px 5%; 
-    position: absolute; 
-    top: 0; 
-    font-size: 1.1rem; 
-    /* 微调：增强磨砂玻璃感 */
-    background: rgba(255,255,255,0.4); 
-    border-bottom: 1px solid rgba(255,255,255,0.3);
-    backdrop-filter: blur(12px);
-    z-index: 10;
+.screen, #results-panel {
+    display: none;
+    height: 100vh; /* 改 min-height 为 height */
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;   /* 初始状态禁止滚动 */
+    position: relative;
 }
 
-.hud span b { color: var(--accent-color); text-shadow: 1px 1px 0 rgba(0,0,0,0.1); }
-
-.timer-wrapper { 
-    width: 100%; height: 4px; background: rgba(0,0,0,0.05); 
-    position: absolute; top: 55px; z-index: 11;
-}
-
-#timer-bar { 
-    height: 100%; width: 100%; background: var(--accent-color); 
-    box-shadow: 0 0 12px rgba(241, 196, 15, 0.6);
-    transition: width 0.1s linear; 
-}
-
-/* ============================================================
-   3. 文本区域 (上句 Kami-no-ku)
-   ============================================================ */
-#status-label {
-    margin-bottom: 20px; 
-    font-weight: 900; 
-    letter-spacing: 4px; 
-    min-height: 4.5rem; 
-    color: rgba(44, 62, 80, 0.3); /* 改为更有质感的浅深灰色 */
-    text-transform: uppercase;
-    display: flex; 
+/* 核心状态机：控制什么时候显示哪个屏 */
+body.setup-mode #setup-screen,
+body.battle-mode #battle-screen,
+body.result-mode #results-panel {
+    display: flex !important;
+    padding-top: 60px; /* 留出 HUD 空间即可 */
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s;
 }
 
-.kami-text {
-    font-size: 3.2rem;
-    min-height: 4.8rem;
-    display: block; 
+body.setup-mode #setup-screen {
+    padding-top: 0; /* 清除顶距，由 flex 居中或定位控制 */
+    justify-content: center; 
+    overflow: hidden; /* 防止动画期间出现滚动条 */
+}
+
+/* 如果进入结果模式，强制隐藏其他屏幕，防止重叠 */
+body.result-mode #battle-screen, 
+body.result-mode #setup-screen {
+    display: none !important;
+}
+
+/* HUD & 进度条显示逻辑 */
+.hud, .timer-wrapper { display: none !important; }
+
+/* 只要是战斗中或者结果结算时，都显示 HUD（计分） */
+body.battle-mode .hud,
+body.result-mode .hud {
+    display: flex !important;
+}
+
+/* 进度条仅在战斗中显示 */
+body.battle-mode .timer-wrapper {
+    display: block !important;
+}
+
+body.battle-mode .status-label {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+/* 结果面板特定样式（防止 HUD 遮挡内容） */
+#results-panel {
+    padding-top: 100px;
+    background-color: var(--battle-bg);
+}
+
+/* ============================================================
+   2. 全局通用组件 (Shared Components)
+   ============================================================ */
+
+/* 顶部 HUD 与 进度条 */
+.hud {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 5%;
+    font-size: 1.1rem;
+    background: rgba(255, 255, 255, 0.4);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(12px);
+    z-index: 1000;
+    box-sizing: border-box;
+}
+
+.hud span b {
+    color: var(--accent-color);
+    text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.1);
+}
+
+.timer-wrapper {
+    width: 100%;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.05);
+    position: absolute;
+    top: 55px;
+    z-index: 11;
+}
+
+#timer-bar {
+    height: 100%;
+    width: 100%;
+    background: var(--accent-color);
+    box-shadow: 0 0 12px rgba(241, 196, 15, 0.6);
+    transition: width 0.1s linear;
+}
+
+/* 按钮通用逻辑 (包含 Checkbox 隐藏与踩死效果) */
+input[type="checkbox"] {
+    display: none;
+}
+
+label:has(input:checked) {
+    transform: translateY(3px) !important;
+    box-shadow: 0 0 0 transparent !important;
+    color: white !important;
+    border-color: transparent !important;
+}
+
+label:not(:has(input:checked)):hover {
+    transform: translateY(-5px);
+    filter: brightness(0.97);
+}
+
+/* ============================================================
+   3. 设置界面 (Setup Screen)
+   ============================================================ */
+#setup-screen {
+    padding: 20px;
+    justify-content: flex-start;
+}
+
+/* Logo 核心样式 */
+.logo {
+    font-size: clamp(3rem, 10vw, 8rem);
+    font-weight: 900;
+    color: var(--primary-color);
+    margin: 0 auto !important;
+    letter-spacing: 15px;
+    line-height: 1;
+    text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.05);
+    white-space: nowrap;
+    position: absolute;
+}
+
+/* 战斗/结果界面的 Logo 回归 */
+body:not(.setup-mode) .logo {
+    position: static;
+    transform: none;
+    animation: none;
+    margin-bottom: 20px;
+    font-size: 2rem;
+    letter-spacing: 4px;
+}
+
+.subtitle {
+    font-size: clamp(0.85rem, 3vw, 1.2rem);
+    color: #7f8c8d;
+    margin: 10px 0 30px 0 !important;
+    letter-spacing: 2px;
+    font-weight: 500;
+}
+
+.deck-settings {
+    background: rgba(255, 255, 255, 0.5);
+    padding: clamp(15px, 5vw, 30px);
+    border-radius: 16px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    backdrop-filter: blur(10px);
+    max-width: 600px;
+    width: 90%;
+    box-shadow: var(--shadow-soft);
+}
+
+.deck-settings p {
+    font-weight: bold;
+    margin: 0 0 15px 0;
+    color: var(--primary-color);
+    border-left: 4px solid var(--accent-color);
+    padding-left: 10px;
+    text-align: left;
+    font-size: 0.95rem;
+}
+
+/* 选择器网格布局 */
+.color-checkboxes,
+.kimari-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(70px, 1fr));
+    gap: 10px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+/* 选择器标签基础样式 */
+.deck-settings label {
+    cursor: pointer;
+    padding: 12px 10px;
+    border: 2px solid #dee2e6;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    transition: all 0.15s ease;
+    background: #f8f9fa;
     text-align: center;
-    margin-bottom: 40px;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* 五色卡组特定颜色 (未选中状态) */
+label.btn-red { background: #fff5f5; border-color: #fbd5d5; color: #c53030; box-shadow: 0 6px 0 rgba(197, 48, 48, 0.2); }
+label.btn-yellow { background: #fffdf2; border-color: #fef3c7; color: #b45309; box-shadow: 0 6px 0 rgba(180, 83, 9, 0.2); }
+label.btn-green { background: #f0fff4; border-color: #c6f6d5; color: #2f855a; box-shadow: 0 6px 0 rgba(47, 133, 90, 0.2); }
+label.btn-blue { background: #ebf8ff; border-color: #bee3f8; color: #2b6cb0; box-shadow: 0 6px 0 rgba(43, 108, 176, 0.2); }
+label.btn-orange { background: #fffaf0; border-color: #feebc8; color: #c05621; box-shadow: 0 6px 0 rgba(192, 86, 33, 0.2); }
+
+/* 五色卡组特定颜色 (选中状态) */
+label.btn-red:has(input:checked) { background: #e74c3c; }
+label.btn-yellow:has(input:checked) { background: #f1c40f; }
+label.btn-green:has(input:checked) { background: #2ecc71; }
+label.btn-blue:has(input:checked) { background: #3498db; }
+label.btn-orange:has(input:checked) { background: #e67e22; }
+
+/* 决まり字选择器特定样式 */
+.kimari-selector-grid label { background: #f8f9fa; border-color: #dee2e6; color: #495057; box-shadow: 0 5px 0 rgba(0, 0, 0, 0.1); }
+.kimari-selector-grid label:has(input:checked) { background: var(--primary-color); }
+
+/* 开始按钮 */
+#start-btn {
+    margin-top: 10px;
+    padding: 18px 60px;
+    font-size: 1.8rem;
+    background: var(--primary-color);
+    color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 6px 0 #1a252f;
+    letter-spacing: 10px;
+    cursor: pointer;
+    border: none;
+    transition: all 0.1s;
+}
+#start-btn:hover { background: #34495e; transform: translateY(2px); box-shadow: 0 4px 0 #1a252f; }
+#start-btn:active { transform: translateY(6px); box-shadow: 0 0 0 #1a252f; }
+
+.deck-info {
+    font-size: 1.1rem;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+#selected-count { font-size: 2rem; color: var(--accent-color); margin: 0 5px; }
+
+/* ============================================================
+   4. 战斗界面 (Battle Screen)
+   ============================================================ */
+#battle-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;    /* 水平居中 */
+    justify-content: center; /* 垂直居中，如果需要靠上请改为 flex-start */
+    width: 100vw;           /* 强制占用视口宽度 */
+    padding: 80px 0 0 0;    /* 只保留顶部给 HUD 的空间，左右设为 0 */
+    margin: 0;
+    box-sizing: border-box;
+}
+
+#status-label {
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-top: 10px;
+    /* 初始状态如果想隐藏，可以加 opacity: 0，但不要 display: none */
+    transition: all 0.3s ease;
+}
+
+/* 战斗模式下确保它在正中间 */
+body.battle-mode #status-label {
+    visibility: visible;
+}
+
+/* 上句文本 */
+.kami-text {
+    width: 90%;
+    margin: 20px auto 40px;
+    font-size: clamp(2.4rem, 5vw, 3.2rem);
+    min-height: 4.8rem;
+    display: block;
+    text-align: center;
     font-weight: bold;
     color: var(--primary-color);
     letter-spacing: 0.15em;
     line-height: 1.2;
 }
 
-/* 保持原有动画逻辑不动 */
 .kami-text span {
     opacity: 0;
     transform: translateY(15px);
     transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-    display: inline-block;
-}
-
-.kami-text span.active {
-    opacity: 1;
-    transform: translateY(0);
+    display: inline !important; /* 确保 span 像普通文字一样流动 */
 }
 
 .kami-text span.active, .kami-text .last-char {
-    opacity: 1 !important; transform: none !important; visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+    visibility: visible !important;
 }
 
 .kimariji-display {
@@ -113,50 +334,76 @@ body.result-mode #result-screen { display: flex; }
     display: inline !important;
 }
 
-@keyframes text-pop {
-    0% { transform: scale(0.5); opacity: 0; }
-    50% { transform: scale(1.1); } /* 微调：缩放幅度减小，更稳重 */
-    100% { transform: scale(1); opacity: 1; }
-}
-
-.status-godspeed {
-    color: #f1c40f !important;
-    text-shadow: 0 0 15px rgba(241, 196, 15, 0.6);
-    animation: text-pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    font-size: 2.6rem;
-}
-
-.status-flash {
-    color: #3498db !important;
-    text-shadow: 0 0 8px rgba(52, 152, 219, 0.4);
-    animation: text-pop 0.3s ease-out;
-}
-
-.status-correct {
-    color: #2ecc71 !important;
-    animation: text-pop 0.3s ease-out;
-}
-
-/* ============================================================
-   4. 竞技卡片 (下句 - 排版完全锁定)
-   ============================================================ */
+/* 竞技卡片容器 */
 .card-grid {
-    display: flex;
+    display: grid !important;
+    /* 1. 自动计算列宽：基础宽度 + border + padding */
+    /* 你的卡片宽度应该是 156px + 16px(border) + 28px(padding) = 200px 左右 */
+    /* 我们直接固定为 180px 确保内容不拥挤 */
+    grid-template-columns: repeat(4, 180px) !important; 
+    
+    /* 2. 核心居中：不依赖 margin auto，而是依赖 grid 自身的对齐 */
+    justify-content: center !important;
+    align-content: center !important;
+    
+    /* 3. 彻底隔离：强制容器为标准水平布局，无视父级的垂直书写模式 */
+    writing-mode: horizontal-tb !important;
+    direction: ltr !important;
+    
+    gap: 40px !important; 
+    width: 100% !important;
+    max-width: 100vw;
+    margin: 40px 0 !important;
+    padding: 0 !important;
+    
+    /* 清除可能的位移 */
+    transform: none !important;
+}
+
+/* 强制 2x2 模式 */
+@media (max-width: 950px) {
+    .card-grid {
+        grid-template-columns: repeat(2, 180px) !important;
+        gap: 30px 40px !important;
+    }
+}
+
+/* 手机端适配 */
+@media (max-width: 450px) {
+    .card-grid {
+        /* 手机端按比例分配，确保居中且不瘦 */
+        grid-template-columns: repeat(2, 44vw) !important;
+        gap: 15px !important;
+    }
+}
+
+/* 修正卡片单体尺寸 */
+.karuta-card {
+    width: 180px !important; /* 增加宽度，防止变瘦 */
+    height: 250px !important;
+    margin: 0 !important;
+    padding: 20px 14px !important;
+    box-sizing: border-box !important; /* 确保 padding 不挤压宽度 */
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
     justify-content: center;
-    gap: 30px;
-    padding: 20px;
 }
 
 .card-grid.locked { pointer-events: none; opacity: 0.85; }
+.card-grid.compact { max-width: 450px; gap: 15px; }
+.card-grid.mini { transform: scale(0.6); transform-origin: center top; gap: 10px; }
 
+/* 竞技卡片单体 */
 .karuta-card {
-    width: 156px; 
+    width: 156px;
     height: 219px;
+    margin: 0 auto !important;
     writing-mode: vertical-rl;
     text-orientation: upright;
-    display: block; 
+    display: block;
     background: var(--card-bg);
-    border: 8px solid #1a910bff; /* 严格保留色值与尺寸 */
+    border: 8px solid #1a910bff;
     padding: 20px 14px;
     font-size: 2.2rem;
     line-height: 1.5;
@@ -167,9 +414,9 @@ body.result-mode #result-screen { display: flex; }
     text-align: justify;
     text-justify: inter-character;
     position: relative;
-    transition: all 0.2s ease-out; /* 微调：缩短响应时间，感觉更灵敏 */
+    transition: all 0.2s ease-out;
+    flex-shrink: 0;
 }
-
 .karuta-card::before {
     content: '';
     position: absolute;
@@ -178,23 +425,81 @@ body.result-mode #result-screen { display: flex; }
     border-radius: 4px;
     pointer-events: none;
 }
-
 .karuta-card:hover {
-    transform: translateY(-10px); /* 微调：悬停高度略增 */
-    box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
     background: #fff;
 }
 
-.karuta-card.correct { 
-    background-color: #e8f5e9 !important; 
-    border-color: var(--correct-color) !important; 
-    box-shadow: 0 0 25px rgba(46, 204, 113, 0.4);
+/* 正误反馈样式 */
+.karuta-card.correct { background-color: #e8f5e9 !important; border-color: var(--correct-color) !important; box-shadow: 0 0 25px rgba(46, 204, 113, 0.4); }
+.karuta-card.wrong { background-color: #ffebee !important; border-color: var(--wrong-color) !important; animation: shake 0.4s cubic-bezier(.36, .07, .19, .97) both; }
+.card-kimariji { color: var(--accent-color) !important; font-weight: bold; display: contents !important; background-color: rgba(241, 196, 15, 0.15); border-radius: 4px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.highlight-answer { border: 8px solid var(--accent-color) !important; animation: pulse-gold 1.5s infinite; }
+
+/* ============================================================
+   5. 结果界面 (Result Screen)
+   ============================================================ */
+#result-screen {
+    padding: 40px 20px;
+    text-align: center;
+}
+#result-screen h2 { font-size: 3rem; margin-bottom: 10px; color: var(--primary-color); }
+.result-stats { background: rgba(255,255,255,0.5); padding: 20px; border-radius: 12px; margin: 20px 0; min-width: 280px; }
+#result-screen button { padding: 15px 40px; font-size: 1.2rem; cursor: pointer; background: var(--primary-color); color: white; border: none; border-radius: 4px; }
+
+/* ============================================================
+   6. 动画序列 (Animations)
+   ============================================================ */
+
+/* 开屏 Logo 蓄力瞬移 */
+body.setup-mode .logo {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1.1);
+    opacity: 0;
+    z-index: 100;
+    background: linear-gradient(90deg, #2c3e50, #f1c40f, #2c3e50);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: fastIntroLogo 2s cubic-bezier(0.19, 1, 0.22, 1) forwards, logoShine 2s linear infinite;
 }
 
-.karuta-card.wrong { 
-    background-color: #ffebee !important; 
-    border-color: var(--wrong-color) !important; 
-    animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; 
+/* 进场动画延迟序列 */
+body.setup-mode .subtitle,
+body.setup-mode .deck-settings,
+body.setup-mode .deck-info,
+body.setup-mode #start-btn {
+    opacity: 0;
+    animation: introContent 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+body.setup-mode .subtitle { animation-delay: 1.6s; }
+body.setup-mode .deck-settings { animation-delay: 1.7s; }
+body.setup-mode .deck-info { animation-delay: 1.8s; }
+body.setup-mode #start-btn { animation-delay: 1.9s; }
+
+/* 关键帧定义 */
+@keyframes fastIntroLogo {
+    0% { opacity: 0; letter-spacing: 40px; transform: translate(-50%, -50%) scale(1.3); }
+    20% { opacity: 1; letter-spacing: 15px; transform: translate(-50%, -50%) scale(1.1); top: 45%; }
+    75% { opacity: 1; letter-spacing: 16px; transform: translate(-50%, -50%) scale(1.1); top: 45%; }
+    100% { 
+        opacity: 1; 
+        top: 8%; /* 动画结束后不要停在太靠上的地方，或者改为相对位置 */
+        transform: translate(-50%, 0) scale(1); 
+    }
+}
+
+@keyframes logoShine { to { background-position: 200% center; } }
+
+@keyframes introContent { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+@keyframes text-pop {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
 }
 
 @keyframes shake {
@@ -203,77 +508,278 @@ body.result-mode #result-screen { display: flex; }
     40%, 60% { transform: translate3d(5px, 0, 0); }
 }
 
-.card-kimariji {
-    color: var(--accent-color) !important;
-    font-weight: bold;
-    display: inline;
-    background-color: rgba(241, 196, 15, 0.15);
-    border-radius: 4px;
-    box-decoration-break: clone;
-    -webkit-box-decoration-break: clone;
-}
-
-.highlight-answer {
-    border: 8px solid var(--accent-color) !important;
-    animation: pulse-gold 1.5s infinite;
-}
-
 @keyframes pulse-gold {
     0% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.5); }
     70% { box-shadow: 0 0 0 15px rgba(241, 196, 15, 0); }
     100% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0); }
 }
 
-/* ============================================================
-   5. 按钮样式
-   ============================================================ */
-#start-btn {
-    padding: 20px 80px; /* 微调：加宽按钮，更显大气 */
-    font-size: 2rem; 
-    font-family: 'Sawarabi Mincho', serif;
-    background: var(--primary-color);
-    color: #fff; 
-    border: none; 
-    border-radius: 4px; /* 改为更有和风感的方正小圆角 */
-    cursor: pointer;
-    box-shadow: 0 6px 0 #1a252f; /* 增加 3D 效果 */
-    transition: all 0.1s;
-    letter-spacing: 8px;
-}
-
-#start-btn:hover {
-    background: #34495e;
-    transform: translateY(2px);
-    box-shadow: 0 4px 0 #1a252f;
-}
-
-#start-btn:active { 
-    transform: translateY(6px);
-    box-shadow: 0 0 0 #1a252f;
-}
-
-.color-checkboxes label {
-    cursor: pointer;
-    padding: 12px 20px;
-    border: 2px solid rgba(0,0,0,0.1);
-    border-radius: 8px;
-    background: #fff;
-    font-weight: bold;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+/* 神速：金色，带强烈放射光芒和倾斜感 */
+#status-label {
+    min-height: 4.5rem;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-family: 'Sawarabi Mincho', serif;
+    font-weight: 900;
+    letter-spacing: 0.3em;
+    pointer-events: none; /* 防止遮挡下方点击 */
 }
 
-/* 各颜色选中状态 */
-label.btn-red:has(input:checked)    { background: #e74c3c; color: white; border-color: #c0392b; }
-label.btn-yellow:has(input:checked) { background: #f1c40f; color: white; border-color: #f39c12; }
-label.btn-green:has(input:checked)  { background: #2ecc71; color: white; border-color: #27ae60; }
-label.btn-blue:has(input:checked)   { background: #3498db; color: white; border-color: #2980b9; }
-label.btn-orange:has(input:checked) { background: #e67e22; color: white; border-color: #d35400; }
+/* 神速：纯正明黄 + 锐利发光 */
+.status-godspeed {
+    color: #f1c40f !important;
+    font-size: 3.2rem !important;
+    font-style: italic;
+    transform: skewX(-15deg);
+    /* 使用锐利阴影营造体积感 */
+    text-shadow: 
+        2px 2px 0px #000,
+        0 0 15px rgba(241, 196, 15, 0.8);
+    animation: pop-instant 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+}
 
-/* 未选中时的文字颜色修正 */
-.color-checkboxes span { color: var(--primary-color); }
-.color-checkboxes input:checked + span { color: #fff; }
+/* 闪光：纯净亮蓝 */
+.status-flash {
+    color: #3498db !important;
+    font-size: 2.6rem !important;
+    font-style: italic;
+    text-shadow: 
+        2px 2px 0px #000,
+        0 0 10px rgba(52, 152, 219, 0.6);
+    animation: pop-instant 0.2s ease-out forwards;
+}
 
-.color-checkboxes input { display: none; }
+/* 正解：纯净草绿 */
+.status-correct {
+    color: #2ecc71 !important;
+    font-size: 2.2rem !important;
+    text-shadow: 1px 1px 0px #000;
+    animation: pop-instant 0.15s ease-out forwards;
+}
+
+/* 错误：纯正赤红 */
+.status-wrong {
+    color: #e74c3c !important;
+    font-size: 2.2rem !important;
+    text-shadow: 1px 1px 0px #000;
+    animation: shake-instant 0.3s linear;
+}
+
+/* ============================================================
+   7. 响应式适配 (Responsive)
+   ============================================================ */
+
+@media (max-width: 600px) {
+    #setup-screen { padding-top: 110px; }
+    .logo { font-size: 3.2rem !important; letter-spacing: 4px !important; }
+    .subtitle { margin-bottom: 20px !important; font-size: 0.8rem; }
+    .color-checkboxes { grid-template-columns: repeat(3, 1fr); }
+    #start-btn { padding: 15px 40px; font-size: 1.4rem; letter-spacing: 5px; width: 100%; }
+
+    /* 移动端 2x2 卡片强制修正 */
+    .card-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px !important;
+        padding: 10px;
+        max-width: 100vw;
+    }
+    .karuta-card {
+        width: 100% !important;
+        height: auto !important;
+        aspect-ratio: 0.75;
+        padding: 15px 10px !important;
+        writing-mode: vertical-rl;
+    }
+}
+
+/* 移动端缩小文字 */
+@media (max-width: 400px) {
+    #results-panel { padding: 15px; width: 95%; }
+    .grade-badge { font-size: 4rem; width: 90px; height: 90px; }
+}
+
+/* ============================================================
+   8. 结果界面详情 (Result Panel Stylized)
+   ============================================================ */
+
+#results-panel {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 5% !important; /* 统一缩减顶距 */
+    background: #fff url('https://www.transparenttextures.com/patterns/natural-paper.png');
+    border: 8px double #d4af37; /* 缩小边距 */
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    width: 92%;
+    max-width: 650px;
+    height: 90vh; /* 高度不占满，留出呼吸感 */
+    margin: 5vh auto; /* 上下留白居中 */
+    border-radius: 8px;
+    position: relative;
+    overflow-y: auto; /* 仅此处允许滚动 */
+    box-sizing: border-box;
+    z-index: 1001;
+}
+
+#results-panel h2 {
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 900;
+    font-size: 1.4rem;
+    letter-spacing: 5px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid var(--primary-color);
+    padding-bottom: 10px;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+/* 评级徽章 (S/A/B/C) */
+.grade-badge {
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: #e74c3c;
+    text-shadow: 3px 3px 0 rgba(0,0,0,0.05);
+    margin: 10px 0;
+    font-family: 'Georgia', serif;
+    font-style: italic;
+    transform: rotate(-5deg);
+    border: 5px solid #e74c3c;
+    width: 90px;
+    height: 90px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin: 30px auto 30px;
+    position: relative;
+}
+
+.grade-badge::after {
+    content: '';
+    position: absolute;
+    top: -10px; left: -10px; right: -10px; bottom: -10px;
+    border: 2px dashed #e74c3c;
+    border-radius: 50%;
+}
+
+/* 统计网格 */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    min-width: 90%;
+    margin-bottom: 15px;
+}
+
+.stat-item {
+    background: rgba(212, 175, 55, 0.1); /* 浅金色背景 */
+    padding: 8px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stat-item span {
+    font-size: 0.9rem;
+    color: #7f8c8d;
+    margin-bottom: 5px;
+}
+
+.stat-item strong {
+    font-size: 1.4rem;
+    color: var(--primary-color);
+    font-family: 'Sawarabi Mincho', serif;
+}
+
+/* 详情列表 */
+.details-list {
+    list-style: none;
+    font-size: 0.95rem; /* 缩小文字 */
+    padding: 0;
+    text-align: left;
+}
+
+.details-list li {
+    font-size: 1.1rem;
+    padding: 10px 0;
+    border-bottom: 1px dashed #ccc;
+    display: flex;
+    justify-content: space-between;
+}
+
+.details-list li span {
+    font-weight: bold;
+    color: var(--accent-color);
+}
+
+#results-panel hr {
+    border: none;
+    border-top: 2px solid #eee;
+    margin: 20px 0;
+}
+
+.action-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* 稍微拉开点距离，防止误触 */
+    margin-top: 25px;
+    width: 100%;
+}
+
+/* 统一按钮基础样式 */
+.share-btn, .retry-btn {
+    width: 100%;
+    padding: 16px 0;
+    font-size: 1.2rem;
+    font-weight: bold;
+    font-family: 'Noto Serif JP', serif;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    text-align: center;
+    letter-spacing: 2px;
+}
+
+/* 分享记录按钮 - 采用深色主色调 */
+.share-btn {
+    background: var(--primary-color);
+    color: #fff;
+    box-shadow: 0 5px 0 #1a252f; /* 底部深色厚阴影 */
+}
+
+.share-btn:hover {
+    background: #34495e;
+    transform: translateY(1px);
+    box-shadow: 0 4px 0 #1a252f;
+}
+
+.share-btn:active {
+    transform: translateY(5px);
+    box-shadow: 0 0 0 #1a252f;
+}
+
+/* 取消流光效果（为了风格统一） */
+.share-btn::after { display: none; }
+
+/* 返回按钮 - 采用稍浅的灰色调或辅助色 */
+.retry-btn {
+    background: var(--primary-color);
+    color: white;
+    box-shadow: 0 5px 0 #5f6a6a;
+    opacity: 1; /* 移除之前的透明度 */
+}
+
+.retry-btn:hover {
+    background: #34495e;
+    transform: translateY(1px);
+    box-shadow: 0 4px 0 #5f6a6a;
+}
+
+.retry-btn:active {
+    transform: translateY(5px);
+    box-shadow: 0 0 0 #5f6a6a;
+}

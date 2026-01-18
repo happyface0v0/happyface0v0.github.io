@@ -8,10 +8,12 @@ let totalWeightedScore = 0;
 let currentPoem = null;
 let score = 0;
 let combo = 0;
+let maxCombo = 0;       // 确保定义了
 let correctCount = 0;
 let audio = new Audio();
 let canClick = false;
 let startTime = 0;
+let totalTime = 0;      // 确保定义了
 let activeTimeouts = [];
 
 // --- 初始化与选歌逻辑 ---
@@ -128,8 +130,9 @@ function nextQuestion() {
     const timerBar = document.getElementById('timer-bar');
     
     if (statusLabel) {
-        statusLabel.innerText = "詠み上げ中...";
-        statusLabel.className = ''; 
+        statusLabel.innerText = "";
+        // 不要用 className = ''，而是移除特定的特效类
+        statusLabel.classList.remove('status-godspeed', 'status-flash', 'status-correct', 'status-wrong');
     }
     if (cardGrid) cardGrid.classList.remove('locked');
     if (timerBar) timerBar.style.width = "100%";
@@ -207,41 +210,46 @@ function handleChoice(isCorrect, cardElement) {
     
     document.getElementById('card-grid').classList.add('locked');
     audio.pause();
-    currentIndex++; // 移动到下一张牌
+    currentIndex++;
 
     const elapsed = (Date.now() - startTime) / 1000;
+    totalTime += elapsed; 
+
     const statusLabel = document.getElementById('status-label');
 
     if (isCorrect) {
         correctCount++;
         combo++;
+        if (combo > maxCombo) maxCombo = combo;
         
+        // --- 核心：计算这一题的得分 ---
         const fullKey = currentPoem.first_half + currentPoem.second_half;
         const kData = kimarijiMap.get(fullKey);
         const kLen = (kData ? kData.kimarijiFirstHalf.length : 1);
         
-        // --- 竞技权重系统 ---
-        // 1. 难度分 (大山札等长句具有极高基础分)
+        // 1. 难度权重 (决句越短/越难 分数越高)
         let weight = 1.0; 
-        if (kLen === 2) weight = 1.2;
-        else if (kLen === 3) weight = 1.4;
-        else if (kLen === 4) weight = 1.6;
-        else if (kLen === 5) weight = 1.8;
-        else if (kLen === 6) weight = 2.0; // 大山札是实力的象征
+        if (kLen === 1) weight = 2.0; // 一字决最难
+        else if (kLen === 2) weight = 1.8;
+        else if (kLen === 3) weight = 1.6;
+        else if (kLen === 6 || kLen === 7) weight = 1.2; // 大山札虽长但易辨认，权重设为1.2
+
+        // 强制浏览器重绘（可选，确保第二次连续答对动画依然触发）
+        void statusLabel.offsetWidth;
 
         // 2. 速度倍率
         let multiplier = 1.0;
         let sfx = 'correct.wav';
-        if (elapsed < 3.0) { multiplier = 3.0; sfx = 'godspeed.wav'; statusLabel.innerText = "神速！"; statusLabel.className = 'status-godspeed'; }
-        else if (elapsed < 6.5) { multiplier = 2.0; sfx = 'flash.wav'; statusLabel.innerText = "閃光！"; statusLabel.className = 'status-flash'; }
-        else { statusLabel.innerText = "正解！"; statusLabel.className = 'status-correct'; }
+        if (elapsed < 2.5) { multiplier = 3.0; sfx = 'godspeed.wav'; statusLabel.innerText = "神速！"; statusLabel.classList.add('status-godspeed'); }
+        else if (elapsed < 5.0) { multiplier = 2.0; sfx = 'flash.wav'; statusLabel.innerText = "閃光！"; statusLabel.classList.add('status-flash'); }
+        else { statusLabel.innerText = "正解！"; statusLabel.classList.add('status-correct'); }
 
-        // 3. 连击增益 (Combo)
-        const comboBonus = 1 + Math.min(combo * 0.01, 0.20);
+        // 3. 连击增益
+        const comboBonus = 1 + Math.min(combo * 0.02, 0.50); // 每连击+2%，最高+50%
         
-        const point = Math.round((weight * multiplier) * comboBonus * 100);
-        totalWeightedScore += point;
-        score += point; 
+        // 计算本题分数并累加到全局 score
+        const thisPoint = Math.round((100 * weight * multiplier) * comboBonus);
+        score += thisPoint; 
         
         cardElement.classList.add('correct');
         new Audio(`assets/sounds/${sfx}`).play().catch(()=>{});
@@ -256,14 +264,14 @@ function handleChoice(isCorrect, cardElement) {
     }
 
     revealKimariji();
-    updateUI();
+    updateUI(); // 实时更新界面上的 Score
 
     setTimeout(nextQuestion, 2000);
 }
 
 /**
- * 显示决意字（Kimariji）
- * 采用正则保护 HTML 标签，确保排版不乱
+ * 优化后的显示决意字（Kimariji）
+ * 采用文本节点替换法，绝对不破坏 HTML 标签结构和换行排版
  */
 function revealKimariji() {
     if (!currentPoem) return;
@@ -273,7 +281,7 @@ function revealKimariji() {
     const kData = kimarijiMap.get(fullKey);
     if (!kData) return;
 
-    // 1. 上句处理（这部分比较简单，直接替换即可）
+    // 1. 上句处理 (保持不变)
     const kamiContainer = document.getElementById('kami-no-ku');
     if (kamiContainer) {
         const k1 = kData.kimarijiFirstHalf || "";
@@ -281,39 +289,49 @@ function revealKimariji() {
         kamiContainer.innerHTML = `<span class="active kimariji-display">${k1}</span><span class="active">${rest1}</span>`;
     }
 
-    // 2. 下句卡片精确高亮（核心修复：只高亮前 N 个字，不误伤后面重复的字）
+    // 2. 下句卡片高亮 (采用 TextNode 精准覆盖)
     const correctCard = document.querySelector('.karuta-card[data-is-correct="true"]');
-    if (correctCard) {
-        const k2 = kData.kimarijiSecondHalf || "";
-        if (!k2) return;
+    if (!correctCard) return;
 
-        let k2Count = k2.length; // 需要高亮的字符总数
-        let currentHTML = correctCard.innerHTML;
-        let resultHTML = "";
-        let foundCount = 0;
+    const k2 = kData.kimarijiSecondHalf || "";
+    if (!k2) return;
 
-        // 状态机：遍历 HTML，只处理不在标签内的文字
-        let inTag = false;
-        for (let i = 0; i < currentHTML.length; i++) {
-            let char = currentHTML[i];
+    let k2Chars = k2.split(''); // 待匹配的决定字数组
+    
+    function walk(node) {
+        if (k2Chars.length === 0) return;
 
-            if (char === '<') {
-                inTag = true;
-                resultHTML += char;
-            } else if (char === '>') {
-                inTag = false;
-                resultHTML += char;
-            } else if (!inTag && foundCount < k2Count && /[^\n\s　]/.test(char)) {
-                // 如果不在标签内，且还没达到决定字数量，且不是换行符/空格
-                resultHTML += `<span class="card-kimariji">${char}</span>`;
-                foundCount++;
-            } else {
-                // 剩下的字符（包括超出数量的重复字）原样返回
-                resultHTML += char;
+        if (node.nodeType === 3) { // 文本节点
+            let text = node.nodeValue;
+            let fragment = document.createDocumentFragment();
+            let changed = false;
+
+            for (let char of text) {
+                if (k2Chars.length > 0 && char === k2Chars[0]) {
+                    let span = document.createElement('span');
+                    span.className = 'card-kimariji';
+                    span.style.color = 'var(--accent-color)'; // 双重保险
+                    span.style.fontWeight = 'bold';
+                    span.textContent = char;
+                    fragment.appendChild(span);
+                    k2Chars.shift();
+                    changed = true;
+                } else {
+                    fragment.appendChild(document.createTextNode(char));
+                }
             }
+
+            if (changed) {
+                node.parentNode.replaceChild(fragment, node);
+            }
+        } else {
+            // 继续遍历子节点
+            let children = Array.from(node.childNodes);
+            children.forEach(walk);
         }
-        correctCard.innerHTML = resultHTML;
     }
+
+    walk(correctCard);
 }
 
 function updateUI() {
@@ -334,43 +352,180 @@ function updateTimer() {
 }
 
 /**
- * 结算与段位判定
+ * 结算与全维度数据判定
  */
 function showResults() {
     document.body.className = 'result-mode';
-    
-    // 综合评价点 (PTS) = 总加权分 / 总挑战数
-    // 无论选 10 题还是 100 题，只要平均表现好，PTS 就高
-    const finalRating = Math.round(totalWeightedScore / gamePool.length);
-    const accuracy = Math.round((correctCount / gamePool.length) * 100);
-    
-    document.getElementById('final-score').innerText = finalRating;
-    
-    // 段位名称
-    let rank = "";
-    if (finalRating >= 500) rank = "永世名人級 (S+)";
-    else if (finalRating >= 400) rank = "閃光の達人 (A)";
-    else if (finalRating >= 250) rank = "五段 (B)";
-    else rank = "修行中 (C)";
-    
-    document.getElementById('result-rank').innerText = `段位：${rank}`;
 
-    const shareText = generateShareText(finalRating, rank, accuracy, combo, gamePool.length);
-    // 可在此处绑定点击分享按钮事件
+    const total = gamePool.length;
+    if (!total || total === 0) return;
+
+    const accuracy = ((correctCount / total) * 100).toFixed(1);
+    const avgSpeed = (totalTime / total).toFixed(2);
+    
+    // 最终分数直接等于游戏里实时显示的 score
+    const finalRating = score; 
+
+    setResultValue('res-total-count', total);
+    setResultValue('res-correct-count', correctCount);
+    setResultValue('res-accuracy', accuracy + '%');
+    setResultValue('res-max-combo', maxCombo);
+    setResultValue('res-avg-speed', avgSpeed + 's');
+    
+    // 更新证书大字
+    const scoreEl = document.getElementById('final-score');
+    if (scoreEl) {
+        scoreEl.innerText = finalRating.toLocaleString(); // 加上千分位，好看
+    }
+
+    // 段位判定 (基于总分)
+    const rankInfo = getRankInfo(finalRating, total); 
+    const rankEl = document.getElementById('result-rank');
+    if (rankEl) {
+        rankEl.innerText = rankInfo.name;
+        rankEl.style.color = rankInfo.color;
+    }
+
+    const gradeEl = document.getElementById('result-grade');
+    if (gradeEl) gradeEl.innerText = getGrade(parseFloat(accuracy));
 }
 
-function generateShareText(score, rank, acc, maxCombo, total) {
-    // 校验位逻辑
-    const vCode = ((score * 17) % 1000).toString(16).toUpperCase().padStart(3, '0');
+/**
+ * 辅助函数：安全填充 DOM
+ */
+function setResultValue(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = val;
+}
+
+/**
+ * 段位判定逻辑
+ */
+function getRankInfo(totalScore, totalQuestions) {
+    const avgPerQuestion = totalScore / totalQuestions + totalQuestions * 0.5;
+
+    // 假设满分评价（平均每题通过加权和神速能拿 400分以上）
+    if (avgPerQuestion >= 600) return { name: "永世名人級", color: "#FFD700" };
+    if (avgPerQuestion >= 300) return { name: "閃光の達人", color: "#FF4500" };
+    if (avgPerQuestion >= 150) return { name: "有段者", color: "#1E90FF" };
+    if (avgPerQuestion >= 80) return { name: "修行中", color: "#2ecc71" };
+    return { name: "門下生", color: "#808080" };
+}
+
+/**
+ * 基于正确率的评级
+ */
+function getGrade(acc) {
+    if (acc >= 100) return "PERFECT";
+    if (acc >= 95) return "S";
+    if (acc >= 85) return "A";
+    if (acc >= 70) return "B";
+    return "C";
+}
+
+/**
+ * 性能标签（趣味称号逻辑）
+ */
+function getPerformanceTag(acc, speed, maxCombo, total) {
+    if (acc >= 100 && speed < 2.0) return "神速の精密機械";
+    if (acc >= 100) return "完全制覇";
+    if (speed < 1.5) return "閃光のリアクション";
+    if (maxCombo >= total / 2 && maxCombo > 1) return "連撃の鬼";
+    if (acc < 50 && speed < 2.0) return "猪突猛進";
+    return "不撓不屈";
+}
+
+/**
+ * 修正 resetGame：确保所有统计量归零
+ */
+function resetGame() {
+    score = 0;
+    combo = 0;
+    maxCombo = 0;       // 必须重置
+    currentIndex = 0;
+    correctCount = 0;
+    totalWeightedScore = 0;
+    totalTime = 0;      // 必须重置
+    updateUI();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // 获取需要动画的元素
+    const logo = document.querySelector('.logo');
+    const subtitle = document.querySelector('.subtitle');
+    const settings = document.querySelector('.deck-settings');
+    const info = document.querySelector('.deck-info');
+    const btn = document.querySelector('#start-btn');
+
+    // 设定一个简单的延迟序列，营造“依次跳出”的效果
+    setTimeout(() => {
+        if(logo) logo.classList.add('animate-in');
+    }, 100);
+
+    setTimeout(() => {
+        if(subtitle) subtitle.classList.add('animate-in');
+    }, 300);
+
+    setTimeout(() => {
+        if(settings) settings.classList.add('animate-in');
+    }, 500);
+
+    setTimeout(() => {
+        if(info) info.classList.add('animate-in');
+    }, 700);
+
+    setTimeout(() => {
+        if(btn) btn.classList.add('animate-pop'); // 按钮用缩放效果，更醒目
+    }, 900);
+});
+
+/* ============================================================
+   统一载入控制 (替换原有末尾冲突代码)
+   ============================================================ */
+window.addEventListener('load', () => {
+    // 1. 清除可能导致干扰的旧类名，确保环境干净
+    document.body.classList.remove('battle-mode', 'result-mode');
     
-    return `【閃光の試練】競技記録証明
---------------------------
-総合評価点：${score} pts
+    // 2. 触发 setup-mode。
+    // 只要 body 加上这个类，CSS 中定义的“body.setup-mode .logo”等动画就会自动依次播放
+    setTimeout(() => {
+        document.body.classList.add('setup-mode');
+    }, 100);
+});
+
+// 确保计数器在页面一打开时就是准确的
+updateCount();
+
+document.addEventListener('click', (e) => {
+    if (e.target && e.target.id === 'share-btn') {
+        generateShareText();
+    }
+});
+
+function generateShareText() {
+    const finalScore = document.getElementById('final-score').innerText;
+    const rank = document.getElementById('result-rank').innerText;
+    const grade = document.getElementById('result-grade').innerText;
+    const speed = document.getElementById('res-avg-speed').innerText;
+    const gameUrl = window.location.href;
+
+    // 精简版文案
+    const shareTemplate = `
+˚₊‧꒰  閃光の試練  ꒱‧₊˚
+百人一首 競技記録
+------------------
 段位：${rank}
-正確度：${acc}% (${total}首中)
-最大連撃：${maxCombo}
---------------------------
-認証コード: ${vCode}
-#競技かるた #閃光の試練 #五色百人一首
-https://yourgame.link`;
+評価：[ ${grade} ]
+得点：${finalScore} pts
+平均反応：${speed}
+------------------
+${gameUrl}
+`.trim();
+
+    // 复制到剪贴板
+    navigator.clipboard.writeText(shareTemplate).then(() => {
+        const btn = document.getElementById('share-btn');
+        btn.innerText = "コピー成功！";
+        setTimeout(() => { btn.innerText = "結果をシェア"; btn.style.background = ""; }, 2000);
+    });
 }

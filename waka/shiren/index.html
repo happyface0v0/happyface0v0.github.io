@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+<meta property="og:title" content="閃光の試練 - 五色百人一首">
+<meta property="og:description" content="まさに閃光の如き一撃。君もこの速さに着いてこれるか？">
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -52,17 +54,40 @@
 
         <div class="question-container">
             <div id="kami-no-ku" class="kami-text"></div>
-            <div id="status-label">詠み上げを待て...</div>
+            <div id="status-label"> </div>
         </div>
 
         <div id="card-grid" class="card-grid">
             </div>
     </div>
 
-    <div id="result-screen" class="screen">
-        <h1 id="result-rank">段位：初段</h1>
-        <div class="final-score" id="final-score">0</div>
-        <button onclick="location.reload()">もう一度挑戦</button>
+    <div id="results-panel">
+        <h2>- 競技記録証明书 -</h2>
+        <div class="grade-badge" id="result-grade">S</div>
+        
+        <div class="stats-grid">
+            <div class="stat-item">
+                <span>綜合点</span>
+                <strong id="final-score">0</strong>
+            </div>
+            <div class="stat-item">
+                <span>段位</span>
+                <strong id="result-rank">修行中</strong>
+            </div>
+        </div>
+
+        <hr>
+
+        <ul class="details-list">
+            <li>正确数：<span id="res-correct-count">0</span> / <span id="res-total-count">0</span></li>
+            <li>正確度：<span id="res-accuracy">0%</span></li>
+            <li>最大連撃：<span id="res-max-combo">0</span></li>
+            <li>平均反応速度：<span id="res-avg-speed">0.00s</span></li>
+        </ul>
+        <div class="action-group">
+            <button id="share-btn" class="share-btn">結果をシェア</button>
+            <button class="retry-btn" onclick="location.reload()">修行に戻る</button>
+        </div>
     </div>
 
     <script src="data.js"></script> <script src="game.js"></script>

@@ -1,11 +1,13 @@
 /* ============================================================
-   1. ����ȫ����ʽ (����ԭ�����)
+   1. 基础全局样式 (Base Global Styles)
    ============================================================ */
 body {
     font-family: 'Noto Sans', sans-serif;
     margin: 0;
     padding: 0;
-    background: linear-gradient(to right, #e0eafc, #cfdef3);
+    background: #efead8;
+    background-image: radial-gradient(#dcd7c5 1px, transparent 1px);
+    background-size: 20px 20px;
     color: #333;
     font-size: 16px;
     line-height: 1.6;
@@ -32,7 +34,7 @@ h1 {
 }
 
 /* ============================================================
-   2. ���������� & ������
+   2. 控制工具栏 & 搜索框 (Controls & Search)
    ============================================================ */
 .controls-toolbar {
     display: flex;
@@ -43,7 +45,6 @@ h1 {
     background: #f8f9fa;
     border-radius: 12px;
     margin-bottom: 20px;
-    /* Ĭ�ϲ����У����ֲ��� */
 }
 
 .control-group {
@@ -52,13 +53,14 @@ h1 {
     gap: 8px;
 }
 
-    .control-group label {
-        font-size: 14px;
-        font-weight: bold;
-        color: #555;
-        white-space: nowrap;
-    }
+.control-group label {
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+    white-space: nowrap;
+}
 
+/* 排序选择下拉框 */
 #sortSelect {
     padding: 8px 12px;
     border-radius: 8px;
@@ -69,12 +71,12 @@ h1 {
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-    #sortSelect:hover {
-        background-color: #f0f4ff;
-        border-color: #b0c4de;
-    }
+#sortSelect:hover {
+    background-color: #f0f4ff;
+    border-color: #b0c4de;
+}
 
-/* �����������ʽ */
+/* 搜索输入框组合 */
 .search-group {
     position: relative;
     flex-grow: 1;
@@ -86,7 +88,7 @@ h1 {
 #searchInput {
     width: 100%;
     padding: 8px 15px;
-    padding-right: 70px; /* Ϊ������λ�� */
+    padding-right: 70px; /* 为右侧计数文字留出空间 */
     border-radius: 20px;
     border: 2px solid #eee;
     outline: none;
@@ -94,11 +96,11 @@ h1 {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-    #searchInput:focus {
-        border-color: #f1c40f;
-        background-color: #fff;
-        box-shadow: 0 4px 12px rgba(241, 196, 15, 0.2);
-    }
+#searchInput:focus {
+    border-color: #f1c40f;
+    background-color: #fff;
+    box-shadow: 0 4px 12px rgba(241, 196, 15, 0.2);
+}
 
 .search-count {
     position: absolute;
@@ -109,7 +111,7 @@ h1 {
 }
 
 /* ============================================================
-   3. ʫ���б��뿨Ƭ (����ԭ�����)
+   3. 诗词列表与卡片样式 (Poem List & Card Items)
    ============================================================ */
 .poem-list {
     list-style-type: none;
@@ -128,11 +130,12 @@ h1 {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
-    .poem-item:hover {
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
-        transform: translateY(-3px);
-    }
+.poem-item:hover {
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    transform: translateY(-3px);
+}
 
+/* 诗词编号/标识元数据图标 */
 .poem-meta {
     display: flex;
     align-items: center;
@@ -147,26 +150,12 @@ h1 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* ��ɫ���� */
-.color-red .poem-meta, .color-r .poem-meta {
-    background-color: #e57373;
-}
-
-.color-yellow .poem-meta, .color-y .poem-meta {
-    background-color: #ffd700;
-}
-
-.color-green .poem-meta, .color-g .poem-meta {
-    background-color: #81c784;
-}
-
-.color-blue .poem-meta, .color-b .poem-meta {
-    background-color: #64b5f6;
-}
-
-.color-orange .poem-meta, .color-o .poem-meta {
-    background-color: #ff9800;
-}
+/* 颜色分类样式 (对应不同的五色百人一首组别) */
+.color-red .poem-meta, .color-r .poem-meta { background-color: #e57373; }
+.color-yellow .poem-meta, .color-y .poem-meta { background-color: #ffd700; }
+.color-green .poem-meta, .color-g .poem-meta { background-color: #81c784; }
+.color-blue .poem-meta, .color-b .poem-meta { background-color: #64b5f6; }
+.color-orange .poem-meta, .color-o .poem-meta { background-color: #ff9800; }
 
 .poem-content {
     display: flex;
@@ -181,17 +170,10 @@ h1 {
     line-height: 1.8;
 }
 
-.left {
-    text-align: left;
-    color: #34495e;
-}
+.left { text-align: left; color: #34495e; }   /* 上句 */
+.right { text-align: right; color: #8e44ad; } /* 下句 */
 
-.right {
-    text-align: right;
-    color: #8e44ad;
-}
-
-/* �����ָ�����ʽ */
+/* 决胜字 (Kimariji) 高亮样式 */
 .kimariji-highlight {
     color: #fff;
     font-weight: bold;
@@ -202,14 +184,10 @@ h1 {
     display: inline-block;
 }
 
-    .kimariji-highlight.left {
-        background-color: #ff6347;
-    }
+.kimariji-highlight.left { background-color: #ff6347; }
+.kimariji-highlight.right { background-color: #0077b6; }
 
-    .kimariji-highlight.right {
-        background-color: #0077b6;
-    }
-
+/* 最后一个字符装饰 */
 .last-char {
     background-color: rgba(0, 0, 0, 0.25);
     color: #fff;
@@ -220,7 +198,7 @@ h1 {
 }
 
 /* ============================================================
-   4. ������ʽ (����ԭ���߼�)
+   4. 弹窗样式 (Popup Modal)
    ============================================================ */
 .kimariji-popup {
     display: none;
@@ -235,10 +213,10 @@ h1 {
     z-index: 1000;
 }
 
-    .kimariji-popup.show {
-        display: flex;
-        opacity: 1;
-    }
+.kimariji-popup.show {
+    display: flex;
+    opacity: 1;
+}
 
 .kimariji-popup-content {
     background: #fff;
@@ -261,13 +239,13 @@ h1 {
 }
 
 /* ============================================================
-   5. ��Ӧʽ���� (������ϲ�)
+   5. 响应式布局 (Responsive Media Queries)
    ============================================================ */
 
-/* �е���Ļ: ƽ�岼�� */
+/* 中等屏幕: 平板布局 */
 @media (max-width: 768px) {
     .controls-toolbar {
-        flex-direction: column; /* ��ֱ�Ų� */
+        flex-direction: column; /* 工具栏改为垂直排列 */
         align-items: stretch;
         gap: 12px;
     }
@@ -277,7 +255,7 @@ h1 {
     }
 
     .poem-content {
-        flex-direction: column;
+        flex-direction: column; /* 诗句上下排列 */
         align-items: flex-start;
     }
 
@@ -287,7 +265,7 @@ h1 {
     }
 }
 
-/* С��Ļ: �ֻ����� */
+/* 小屏幕: 手机移动端 */
 @media (max-width: 480px) {
     .container {
         padding: 15px;
@@ -309,36 +287,27 @@ h1 {
         font-size: 0.8em;
     }
 
-    /* �������ڼ�С������΢ѹ������ */
     #searchInput {
         font-size: 14px;
     }
 }
 
-/* ����ר�ö����뽻�� */
+/* 弹窗滑入动画 */
 @keyframes slideIn {
-    0% {
-        transform: translateY(-20px);
-        opacity: 0;
-    }
-
-    100% {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    0% { transform: translateY(-20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
 }
 
-#kimarijiPopup .poem-meta {
-    cursor: pointer !important;
-}
-
-
-/* ����������ʱ������������������ */
+/* 当弹窗打开时禁止主体滚动 */
 body.modal-open, html.modal-open {
     overflow: hidden !important;
 }
 
-/* �h�ֱ�ʾ�Υե����ָ���������夬�������ᣩ */
+/* ============================================================
+   6. 汉字显示与细节修饰 (Kanji & Card Details)
+   ============================================================ */
+
+/* 核心汉字样式 (使用明体/宋体以展现书法感) */
 .main-kanji {
     font-family: "Sawarabi Mincho", "Hiragino Mincho ProN", "MS PMincho", serif;
     font-size: 1.8em;
@@ -347,9 +316,9 @@ body.modal-open, html.modal-open {
     line-height: 1.5;
 }
 
-/* �����ɥѥͥ�Υ������� */
+/* 引导面板样式 */
 .guide-panel {
-    background: #fff9c4; /* ���뤤��ɫ */
+    background: #fff9c4; /* 浅黄色背景 */
     border-left: 6px solid #fbc02d;
     padding: 15px 20px;
     margin-bottom: 20px;
@@ -363,7 +332,7 @@ body.modal-open, html.modal-open {
     margin-bottom: 10px;
 }
 
-/* �h�֥��`�ɤ����Ф꾀 */
+/* 汉字卡片分割线 */
 .kanji-divider {
     height: 2px;
     background: radial-gradient(circle, #d4ac0d 0%, transparent 100%);
@@ -371,11 +340,11 @@ body.modal-open, html.modal-open {
 }
 
 html {
-    /* ʼ��Ϊ����������λ�ã���ֹҳ�涶�� */
+    /* 保持滚动条占位，防止弹窗切换时页面抖动 */
     scrollbar-gutter: stable;
 }
 
-/* ���ֿ�Ƭר����ʽ */
+/* 汉字展示卡片详情 */
 .kanji-display-card {
     padding: 10px;
     text-align: center;
@@ -389,7 +358,7 @@ html {
 }
 
 .kanji-card-body {
-    background: #fffaf0; /* ��ֽɫ */
+    background: #fffaf0; /* 仿古纸张色 */
     padding: 30px 20px;
     border-radius: 15px;
     border: 1px solid #e0d5c0;
@@ -398,10 +367,10 @@ html {
 .kanji-text {
     font-size: 1.8em;
     margin: 10px 0;
-    font-family: serif; /* ʹ�ó���������ʸ� */
+    font-family: serif;
 }
 
-/* ������ǩ��ʽ */
+/* 组别标签样式 */
 .group-badge {
     padding: 4px 15px;
     border-radius: 20px;
@@ -411,53 +380,14 @@ html {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-/* ������ɫ���䱳�� */
+/* 组别颜色定义 */
 .group-badge.color-red { background-color: #e74c3c; }
 .group-badge.color-blue { background-color: #3498db; }
 .group-badge.color-yellow { background-color: #f1c40f; }
 .group-badge.color-green { background-color: #2ecc71; }
 .group-badge.color-orange { background-color: #e67e22; }
 
-/* ���ֿ�Ƭ��װ���� */
-.kanji-divider-line {
-    height: 1px;
-    background: linear-gradient(to right, transparent, #ccc, transparent);
-    margin: 25px auto;
-    width: 80%;
-}
-
-/* ������ǩ��ʽ */
-.group-badge {
-    padding: 4px 15px;
-    border-radius: 20px;
-    font-size: 0.9em;
-    font-weight: bold;
-    color: white;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-    /* ������ɫ���䱳�� */
-    .group-badge.color-red {
-        background-color: #e74c3c;
-    }
-
-    .group-badge.color-blue {
-        background-color: #3498db;
-    }
-
-    .group-badge.color-yellow {
-        background-color: #f1c40f;
-    }
-
-    .group-badge.color-green {
-        background-color: #2ecc71;
-    }
-
-    .group-badge.color-orange {
-        background-color: #e67e22;
-    }
-
-/* ���ֿ�Ƭ��װ���� */
+/* 渐变装饰线 */
 .kanji-divider-line {
     height: 1px;
     background: linear-gradient(to right, transparent, #ccc, transparent);
@@ -472,6 +402,7 @@ html {
     margin-bottom: 15px;
 }
 
+/* 标准次要标签样式 */
 .standard-badge {
     background: #f8f9fa;
     border: 1px solid #dee2e6;
@@ -480,12 +411,4 @@ html {
     border-radius: 4px;
     font-size: 0.85em;
     font-weight: bold;
-}
-
-.group-badge {
-    padding: 2px 10px;
-    border-radius: 4px;
-    font-size: 0.85em;
-    font-weight: bold;
-    color: white;
 }
