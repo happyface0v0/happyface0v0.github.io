@@ -18,6 +18,7 @@ body, html {
     background-color: var(--battle-bg);
     background-image: var(--washi-texture);
     background-size: 20px 20px;
+    overflow: hidden; /* 防止结果页过长产生抖动 */
     user-select: none;
     color: var(--primary-color);
 }

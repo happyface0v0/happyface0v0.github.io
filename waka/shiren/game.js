@@ -157,21 +157,57 @@ function nextQuestion() {
 }
 
 /**
- * 渲染卡片选项 - 核心：保持你要求的特殊排版
+ * 渲染卡片选项 - 核心：嵌套循环缩减前缀，强行挖掘友札
  */
 function renderOptions(correct) {
     const grid = document.getElementById('card-grid');
     if (!grid) return;
     grid.innerHTML = '';
 
-    // 生成 4 个不重复选项
+    // 1. 获取决句数据
+    const fullKey = correct.first_half + correct.second_half;
+    const kData = kimarijiMap.get(fullKey);
+    const kLen = kData ? kData.kimarijiFirstHalf.length : 1;
+
+    // 2. 初始截取长度判定
+    let offset = (kLen >= 8) ? 2 : 1;
+    let currentLen = Math.max(1, kLen - offset);
+    
     let options = [correct];
+    let usedIds = new Set([correct.standardNumber]);
+
+    // 3. 嵌套循环：只要选项不够 4 个，且前缀长度还没减到 0，就继续搜
+    while (options.length < 4 && currentLen > 0) {
+        const prefix = correct.second_half.substring(0, currentLen);
+        
+        // 筛选当前前缀下的新朋友
+        let friends = mainData.filter(p => 
+            !usedIds.has(p.standardNumber) && 
+            p.second_half.startsWith(prefix)
+        );
+
+        // 将搜到的朋友随机加入选项
+        while (friends.length > 0 && options.length < 4) {
+            const randomIndex = Math.floor(Math.random() * friends.length);
+            const picked = friends.splice(randomIndex, 1)[0];
+            options.push(picked);
+            usedIds.add(picked.standardNumber);
+        }
+
+        // 缩减长度，准备下一轮更宽泛的搜索
+        currentLen--;
+    }
+
+    // 4. 如果搜干了前缀还是不够 4 个（极端情况），用纯随机补齐
     while (options.length < 4) {
         let rand = mainData[Math.floor(Math.random() * mainData.length)];
-        if (!options.find(o => o.standardNumber === rand.standardNumber)) {
+        if (!usedIds.has(rand.standardNumber)) {
             options.push(rand);
+            usedIds.add(rand.standardNumber);
         }
     }
+
+    // 5. 洗牌与渲染 (保持原有的特殊排版逻辑)
     options.sort(() => Math.random() - 0.5);
 
     options.forEach(poem => {
@@ -181,7 +217,6 @@ function renderOptions(correct) {
         
         const fullText = poem.second_half.replace(/[\s　]/g, "");
 
-        // --- 核心排版逻辑：绝对不准动 ---
         if (poem.standardNumber === 21) {
             const p1 = fullText.substring(0, 5);
             const p2 = fullText.substring(5, 10);
@@ -194,7 +229,6 @@ function renderOptions(correct) {
             }
             card.innerText = lines.map(line => line.length === 4 ? line + "\n" : line).join("\n");
         }
-        // --- 排版逻辑结束 ---
 
         card.onclick = () => handleChoice(poem.standardNumber === correct.standardNumber, card);
         grid.appendChild(card);
