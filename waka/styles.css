@@ -135,6 +135,40 @@ h1 {
     transform: translateY(-3px);
 }
 
+/* 学习状态的样式 */
+
+/* 状态 A：学习中 (黄色边框) */
+.poem-item.status-learning {
+    border-color: #f1c40f !important;
+    background-color: #fffdf5; /* 淡淡的底色，可选 */
+}
+
+/* 状态 B：已掌握 (绿色边框) */
+.poem-item.status-mastered {
+    border-color: #2ecc71 !important;
+    background-color: #fafffa; /* 淡淡的底色，可选 */
+}
+
+/* 弹窗内的卡片也同步修改 */
+.kanji-display-card {
+    border: 8px solid transparent;
+    transition: border-color 0.3s;
+}
+
+.kanji-display-card.status-learning {
+    border-color: #f1c40f !important;
+}
+
+.kanji-display-card.status-mastered {
+    border-color: #2ecc71 !important;
+}
+
+/* 悬停反馈，提示用户可以点击 */
+.poem-content {
+    cursor: pointer;
+    border-radius: 0 10px 10px 0;
+}
+
 /* 诗词编号/标识元数据图标 */
 .poem-meta {
     display: flex;
@@ -195,6 +229,77 @@ h1 {
     text-underline-offset: 3px;
     padding: 0 2px;
     border-radius: 2px;
+}
+
+/* 基础按钮样式 */
+.audio-btn {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #dee2e6;
+    background-color: #f8f9fa;
+    color: #555;
+    cursor: pointer;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    padding: 0;
+    position: relative;
+}
+
+/* 使用 ::before 伪元素承载图标 */
+.audio-btn::before {
+    content: "";
+    width: 24px;
+    height: 24px;
+    background-color: currentColor;
+    /* 默认播放图标 (三角形) */
+    clip-path: polygon(20% 10%, 90% 50%, 20% 90%);
+    transition: all 0.2s ease;
+}
+
+/* 播放中状态：背景变红，图标变正方形 */
+.audio-btn.playing {
+    background-color: #e74c3c;
+    border-color: #c0392b;
+    color: white;
+}
+
+.audio-btn.playing::before {
+    /* 停止图标 (正方形) */
+    clip-path: inset(15%);
+    background-color: white;
+}
+
+/* 悬停效果 */
+.audio-btn:hover:not(.playing) {
+    background-color: #e67e22;
+    color: white;
+    border-color: #d35400;
+}
+
+/* 弹窗专用大按钮样式继承并增强 */
+.big-audio-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    margin: 15px auto;
+}
+
+.big-audio-btn::before {
+    width: 32px;
+    height: 32px;
+}
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.7; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* 调整诗句内容布局，给按钮留位置 */
+.poem-content {
+    align-items: center; /* 垂直居中 */
 }
 
 /* ============================================================
@@ -262,6 +367,14 @@ h1 {
     .half-line {
         width: 100%;
         text-align: left !important;
+    }
+
+    .poem-content {
+        position: relative;
+    }
+    .audio-btn {
+        margin-top: 10px;
+        align-self: flex-end;
     }
 }
 

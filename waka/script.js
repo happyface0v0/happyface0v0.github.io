@@ -522,10 +522,10 @@ function getSortedPoems(sortType) {
         case 'kanaFirst': return poems.sort((a, b) => a.first_half.localeCompare(b.first_half, 'ja'));
         case 'kanaSecond': return poems.sort((a, b) => a.second_half.localeCompare(b.second_half, 'ja'));
         case 'default': 
-            // 标准排序：利用我们建立的 kanaToIndexMap 找到它在 100 首里的原始索引
+            // 标准排序：利用我们建立的 kanaToStandardMap 找到它在 100 首里的原始索引
             return poems.sort((a, b) => {
-                const idxA = kanaToIndexMap.get((a.first_half + a.second_half).replace(/[\s　]/g, ""));
-                const idxB = kanaToIndexMap.get((b.first_half + b.second_half).replace(/[\s　]/g, ""));
+                const idxA = kanaToStandardMap.get((a.first_half + a.second_half).replace(/[\s　]/g, ""));
+                const idxB = kanaToStandardMap.get((b.first_half + b.second_half).replace(/[\s　]/g, ""));
                 return idxA - idxB;
             });
         case 'kimarijiFirst': return sortByKimariji(poems, 'first');
@@ -639,6 +639,13 @@ function showKanjiCardPopup(poem) {
 
     kanjiContainer.style.display = 'block';
     similarContainer.style.display = 'none';
+    
+    const audioId = String(poem.standardNumber).padStart(3, '0');
+    const audioPath = `./shiren/assets/audio/a${audioId}.mp3`;
+
+    // --- 关键修改：检查当前播放状态 ---
+    const isCurrentlyPlaying = (currentActiveAudioId === audioId && currentAudio && !currentAudio.paused);
+    const activeClass = isCurrentlyPlaying ? 'playing' : '';
 
     // D. 渲染界面：显示双番号
     kanjiContainer.innerHTML = `
@@ -663,7 +670,11 @@ function showKanjiCardPopup(poem) {
                     <p class="kana-text">${highlightKimariji(poem.second_half, kData?.kimarijiSecondHalf, "right")}</p>
                     <h2 class="kanji-text">${kanjiData.second_half}</h2>
                 </div>
-            </div>
+                <button class="audio-btn big-audio-btn ${activeClass}" 
+                    data-audio-id="${audioId}" 
+                    onclick="playWaka('${audioPath}', this)">
+                </button>
+                </div>
         </div>
     `;
 
@@ -828,3 +839,130 @@ if (closeGuideBtn) {
 }
 
 renderPoems(mainData);
+
+function createPoemElement(poem, focusTopHalf, isSource = false) {
+    const poemItem = document.createElement('div');
+    const colorClass = poem.color || 'default';
+    poemItem.className = `poem-item color-${colorClass} ${isSource ? 'source-item' : ''}`;
+
+    if (!isSource && focusTopHalf === null) {
+        poemItem.id = `poem-${poem.color}-${poem.index}`;
+    }
+
+    poemItem.dataset.poemJson = JSON.stringify(poem);
+    const kData = kimarijiMap.get(poem.first_half + poem.second_half);
+
+    // 格式化音频文件名：将 1 变为 001
+    const audioId = String(poem.standardNumber).padStart(3, '0');
+    const audioPath = `./shiren/assets/audio/a${audioId}.mp3`;
+
+    poemItem.innerHTML = `
+        <div class="poem-meta" style="cursor: pointer;">${poem.index}</div>
+        <div class="poem-content" onclick="toggleLearnStatus(this, ${poem.standardNumber})">
+            <div class="half-line left ${focusTopHalf === true ? 'focus-half' : ''}">
+                ${highlightKimariji(poem.first_half, kData?.kimarijiFirstHalf, "left")}
+            </div>
+            <div class="half-line right ${focusTopHalf === false ? 'focus-half' : ''}">
+                ${highlightKimariji(poem.second_half, kData?.kimarijiSecondHalf, "right")}
+            </div>
+        <button class="audio-btn" data-audio-id="${audioId}" onclick="event.stopPropagation(); playWaka('${audioPath}', this)"></button>
+        </div>
+    `;
+    return poemItem;
+}
+
+// 全局状态管理
+let currentAudio = null;
+let currentActiveAudioId = null; // 记录当前正在播放的歌番号
+
+window.playWaka = function(path, clickedBtn) {
+    const audioId = clickedBtn.dataset.audioId;
+
+    if (currentAudio && currentActiveAudioId === audioId) {
+        if (!currentAudio.paused) {
+            currentAudio.pause();
+            syncAllButtons(audioId, false);
+            return;
+        }
+    }
+
+    if (currentAudio) {
+        currentAudio.pause();
+        syncAllButtons(currentActiveAudioId, false);
+    }
+
+    const audio = new Audio(path);
+    currentAudio = audio;
+    currentActiveAudioId = audioId;
+
+    audio.play().then(() => {
+        syncAllButtons(audioId, true);
+    }).catch(e => console.error("Playback failed:", e));
+
+    audio.onended = () => {
+        syncAllButtons(audioId, false);
+        currentAudio = null;
+        currentActiveAudioId = null;
+    };
+};
+
+/**
+ * 同步函数：找到页面上所有具有相同 audioId 的按钮，统一它们的样式
+ */
+function syncAllButtons(audioId, isPlaying) {
+    if (!audioId) return;
+    const buttons = document.querySelectorAll(`.audio-btn[data-audio-id="${audioId}"]`);
+    buttons.forEach(btn => {
+        btn.classList.toggle('playing', isPlaying);
+    });
+}
+
+// 专门负责切换图标的辅助函数
+function updateBtnIcon(btn, isPlaying) {
+    if (isPlaying) {
+        btn.classList.add('playing');
+    } else {
+        btn.classList.remove('playing');
+    }
+}
+
+// 状态循环：无 -> 学习中(黄) -> 已掌握(绿) -> 无
+const STATUS_CYCLE = [null, 'learning', 'mastered'];
+
+window.toggleLearnStatus = function(contentElement, stdNum) {
+    const item = contentElement.closest('.poem-item');
+    
+    // 获取当前状态（从 localStorage 读取最准确）
+    let currentStatus = getSavedStatus(stdNum);
+    
+    // 计算下一个状态
+    let currentIndex = STATUS_CYCLE.indexOf(currentStatus);
+    let nextIndex = (currentIndex + 1) % STATUS_CYCLE.length;
+    let nextStatus = STATUS_CYCLE[nextIndex];
+
+    // 1. 更新主列表 DOM 样式
+    STATUS_CYCLE.forEach(s => s && item.classList.remove(`status-${s}`));
+    if (nextStatus) item.classList.add(`status-${nextStatus}`);
+
+    // 2. 保存到 localStorage
+    saveStatusToLocal(stdNum, nextStatus);
+    
+    // 3. 如果弹窗开着，也更新弹窗的样式（同步）
+    const popupCard = document.querySelector('.kanji-display-card');
+    if (popupCard) {
+        STATUS_CYCLE.forEach(s => s && popupCard.classList.remove(`status-${s}`));
+        if (nextStatus) popupCard.classList.add(`status-${nextStatus}`);
+    }
+};
+
+// 确保页面初次加载时应用保存的状态
+function applySavedStatuses() {
+    const allItems = document.querySelectorAll('.poem-item');
+    allItems.forEach(item => {
+        const stdNum = item.dataset.standardNumber;
+        const status = getSavedStatus(stdNum);
+        if (status) {
+            item.classList.add(`status-${status}`);
+        }
+    });
+}
