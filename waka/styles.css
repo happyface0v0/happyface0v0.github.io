@@ -128,6 +128,7 @@ h1 {
     background: linear-gradient(to right, #fdfbfb, #f6f6f6);
     transition: box-shadow 0.3s, transform 0.3s;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: 2px solid transparent; /* 默认边框 */
 }
 
 .poem-item:hover {
@@ -137,16 +138,37 @@ h1 {
 
 /* 学习状态的样式 */
 
+/* 左侧状态操作区 */
+.status-action-zone {
+    width: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.03); /* 淡淡的底色提示点击区 */
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
 /* 状态 A：学习中 (黄色边框) */
 .poem-item.status-learning {
     border-color: #f1c40f !important;
     background-color: #fffdf5; /* 淡淡的底色，可选 */
+}
+.poem-item.status-learning .status-marker {
+    background: #f1c40f;
+    border-color: #f1c40f;
+    box-shadow: 0 0 5px rgba(241, 196, 15, 0.5);
 }
 
 /* 状态 B：已掌握 (绿色边框) */
 .poem-item.status-mastered {
     border-color: #2ecc71 !important;
     background-color: #fafffa; /* 淡淡的底色，可选 */
+}
+.poem-item.status-mastered .status-marker {
+    background: #2ecc71;
+    border-color: #2ecc71;
+    box-shadow: 0 0 5px rgba(46, 204, 113, 0.5);
 }
 
 /* 弹窗内的卡片也同步修改 */
@@ -156,16 +178,21 @@ h1 {
 }
 
 .kanji-display-card.status-learning {
-    border-color: #f1c40f !important;
+    background: #f1c40f;
+    border-color: #f1c40f;
+    box-shadow: 0 0 5px rgba(241, 196, 15, 0.5);
 }
 
 .kanji-display-card.status-mastered {
-    border-color: #2ecc71 !important;
+    background: #2ecc71;
+    border-color: #2ecc71;
+    box-shadow: 0 0 5px rgba(46, 204, 113, 0.5);
 }
 
 /* 悬停反馈，提示用户可以点击 */
 .poem-content {
     cursor: pointer;
+    cursor: text; /* 明确告诉用户这里是文字，可以划选 */
     border-radius: 0 10px 10px 0;
 }
 
@@ -182,6 +209,18 @@ h1 {
     color: #fff;
     flex-shrink: 0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* 状态指示器基础样式（代代替复选框） */
+.status-marker {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ddd;
+    border-radius: 50%; /* 圆形 */
+    cursor: pointer;
+    background-color: #fff;
+    transition: all 0.2s ease;
+    position: relative;
 }
 
 /* 颜色分类样式 (对应不同的五色百人一首组别) */
@@ -235,6 +274,8 @@ h1 {
 .audio-btn {
     width: 40px;
     height: 40px;
+    flex-shrink: 0;
+    align-self: center;
     border: 1px solid #dee2e6;
     background-color: #f8f9fa;
     color: #555;
@@ -300,6 +341,59 @@ h1 {
 /* 调整诗句内容布局，给按钮留位置 */
 .poem-content {
     align-items: center; /* 垂直居中 */
+}
+
+/* --- 进捗管理按钮组容器 --- */
+.progress-actions {
+    display: flex;
+    gap: 10px;
+    padding-left: 10px;
+    border-left: 2px solid #ddd; /* 与搜索框做视觉分割 */
+}
+
+/* --- 按钮基础样式 --- */
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px; /* 圆润风格，呼应搜索框 */
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    white-space: nowrap;
+}
+
+/* 基础按钮：完全透明，靠间距和字体撑开 */
+.action-btn {
+    background: transparent;
+    color: #888;          /* 淡淡的灰色 */
+    border: none;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.4s ease;
+    letter-spacing: 1px;  /* 增加字间距，更有呼吸感 */
+}
+
+/* 悬停：只改变文字颜色，背景像轻烟一样 */
+.export-btn:hover, .import-btn:hover {
+    color: #333;
+    background-color: rgba(0, 0, 0, 0.03); /* 几乎看不见的灰色 */
+}
+
+/* --- 交互效果 --- */
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.action-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 /* ============================================================
@@ -375,6 +469,18 @@ h1 {
     .audio-btn {
         margin-top: 10px;
         align-self: flex-end;
+    }
+    .progress-actions {
+        border-left: none;
+        padding-left: 0;
+        width: 100%;
+        justify-content: center;
+        margin-top: 5px;
+    }
+    .action-btn {
+        flex: 1;
+        justify-content: center;
+        padding: 10px;
     }
 }
 
