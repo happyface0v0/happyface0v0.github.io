@@ -2,15 +2,23 @@
    1. 基础全局样式 (Base Global Styles)
    ============================================================ */
 body {
+    --primary: #2c3e50;
+    --accent: #d4af37;
+    --accent-light: #f1c40f;
+    --bg-color: #efead8;
+    --card-bg: rgba(255, 255, 255, 0.88);
+    --text-main: #34495e;
+    --text-muted: #7f8c8d;
+    --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.06);
     font-family: 'Noto Sans', sans-serif;
     margin: 0;
     padding: 0;
-    background: #efead8;
-    background-image: radial-gradient(#dcd7c5 1px, transparent 1px);
-    background-size: 20px 20px;
+    --bg-color: #efead8;
+    background: var(--bg-color) url('https://www.transparenttextures.com/patterns/washi.png');
     color: #333;
     font-size: 16px;
     line-height: 1.6;
+    padding-top: 70px; /* 这里的数值等于导航栏的高度 height: 70px */
 }
 
 .container {
@@ -149,6 +157,12 @@ h1 {
     transition: background 0.2s;
 }
 
+/* 悬停状态：让用户知道点击这个区域会有动作 */
+.status-action-zone:hover .status-marker {
+    transform: scale(1.2);
+    border-color: #999;
+}
+
 /* 状态 A：学习中 (黄色边框) */
 .poem-item.status-learning {
     border-color: #f1c40f !important;
@@ -189,6 +203,38 @@ h1 {
     box-shadow: 0 0 5px rgba(46, 204, 113, 0.5);
 }
 
+.guide-title {
+    font-weight: 900;
+    letter-spacing: 0.05em;
+    color: var(--accent-light);
+}
+
+.section-label {
+    font-size: 1.1rem;
+    color: #000;
+    border-bottom: 2px solid var(--accent);
+    display: inline-block;
+    margin-bottom: 12px;
+}
+
+.theory-box {
+    background: rgba(0, 0, 0, 0.05);
+    padding: 15px;
+    border-radius: 4px;
+    border-left: 3px solid #d4af37;
+    margin: 10px 0;
+}
+
+.dot-yellow, .dot-green {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+.dot-yellow { background: #f1c40f; box-shadow: 0 0 8px rgba(241, 196, 15, 0.5); }
+.dot-green { background: #2ecc71; box-shadow: 0 0 8px rgba(46, 204, 113, 0.5); }
+
 /* 悬停反馈，提示用户可以点击 */
 .poem-content {
     cursor: pointer;
@@ -209,6 +255,7 @@ h1 {
     color: #fff;
     flex-shrink: 0;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
 }
 
 /* 状态指示器基础样式（代代替复选框） */
@@ -246,7 +293,7 @@ h1 {
 .left { text-align: left; color: #34495e; }   /* 上句 */
 .right { text-align: right; color: #8e44ad; } /* 下句 */
 
-/* 决胜字 (Kimariji) 高亮样式 */
+/* 决定字 (Kimariji) 高亮样式 */
 .kimariji-highlight {
     color: #fff;
     font-weight: bold;
@@ -259,6 +306,40 @@ h1 {
 
 .kimariji-highlight.left { background-color: #ff6347; }
 .kimariji-highlight.right { background-color: #0077b6; }
+
+/* 指南文案中的高亮示例样式 */
+.highlight-inline {
+    background-color: #ff6347; /* 对应你 CSS 中的 .kimariji-highlight.left 颜色 */
+    color: #fff;
+    font-weight: bold;
+    padding: 2px 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-block;
+}
+
+/* 指南文案中专用的编号小图标 */
+.meta-inline {
+    display: inline-flex;     /* 使用 flex 居中文字更精准 */
+    align-items: center;
+    justify-content: center;
+    width: 42px;              /* 调大尺寸 */
+    height: 42px;
+    border-radius: 8px;       /* 随着尺寸变大，圆角也要增加才好看 */
+    color: #fff;
+    font-weight: bold;
+    font-size: 1.1em;         /* 内部文字也稍微变大 */
+    margin: 2px 5px;          /* 增加上下间距，防止撞到上一行文字 */
+    vertical-align: middle;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* 既然变大了，加个阴影更有质感 */
+    cursor: pointer;
+}
+
+/* 关联你原有的颜色定义 */
+.meta-inline.color-r { background-color: #e57373; }
+/* 如果需要其他颜色示例 */
+.meta-inline.color-b { background-color: #64b5f6; }
 
 /* 最后一个字符装饰 */
 .last-char {
@@ -630,4 +711,111 @@ html {
     border-radius: 4px;
     font-size: 0.85em;
     font-weight: bold;
+}
+
+/* ============================================================
+   7. 导航栏 (修复高度与字体对齐版本)
+   ============================================================ */
+.main-nav {
+    position: fixed;
+    top: 0; 
+    width: 100%; 
+    height: 70px; /* 锁定高度 */
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 40px;
+    z-index: 100;
+    background: rgba(239, 234, 216, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    /* 强制重置导航栏内的行高，防止撑大容器 */
+    line-height: 70px; 
+}
+
+.nav-item {
+    text-decoration: none;
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    position: relative;
+    /* 重点：将 padding 改为 0，靠父级 center 对齐，或者只留左右 padding */
+    padding: 0; 
+    height: 70px; /* 与导航栏等高 */
+    display: inline-block;
+    transition: 0.3s;
+    /* 确保字体精准 */
+    font-family: 'Noto Serif JP', "MS PMincho", "Hiragino Mincho ProN", serif !important;
+}
+
+.nav-item::after {
+    content: '';
+    position: absolute;
+    /* 重点：将横线固定在底部，不要随文字行高漂浮 */
+    bottom: 15px; 
+    left: 50%; 
+    width: 0; 
+    height: 2px;
+    background: var(--accent);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-item.active::after, 
+.nav-item:hover::after { 
+    width: 100%; 
+}
+
+
+/* 全屏黑色遮罩 - 初始透明且不干扰点击 */
+.exit-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #1a1a1a;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 激活全屏淡出 */
+body.fade-to-black .exit-overlay {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* ============================================================
+   8. 页面切换效果
+   ============================================================ */
+
+/* 仅内容淡出（保留导航栏） */
+.container {
+    transition: opacity 0.5s ease;
+}
+
+body.fade-content-only .container {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ============================================================
+   9. 页面淡入效果
+   ============================================================ */
+
+/* 初始状态：透明且稍微向下位移 */
+.container {
+    opacity: 0;
+    transform: translateY(15px);
+    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1), 
+                transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* 激活状态：当 body 带有 .page-loaded 类时执行 */
+body.page-loaded .container {
+    opacity: 1;
+    transform: translateY(0);
 }

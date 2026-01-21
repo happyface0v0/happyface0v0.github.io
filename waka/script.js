@@ -48,29 +48,29 @@ function saveStatusToLocal(stdNum, status) {
  * 绑定在 window 上以便 HTML 里的 onclick 调用
  */
 window.toggleLearnStatus = function(element, stdNum) {
-    // 查找对应歌编号的主列表卡片
-    const mainItem = document.querySelector(`.poem-item[data-standard-number="${stdNum}"]`);
-    if (!mainItem) return;
-
+    // 1. 获取当前状态并计算下一个状态
     let currentStatus = getSavedStatus(stdNum) || 'none';
     let nextIndex = (STATUS_CYCLE.indexOf(currentStatus) + 1) % STATUS_CYCLE.length;
     let nextStatus = STATUS_CYCLE[nextIndex];
 
-    // 更新主列表项的 CSS 类名（控制颜色变化）
-    STATUS_CYCLE.forEach(s => mainItem.classList.remove(`status-${s}`));
-    if (nextStatus !== 'none') {
-        mainItem.classList.add(`status-${nextStatus}`);
-    }
+    // 2. 核心修复：找到页面上所有该编号的卡片
+    // 这包括：主列表、Kanji弹窗、以及您说的 Kimariji 相似列表弹窗
+    const allMatchingItems = document.querySelectorAll(`[data-standard-number="${stdNum}"]`);
 
-    // 同步更新弹窗卡片的边框样式（如果当前弹窗正显示这首歌）
-    const popupCard = document.querySelector('.kanji-display-card');
-    if (popupCard && popupCard.dataset.standardNumber == stdNum) {
-        STATUS_CYCLE.forEach(s => popupCard.classList.remove(`status-${s}`));
-        if (nextStatus !== 'none') popupCard.classList.add(`status-${nextStatus}`);
-    }
+    allMatchingItems.forEach(item => {
+        // 移除所有旧的状态类
+        STATUS_CYCLE.forEach(s => item.classList.remove(`status-${s}`));
+        // 添加新状态类
+        if (nextStatus !== 'none') {
+            item.classList.add(`status-${nextStatus}`);
+        }
+    });
 
-    // 执行持久化保存
+    // 3. 执行持久化保存
     saveStatusToLocal(stdNum, nextStatus);
+    
+    // 4. 如果有进度统计功能，在此更新
+    if (typeof updateProgressUI === 'function') updateProgressUI();
 };
 
 /**
@@ -578,3 +578,37 @@ if (closeGuideBtn) {
 
 // 执行首次渲染
 renderPoems(mainData);
+
+document.addEventListener('DOMContentLoaded', () => {
+    const navItems = document.querySelectorAll('.nav-item');
+    const exitOverlay = document.getElementById('page-exit-overlay');
+
+    // 延迟一小会儿触发，确保浏览器已经准备好渲染，动画更顺滑
+    setTimeout(() => {
+        document.body.classList.add('page-loaded');
+    }, 100);
+
+    navItems.forEach(item => {
+        item.addEventListener('click', function(e) {
+            const targetUrl = this.getAttribute('href');
+            
+            // 如果是当前页或者是空链接，不触发动画
+            if (!targetUrl || targetUrl === '#') return;
+
+            e.preventDefault(); // 阻止立即跳转
+
+            if (targetUrl.includes('shiren/index.html')) {
+                // 情况 A: 点击“试炼” -> 全屏淡出成黑色
+                document.body.classList.add('fade-to-black');
+            } else {
+                // 情况 B: 点击其他 -> 仅内容淡出，保留导航栏
+                document.body.classList.add('fade-content-only');
+            }
+
+            // 延迟跳转，等待动画完成
+            setTimeout(() => {
+                window.location.href = targetUrl;
+            }, 600); // 这里的 600ms 与 CSS transition 时间对应
+        });
+    });
+});

@@ -13,59 +13,69 @@
   <meta property="og:image:height" content="493">
   <meta property="og:url" content="https://happyface0v0.github.io">
   <meta property="og:type" content="website">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
+
+<nav class="main-nav">
+    <a href="shiren/index.html" class="nav-item">試練</a>
+    <a href="#" class="nav-item active">歌一覧</a> 
+    <a href="#" class="nav-item">記録</a>
+</nav>
+
 <body>
+    <div id="page-exit-overlay" class="exit-overlay"></div>
 
     <div class="container">
         <h1>百人一首</h1>
 
         <div class="guide-panel" id="guidePanel">
             <div class="guide-header">
-                <span>📖 百人一首 攻略ガイド</span>
-                <button id="closeGuide">了解！</button>
+                <span class="guide-title">百人一首：勝機を掴む心得</span>
+                <button id="closeGuide" class="minimal-btn">了解！</button>
             </div>
-            
+    
             <div class="guide-content">
-                <div class="guide-intro">
-                    <h4>💡 「決まり字」を覚えるのが上達の近道！</h4>
-                    <p>上の句を数文字聞いただけで、取るべき札が1枚に決まる「最短の文字数」を<strong>決まり字</strong>と呼びます。</p>
-                    <p class="example-text">
-                        <strong>一字決まりの例：</strong><br>
-                        「む・す・め・ふ・さ・ほ・せ」で始まる札は各1枚。最初の1文字目を聞いた瞬間に札を狙えます。
+                <section class="guide-section">
+                    <h4 class="section-label">最速の攻め：決まり字</h4>
+                    <p>
+                        詠み上げの際、<b>「その文字まで聞けば、下の句が1枚に特定できる」</b>最短の文字数を決まり字と呼びます。
+                        各札で<span class="highlight-inline"><b>ハイライト<span class="last-char">部分</span></b></span>表示されている部分がその目印です。
                     </p>
-                </div>
+                    <div class="theory-box">
+                        <span class="theory-title">【一字決まり：反射の極意】</span>
+                        <p>
+                            「む・す・め・ふ・さ・ほ・せ」の7首は、<b>最初の一音目</b>を聞いた瞬間に札が確定します。
+                            これらを真っ先に覚えることで、実戦での「反応速度」が劇的に向上します。
+                        </p>
+                    </div>
+                </section>
 
-                <div class="guide-steps">
-                    <div class="step">
-                        <span class="step-icon">⚡</span>
-                        <div class="step-desc">
-                            <p><strong>ハイライトを暗記の目安に</strong></p>
-                            <p>札に表示された<span class="highlight-inline">色付きの文字</span>が、その札の<strong>決まり字</strong>です。下線の引かれた文字まで聞けば、下の句が確定します。</p>
-                        </div>
+                <div class="guide-grid">
+                    <div class="guide-item">
+                        <h5>練度の記録（マーキング）</h5>
+                        <p>歌の左側にある<b>「円形マーク」</b>をタップし、習得状況を記録・管理します。</p>
+                        <ul class="status-list">
+                            <li><span class="dot-yellow"></span> <strong>修行中</strong>：暗記が不完全な札</li>
+                            <li><span class="dot-green"></span> <strong>皆伝</strong>：反射で取れる札</li>
+                        </ul>
+                    </div>
+
+                    <div class="guide-item">
+                        <h5>効率的な修練</h5>
+                        <p>ナビの「試練」では、記録した練度（黄色・緑色）を指定して集中的に練習できます。苦手な札（黄色）だけを抽出して追い込みましょう。</p>
                     </div>
                     
-                    <div class="step">
-                        <span class="step-icon">🎯</span>
-                        <div class="step-desc">
-                            <p><strong>「友札（ともふだ）」に注意！</strong></p>
-                            <p><strong>決まり字</strong>をタップすると、途中まで同じ文字で始まる札（友札）を一覧表示します。これらをセットで覚えると、お手つきを減らせます。</p>
-                        </div>
+                    <div class="guide-item">
+                        <h5>友札を封鎖する</h5>
+                        <p>札の<span class="highlight-inline"><b>ハイライト<span class="last-char">部分</span></b></span>をタップすると、聞き分けが必要な「友札」を一覧表示します。似た札をセットで覚えることがお手つきを根絶する近道です。</p>
                     </div>
 
-                    <div class="step">
-                        <span class="step-icon">📜</span>
-                        <div class="step-desc">
-                            <p><strong>漢字と色の意味</strong></p>
-                            <p>左の<strong>番号</strong>をタップすると漢字版の札を確認できます。番号の背景色は、五色百人一首の各グループ（20枚）の色に対応しています。</p>
-                        </div>
-                    </div>
-
-                    <div class="step">
-                        <span class="step-icon">🔍</span>
-                        <div class="step-desc">
-                            <p><strong>決まり字優先検索</strong></p>
-                            <p>検索窓にひらがなを入力すると、<strong>決まり字</strong>が一致する札を優先して表示します。練習したい札をすぐに見つけられます。</p>
-                        </div>
+                    <div class="guide-item">
+                        <h5>漢字版への転換</h5>
+                        <p>
+                            左端の<b><span class="meta-inline color-b">番号</span>（五色対応）</b>をタップすると、
+                            即座に漢字表記に切り替わります。歌の情景を理解し、記憶の定着を早めます。
+                        </p>
                     </div>
                 </div>
             </div>
@@ -86,10 +96,10 @@
 
             <div class="control-group progress-actions">
                 <button onclick="exportProgress()" class="action-btn export-btn" title="学習進捗を文字列としてコピー">
-                    <span>📤</span> 書き出し
+                    <span></span> 書き出し
                 </button>
                 <button onclick="importProgress()" class="action-btn import-btn" title="進捗文字列を読み込む">
-                    <span>📥</span> 読み込み
+                    <span></span> 読み込み
                 </button>
             </div>
 

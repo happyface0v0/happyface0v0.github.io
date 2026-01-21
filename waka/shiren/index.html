@@ -1,95 +1,148 @@
 <!DOCTYPE html>
-<meta property="og:title" content="閃光の試練 - 五色百人一首">
-<meta property="og:description" content="まさに閃光の如き一撃。君もこの速さに着いてこれるか？">
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
-    <title>閃光の試練 - 五色百人一首</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>百人一首 - 閃光の試練</title>
+    <link rel="stylesheet" href="index-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
-<body class="setup-mode">
+<body>
 
-    <div id="setup-screen" class="screen">
-        <div class="logo">閃光の試練</div>
-        <p class="subtitle">〜 音を聞き、誰よりも速く札を掴め 〜</p>
-        
-        <div class="deck-settings">
-            <p>修行する色を選択（複数可）：</p>
-            <div class="color-checkboxes">
-                <label class="btn-red"><input type="checkbox" name="color-pick" value="red" checked><span>赤</span></label>
-                <label class="btn-yellow"><input type="checkbox" name="color-pick" value="yellow" checked><span>黄</span></label>
-                <label class="btn-green"><input type="checkbox" name="color-pick" value="green" checked><span>緑</span></label>
-                <label class="btn-blue"><input type="checkbox" name="color-pick" value="blue" checked><span>青</span></label>
-                <label class="btn-orange"><input type="checkbox" name="color-pick" value="orange" checked><span>橙</span></label>
-            </div>
-
-            <p style="margin-top: 15px;">決まり字の種類で絞り込む：</p>
-            <div class="kimari-selector-grid">
-                <label><input type="checkbox" name="k-pick" value="1" checked><span>一字決</span></label>
-                <label><input type="checkbox" name="k-pick" value="2" checked><span>二字決</span></label>
-                <label><input type="checkbox" name="k-pick" value="3" checked><span>三字決</span></label>
-                <label><input type="checkbox" name="k-pick" value="4" checked><span>四字決</span></label>
-                <label><input type="checkbox" name="k-pick" value="5" checked><span>五字決</span></label>
-                <label><input type="checkbox" name="k-pick" value="7" checked><span>大山札</span></label>
-            </div>
-        </div>
-
-        <div class="deck-info">
-            <span id="selected-count">100</span> 首の札がセットされました
-        </div>
-        <button id="start-btn">試練開始</button>
+    <div id="intro-overlay">
+        <div class="intro-logo">閃光の試練</div>
     </div>
 
-    <div id="battle-screen" class="screen">
-        <div class="hud">
-            <div class="score-box">SCORE: <span id="score">0</span></div>
-            <div class="combo-box"><span id="combo">0</span> COMBO</div>
+    <div class="fade-overlay"></div>
+
+    <nav class="main-nav">
+        <a href="#" class="nav-item active">試練</a>
+        <a href="../index.html" class="nav-item">歌一覧</a> 
+        <a href="#" class="nav-item">記録</a>
+    </nav>
+
+    <main id="main-content">
+        <div id="setup-screen">
+            <header class="setup-header">
+                <h1 class="logo-text">閃光の試練</h1>
+                <div class="setup-description">
+                    コンマ一秒の静寂を破れ。<br>
+                    五色百首、心の眼で捉える挑戦。
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-item">
+                        <span class="label">習得した歌</span>
+                        <span id="learned-count" class="value">0</span>
+                    </div>
+                    <div class="progress-bar-mini">
+                        <div id="progress-fill-mastered" class="fill-segment"></div>
+                        <div id="progress-fill-learning" class="fill-segment"></div>
+                    </div>
+                    <p style="font-size: 0.7rem; color: #999; margin-top: 10px;">※一覧ページでの色付けが反映されます</p>
+                </div>
+            </header>
+
+            <section class="glass-container">
+                <div class="setting-section">
+                    <h2 class="setting-title">習熟度フィルター (进度筛选)</h2>
+                    <div class="status-selector-grid">
+                        <label class="status-tile none">
+                            <input type="checkbox" name="status-filter" value="none" checked>
+                            <div class="tile-content">
+                                <span class="title">未着手</span>
+                                <span class="desc">记录のない札</span>
+                            </div>
+                        </label>
+                        <label class="status-tile learning">
+                            <input type="checkbox" name="status-filter" value="learning" checked>
+                            <div class="tile-content">
+                                <span class="title">修練中</span>
+                                <span class="desc">黄色マークの札</span>
+                            </div>
+                        </label>
+                        <label class="status-tile mastered">
+                            <input type="checkbox" name="status-filter" value="mastered" checked>
+                            <div class="tile-content">
+                                <span class="title">皆伝</span>
+                                <span class="desc">绿色マークの札</span>
+                            </div>
+                        </label>
+                    </div>
+                    
+                    <div class="color-checkboxes">
+                        <label class="btn-color btn-red"><input type="checkbox" value="red" checked><span>赤札</span></label>
+                        <label class="btn-color btn-blue"><input type="checkbox" value="blue" checked><span>青札</span></label>
+                        <label class="btn-color btn-yellow"><input type="checkbox" value="yellow" checked><span>黄札</span></label>
+                        <label class="btn-color btn-green"><input type="checkbox" value="green" checked><span>緑札</span></label>
+                        <label class="btn-color btn-orange"><input type="checkbox" value="orange" checked><span>橙札</span></label>
+                    </div>
+
+                    <div class="kimariji-grid">
+                        <label class="k-chip"><input type="checkbox" value="1" checked><span>一字</span></label>
+                        <label class="k-chip"><input type="checkbox" value="2" checked><span>二字</span></label>
+                        <label class="k-chip"><input type="checkbox" value="3" checked><span>三字</span></label>
+                        <label class="k-chip"><input type="checkbox" value="4" checked><span>四字</span></label>
+                        <label class="k-chip"><input type="checkbox" value="5" checked><span>五字</span></label>
+                        <label class="k-chip"><input type="checkbox" value="oyama" checked><span>大山札</span></label>
+                    </div>
+                </div>
+
+                <div class="setting-section">
+                    <h2 class="setting-title">試練の形式</h2>
+                    <div class="feature-grid">
+                        <label class="feature-toggle">
+                            <input type="checkbox" id="audio-only">
+                            <span class="toggle-box">
+                                <i class="icon">耳</i>
+                                <span class="label">聴きのみ</span>
+                                <small class="hint">文字を隠し、音のみで判断</small>
+                            </span>
+                        </label>
+                        <label class="feature-toggle">
+                            <input type="checkbox" id="inverted-view">
+                            <span class="toggle-box">
+                                <i class="icon">逆</i>
+                                <span class="label">逆さ視る</span>
+                                <small class="hint">相手側の札を想定した配置</small>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="start-action">
+                    <div class="action-decoration">
+                        選択済み：
+                        <div class="slot-machine">
+                            <div class="slot" id="slot-100">
+                                <div class="numbers">
+                                    <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span>
+                                    <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+                                </div>
+                            </div>
+                            <div class="slot" id="slot-10">
+                                <div class="numbers">
+                                    <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span>
+                                    <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+                                </div>
+                            </div>
+                            <div class="slot" id="slot-1">
+                                <div class="numbers">
+                                    <span>0</span><span>1</span><span>2</span><span>3</span><span>4</span>
+                                    <span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="unit">首</span>
+                    </div>
+                    <button id="start-btn">試練開始</button>
+                </div>
+            </section>
+            <div class="spacer"></div>
         </div>
+    </main>
 
-        <div class="timer-wrapper">
-            <div id="timer-bar"></div>
-        </div>
-
-        <div class="question-container">
-            <div id="kami-no-ku" class="kami-text"></div>
-            <div id="status-label"> </div>
-        </div>
-
-        <div id="card-grid" class="card-grid">
-            </div>
-    </div>
-
-    <div id="results-panel">
-        <h2>- 競技記録証明书 -</h2>
-        <div class="grade-badge" id="result-grade">S</div>
-        
-        <div class="stats-grid">
-            <div class="stat-item">
-                <span>綜合点</span>
-                <strong id="final-score">0</strong>
-            </div>
-            <div class="stat-item">
-                <span>段位</span>
-                <strong id="result-rank">修行中</strong>
-            </div>
-        </div>
-
-        <hr>
-
-        <ul class="details-list">
-            <li>正确数：<span id="res-correct-count">0</span> / <span id="res-total-count">0</span></li>
-            <li>正確度：<span id="res-accuracy">0%</span></li>
-            <li>最大連撃：<span id="res-max-combo">0</span></li>
-            <li>平均反応速度：<span id="res-avg-speed">0.00s</span></li>
-        </ul>
-        <div class="action-group">
-            <button id="share-btn" class="share-btn">結果をシェア</button>
-            <button class="retry-btn" onclick="location.reload()">修行に戻る</button>
-        </div>
-    </div>
-
-    <script src="data.js"></script> <script src="game.js"></script>
+    <script src="data.js"></script>
+    <script src="index.js"></script>
 </body>
 </html>

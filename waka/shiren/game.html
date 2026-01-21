@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=none">
+    <title>閃光の試练 - 竞技版</title>
+    <link rel="stylesheet" href="game-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700;900&display=swap" rel="stylesheet">
+</head>
+<body class="battle-mode">
+    <div id="intro-overlay">
+        <div class="intro-logo">試練開始</div>
+    </div>
+    <div id="battle-screen" class="screen">
+        <div class="hud">
+            <div class="score-box">SCORE: <span id="score">0</span></div>
+            <div class="combo-box"><span id="combo">0</span> COMBO</div>
+        </div>
+
+        <div class="timer-wrapper">
+            <div id="timer-bar"></div>
+        </div>
+
+        <div class="question-container">
+            <div id="kami-no-ku" class="kami-text"></div>
+            <div id="status-label"></div> </div>
+
+        <div id="card-grid" class="card-grid">
+            </div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>

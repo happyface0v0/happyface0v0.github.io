@@ -13,23 +13,24 @@
 }
 
 body, html {
-    margin: 0; padding: 0; height: 100%;
+    margin: 0; padding: 0; 
+    min-height: 100%; /* 改为 min-height */
     font-family: 'Sawarabi Mincho', 'Noto Serif JP', serif;
     background-color: var(--battle-bg);
     background-image: var(--washi-texture);
     background-size: 20px 20px;
-    overflow: hidden; /* 防止结果页过长产生抖动 */
     user-select: none;
     color: var(--primary-color);
+    overflow-x: hidden; /* 仅禁止横向溢出 */
 }
 
 .screen, #results-panel {
     display: none;
-    height: 100vh; /* 改 min-height 为 height */
+    min-height: 100vh; /* 保证至少占满一屏 */
     width: 100%;
     box-sizing: border-box;
-    overflow: hidden;   /* 初始状态禁止滚动 */
     position: relative;
+    padding: 40px 20px;
 }
 
 /* 核心状态机：控制什么时候显示哪个屏 */
@@ -37,10 +38,9 @@ body.setup-mode #setup-screen,
 body.battle-mode #battle-screen,
 body.result-mode #results-panel {
     display: flex !important;
-    padding-top: 60px; /* 留出 HUD 空间即可 */
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start; /* 改为从顶部开始排布 */
 }
 
 body.setup-mode #setup-screen {
@@ -151,15 +151,16 @@ label:not(:has(input:checked)):hover {
 
 /* Logo 核心样式 */
 .logo {
-    font-size: clamp(3rem, 10vw, 8rem);
+    font-size: clamp(3rem, 10vw, 6rem);
     font-weight: 900;
     color: var(--primary-color);
-    margin: 0 auto !important;
     letter-spacing: 15px;
-    line-height: 1;
+    line-height: 1.2;
     text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.05);
     white-space: nowrap;
-    position: absolute;
+    position: relative; /* 关键：改为 relative */
+    margin: 40px 0 20px 0; /* 标准外边距 */
+    text-align: center;
 }
 
 /* 战斗/结果界面的 Logo 回归 */
@@ -187,8 +188,12 @@ body:not(.setup-mode) .logo {
     border: 1px solid rgba(0, 0, 0, 0.05);
     backdrop-filter: blur(10px);
     max-width: 600px;
-    width: 90%;
+    width: 100%;
     box-shadow: var(--shadow-soft);
+    margin-bottom: 40px; /* 留出底部空间 */
+    opacity: 0;
+    /* 配合 Logo 动画，稍微延迟显示 */
+    animation: introContent 0.8s ease-out 1.2s forwards;
 }
 
 .deck-settings p {
@@ -275,9 +280,9 @@ label.btn-orange:has(input:checked) { background: #e67e22; }
     display: flex;
     flex-direction: column;
     align-items: center;    /* 水平居中 */
-    justify-content: center; /* 垂直居中，如果需要靠上请改为 flex-start */
+    justify-content: flex-start; /* 顶部对齐，防止卡片跳动 */
     width: 100vw;           /* 强制占用视口宽度 */
-    padding: 80px 0 0 0;    /* 只保留顶部给 HUD 的空间，左右设为 0 */
+    padding-top: 80px; /* 给 HUD 留空间 */
     margin: 0;
     box-sizing: border-box;
 }
@@ -303,7 +308,7 @@ body.battle-mode #status-label {
 /* 上句文本 */
 .kami-text {
     width: 90%;
-    margin: 20px auto 40px;
+    margin: 20px auto 30px; /* 稍微压缩间距 */
     font-size: clamp(2.4rem, 5vw, 3.2rem);
     min-height: 4.8rem;
     display: block;
@@ -354,8 +359,8 @@ body.battle-mode #status-label {
     gap: 40px !important; 
     width: 100% !important;
     max-width: 100vw;
-    margin: 40px 0 !important;
-    padding: 0 !important;
+    margin: 20px auto !important;
+    padding-bottom: 40px !important; /* 底部垫高防止触底 */
     
     /* 清除可能的位移 */
     transform: none !important;
@@ -439,33 +444,18 @@ body.battle-mode #status-label {
 .highlight-answer { border: 8px solid var(--accent-color) !important; animation: pulse-gold 1.5s infinite; }
 
 /* ============================================================
-   5. 结果界面 (Result Screen)
-   ============================================================ */
-#result-screen {
-    padding: 40px 20px;
-    text-align: center;
-}
-#result-screen h2 { font-size: 3rem; margin-bottom: 10px; color: var(--primary-color); }
-.result-stats { background: rgba(255,255,255,0.5); padding: 20px; border-radius: 12px; margin: 20px 0; min-width: 280px; }
-#result-screen button { padding: 15px 40px; font-size: 1.2rem; cursor: pointer; background: var(--primary-color); color: white; border: none; border-radius: 4px; }
-
-/* ============================================================
-   6. 动画序列 (Animations)
+   5. 动画序列 (Animations)
    ============================================================ */
 
 /* 开屏 Logo 蓄力瞬移 */
 body.setup-mode .logo {
-    position: absolute;
-    top: 45%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(1.1);
-    opacity: 0;
-    z-index: 100;
     background: linear-gradient(90deg, #2c3e50, #f1c40f, #2c3e50);
     background-size: 200% auto;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    animation: fastIntroLogo 2s cubic-bezier(0.19, 1, 0.22, 1) forwards, logoShine 2s linear infinite;
+    animation: 
+        flowIntro 1.5s cubic-bezier(0.19, 1, 0.22, 1) forwards, 
+        logoShine 2s linear infinite;
 }
 
 /* 进场动画延迟序列 */
@@ -482,14 +472,18 @@ body.setup-mode .deck-info { animation-delay: 1.8s; }
 body.setup-mode #start-btn { animation-delay: 1.9s; }
 
 /* 关键帧定义 */
-@keyframes fastIntroLogo {
-    0% { opacity: 0; letter-spacing: 40px; transform: translate(-50%, -50%) scale(1.3); }
-    20% { opacity: 1; letter-spacing: 15px; transform: translate(-50%, -50%) scale(1.1); top: 45%; }
-    75% { opacity: 1; letter-spacing: 16px; transform: translate(-50%, -50%) scale(1.1); top: 45%; }
+@keyframes flowIntro {
+    0% { 
+        opacity: 0; 
+        letter-spacing: 40px; 
+        transform: scale(1.5);
+        margin-top: 30vh; /* 初始位置靠下 */
+    }
     100% { 
         opacity: 1; 
-        top: 8%; /* 动画结束后不要停在太靠上的地方，或者改为相对位置 */
-        transform: translate(-50%, 0) scale(1); 
+        letter-spacing: 15px; 
+        transform: scale(1);
+        margin-top: 40px; /* 回到顶部正常位置 */
     }
 }
 
@@ -568,7 +562,7 @@ body.setup-mode #start-btn { animation-delay: 1.9s; }
 }
 
 /* ============================================================
-   7. 响应式适配 (Responsive)
+   6. 响应式适配 (Responsive)
    ============================================================ */
 
 @media (max-width: 600px) {
@@ -602,26 +596,24 @@ body.setup-mode #start-btn { animation-delay: 1.9s; }
 }
 
 /* ============================================================
-   8. 结果界面详情 (Result Panel Stylized)
+   7. 结果界面详情 (Result Panel Stylized)
    ============================================================ */
 
 #results-panel {
     display: none;
     flex-direction: column;
     align-items: center;
-    padding: 20px 5% !important; /* 统一缩减顶距 */
+    padding: 30px 20px !important;
     background: #fff url('https://www.transparenttextures.com/patterns/natural-paper.png');
-    border: 8px double #d4af37; /* 缩小边距 */
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-    width: 92%;
-    max-width: 650px;
-    height: 90vh; /* 高度不占满，留出呼吸感 */
-    margin: 5vh auto; /* 上下留白居中 */
+    border: 8px double #d4af37;
+    width: 90%;
+    max-width: 500px;
+    margin: 20px auto; /* 自动边距居中 */
     border-radius: 8px;
-    position: relative;
-    overflow-y: auto; /* 仅此处允许滚动 */
+    height: auto; /* 允许根据内容撑开 */
+    max-height: 90vh; /* 但不超过视口 */
+    overflow-y: auto; /* 内容过多时内部滚动 */
     box-sizing: border-box;
-    z-index: 1001;
 }
 
 #results-panel h2 {

@@ -1,0 +1,729 @@
+/* ============================================================
+   1. 核心变量与基础重设
+   ============================================================ */
+:root {
+    --primary: #2c3e50;
+    --accent: #d4af37;
+    --accent-light: #f1c40f;
+    --bg-color: #efead8;
+    --card-bg: rgba(255, 255, 255, 0.88);
+    --text-main: #34495e;
+    --text-muted: #7f8c8d;
+    --shadow-soft: 0 20px 40px rgba(0, 0, 0, 0.06);
+    
+    /* 五色特定色值 */
+    --clr-red: #e74c3c;
+    --clr-blue: #3498db;
+    --clr-yellow: #f1c40f;
+    --clr-green: #2ecc71;
+    --clr-orange: #e67e22;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    height: 100vh; /* 锁定高度 */
+    background: var(--bg-color) url('https://www.transparenttextures.com/patterns/washi.png');
+    font-family: 'Noto Serif JP', serif;
+    color: var(--primary);
+    line-height: 1.6;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ============================================================
+   2. 动画
+   ============================================================ */
+#intro-overlay {
+    position: fixed;
+    inset: 0;
+    background: #1a1a1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.2s;
+}
+
+.intro-logo {
+    font-size: clamp(2rem, 10vw, 5rem);
+    color: var(--accent);
+    font-weight: 900;
+    letter-spacing: 1.5rem;
+    filter: blur(12px);
+    opacity: 0;
+    animation: logoReveal 2.8s forwards;
+}
+
+@keyframes logoReveal {
+    30% { opacity: 1; filter: blur(0); transform: scale(1); }
+    70% { opacity: 1; filter: blur(0); transform: scale(1.05); letter-spacing: 2rem; }
+    100% { opacity: 0; filter: blur(20px); transform: scale(1.1); }
+}
+
+.intro-finished #intro-overlay { opacity: 0; visibility: hidden; }
+
+/* 全屏淡出遮罩 */
+.fade-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bg-dark, #0a0a0a); /* 使用你的背景色 */
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 激活状态 */
+body.page-leaving .fade-overlay {
+    opacity: 1;
+    pointer-events: all;
+}
+
+/* 可选：让主体内容稍微缩小，增加深邃感 */
+body.page-leaving main, 
+body.page-leaving .container {
+    transform: scale(0.98);
+    filter: blur(2px);
+    transition: transform 0.6s ease, filter 0.6s ease;
+}
+
+/* ============================================================
+   3. 导航栏 (修复高度与字体对齐版本)
+   ============================================================ */
+.main-nav {
+    position: fixed;
+    top: 0; 
+    width: 100%; 
+    height: 70px; /* 锁定高度 */
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    gap: 40px;
+    z-index: 100;
+    background: rgba(239, 234, 216, 0.8);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    /* 强制重置导航栏内的行高，防止撑大容器 */
+    line-height: 70px; 
+}
+
+.nav-item {
+    text-decoration: none;
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    position: relative;
+    /* 重点：将 padding 改为 0，靠父级 center 对齐，或者只留左右 padding */
+    padding: 0; 
+    height: 70px; /* 与导航栏等高 */
+    display: inline-block;
+    transition: 0.3s;
+    /* 确保字体精准 */
+    font-family: 'Noto Serif JP', serif !important;
+}
+
+.nav-item::after {
+    content: '';
+    position: absolute;
+    /* 重点：将横线固定在底部，不要随文字行高漂浮 */
+    bottom: 15px; 
+    left: 50%; 
+    width: 0; 
+    height: 2px;
+    background: var(--accent);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-item.active::after, 
+.nav-item:hover::after { 
+    width: 100%; 
+}
+
+/* ============================================================
+   4. 主布局 (双栏结构)
+   ============================================================ */
+#main-content {
+    flex: 1;
+    display: flex;
+    align-items: center; /* 垂直居中内容 */
+    justify-content: center;
+    padding-top: 70px; /* 避开导航栏 */
+    opacity: 0;
+    transition: all 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.4s;
+}
+
+.intro-finished #main-content { opacity: 1; transform: translateY(0); }
+
+#setup-screen {
+    width: 95%;
+    max-width: 1100px;
+    height: 85vh; /* 限制最高高度 */
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 40px; /* 缩小间距 */
+    margin: 0 auto;
+    align-items: start;
+}
+
+/* 左侧标题与统计 */
+.setup-header {
+    position: sticky;
+    top: 120px;
+    height: fit-content;
+    padding-top: 20px;
+}
+
+.logo-text {
+    font-size: 3.5rem;
+    line-height: 1.2;
+    margin: 0 0 25px 0;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 10px 20px rgba(0,0,0,0.05);
+}
+
+.setup-description {
+    font-size: 1rem;
+    color: var(--text-muted);
+    border-left: 3px solid var(--accent);
+    padding-left: 20px;
+    margin-bottom: 40px;
+}
+
+/* 统计卡片 */
+.stat-card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: var(--shadow-soft);
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.stat-item .value {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--accent);
+}
+
+.progress-bar-mini {
+    width: 100%;
+    height: 6px;
+    background: #eee;
+    border-radius: 10px;
+    display: flex; /* 让内部填充段并排 */
+    overflow: hidden;
+    margin-top: 8px;
+}
+
+.fill-segment {
+    height: 100%;
+    transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* 绿色段：已掌握 */
+#progress-fill-mastered {
+    background: #2ecc71
+}
+
+/* 黄色段：修行中 */
+#progress-fill-learning {
+    background: #f1c40f
+}
+
+/* ============================================================
+   5. 右侧设置面板 (Glass Container)
+   ============================================================ */
+.glass-container {
+    background: var(--card-bg);
+    padding: 50px;
+    border-radius: 16px;
+    box-shadow: var(--shadow-soft);
+    border: 1px solid rgba(255,255,255,0.6);
+}
+
+.setting-section { margin-bottom: 50px; }
+
+.setting-title {
+    font-size: 1.1rem;
+    font-weight: 800;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    letter-spacing: 0.1em;
+}
+
+.setting-title::before {
+    content: '';
+    width: 12px; height: 12px;
+    background: var(--accent);
+    transform: rotate(45deg);
+    margin-right: 15px;
+}
+
+/* 进度筛选大按钮容器 */
+.status-selector-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin-bottom: 30px;
+}
+
+.status-tile {
+    cursor: pointer;
+}
+
+.status-tile input {
+    display: none;
+}
+
+.status-tile .tile-content {
+    background: #fff;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    padding: 24px 12px;
+    text-align: center;
+    transition: all 0.25s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* 统一：未着手 (默认灰色) */
+.status-tile.none input:checked + .tile-content {
+    border-color: #95a5a6;
+    background-color: #f8f9fa;
+}
+
+/* 统一：学习中 (黄色方案) */
+.status-tile.learning input:checked + .tile-content {
+    border-color: #f1c40f !important;
+    background-color: #fffdf5;
+}
+
+/* 统一：已掌握 (绿色方案) */
+.status-tile.mastered input:checked + .tile-content {
+    border-color: #2ecc71 !important;
+    background-color: #fafffa;
+}
+
+/* 标题样式：更有压迫感（加粗大字） */
+.status-tile .title {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 900;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.status-tile .desc {
+    display: block;
+    font-size: 0.8rem;
+    color: #7f8c8d;
+}
+
+/* 增加选中的“标记感”：在底部加一条色块 */
+.status-tile input:checked + .tile-content::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+}
+.status-tile.none input:checked + .tile-content::after { background: #95a5a6; }
+.status-tile.learning input:checked + .tile-content::after { background: #f1c40f; }
+.status-tile.mastered input:checked + .tile-content::after { background: #2ecc71; }
+
+/* 五色按钮 (Color Buttons) */
+.color-checkboxes {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 12px;
+    margin: 10px 0px 10px 0px;
+}
+
+.btn-color { cursor: pointer; flex: 1; min-width: 70px; }
+.btn-color input { display: none; }
+.btn-color span {
+    display: block;
+    padding: 12px;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    transition: 0.2s;
+}
+
+/* --- 未选中时的淡淡颜色 (使用 15% 不透明度) --- */
+.btn-red span    { background-color: rgba(231, 76, 60, 0.15);  color: #c0392b; border-color: rgba(231, 76, 60, 0.2); }
+.btn-blue span   { background-color: rgba(52, 152, 219, 0.15); color: #2980b9; border-color: rgba(52, 152, 219, 0.2); }
+.btn-yellow span { background-color: rgba(241, 196, 15, 0.15); color: #9a7d0a; border-color: rgba(241, 196, 15, 0.2); }
+.btn-green span  { background-color: rgba(46, 204, 113, 0.15); color: #27ae60; border-color: rgba(46, 204, 113, 0.2); }
+.btn-orange span { background-color: rgba(230, 126, 34, 0.15); color: #d35400; border-color: rgba(230, 126, 34, 0.2); }
+
+/* --- 选中时的标准饱和度颜色 --- */
+.btn-red input:checked + span    { background-color: var(--clr-red);    color: #fff; border-color: var(--clr-red); }
+.btn-blue input:checked + span   { background-color: var(--clr-blue);   color: #fff; border-color: var(--clr-blue); }
+.btn-yellow input:checked + span { background-color: var(--clr-yellow); color: #fff; border-color: var(--clr-yellow); }
+.btn-green input:checked + span  { background-color: var(--clr-green);  color: #fff; border-color: var(--clr-green); }
+.btn-orange input:checked + span { background-color: var(--clr-orange); color: #fff; border-color: var(--clr-orange); }
+
+.feature-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px; /* 缩小间距 */
+}
+
+.feature-toggle input { display: none; }
+
+.toggle-box {
+    display: flex;
+    flex-direction: row; /* 改为横向排列，节省高度 */
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 15px 10px; /* 大幅缩小内边距 */
+    background: #fff; /* 改为纯白背景，通过边框区分 */
+    border-radius: 8px;
+    border: 1px solid #eee; /* 未选中时的灰色边框 */
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.toggle-box .icon { 
+    font-size: 1.2rem; /* 缩小图标 */
+    margin-bottom: 0; /* 移除底部外边距 */
+    opacity: 0.3; 
+    font-style: normal; 
+}
+
+.toggle-box .label { 
+    font-weight: 700; 
+    font-size: 0.9rem; /* 缩小字号 */
+    margin-bottom: 0; 
+    color: var(--text-main);
+    width: 100%;
+}
+
+.toggle-box .hint { 
+    font-size: 0.7rem; 
+    color: var(--text-muted);
+    line-height: 1.2;
+    text-align: left;
+    opacity: 0.8;
+}
+
+.toggle-box:hover {
+    border-color: #ddd;
+    background: #fafafa;
+}
+
+/* 选中状态 */
+.feature-toggle input:checked + .toggle-box {
+    background: #fff;
+    border-color: var(--accent);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.1); /* 减弱阴影，保持简洁 */
+}
+
+.feature-toggle input:checked + .toggle-box .icon { 
+    opacity: 1; 
+    color: var(--accent); 
+}
+
+/* Kimariji 容器：电脑端不换行 */
+.kimariji-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+}
+
+.k-chip {
+    cursor: pointer;
+    flex: 1;
+}
+
+.k-chip input { display: none; }
+
+.k-chip span {
+    display: block;
+    padding: 12px 0;
+    background: #fff;
+    border: 1px solid #eee;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    transition: 0.2s;
+    color: var(--primary);
+}
+
+/* 选中状态：统一变为深色 */
+.k-chip input:checked + span {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+}
+
+/* ============================================================
+   6. 开始动作区域
+   ============================================================ */
+.start-action {
+    text-align: right;
+    margin-top: 40px;
+}
+
+/* 统计文案基础容器 */
+.action-decoration {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    font-weight: 500;
+}
+
+/* 滚轮机器容器 */
+.slot-machine {
+    display: inline-flex;
+    height: 4rem;
+    padding: 0 10px;
+    overflow: hidden;
+    vertical-align: middle;
+    /* 优化后的遮罩：让中间 80% 的区域完全清晰，只在极边缘 10% 处淡出 */
+    mask-image: linear-gradient(to bottom, 
+        transparent 0%, 
+        black 10%, 
+        black 90%, 
+        transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, 
+        transparent 0%, 
+        black 10%, 
+        black 90%, 
+        transparent 100%);
+}
+
+/* 单个数字槽位 */
+.slot {
+    width: 3.2rem;
+    height: 4rem;
+    position: relative;
+    /* 动画：透明度平滑，位移采用硬朗的吸附曲线 */
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform, opacity;
+}
+
+/* 前导零：只做极淡处理，不做模糊，保持硬朗边缘 */
+.slot.is-dim {
+    opacity: 0.1; 
+    transform: scale(0.9);
+}
+
+.slot.is-active {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* 数字垂直序列容器 */
+.numbers {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    /* 屏蔽移动端识别为电话号码导致的样式重置 */
+    -webkit-text-fill-color: var(--accent) !important;
+    color: var(--accent) !important;
+    text-decoration: none !important;
+}
+
+/* 强制消除移动端链接样式 */
+.numbers, .numbers span {
+    -webkit-text-fill-color: var(--accent) !important; /* 强制填充颜色 */
+    color: var(--accent) !important;
+    text-decoration: none !important;
+}
+
+/* 单个数字 span */
+.numbers span {
+    display: block;
+    height: 4rem;
+    width: 100%;
+    /* 压迫感核心：Impact 字体 + 横向拉伸 + 斜体 */
+    font-family: 'Impact', 'Arial Black', sans-serif !important;
+    font-size: 3.8rem !important;
+    font-weight: 900;
+    line-height: 4rem;
+    font-style: italic;
+    transform: scaleX(1.25);
+    /* 字符间距紧缩增加紧张感 */
+    letter-spacing: -1px;
+    /* 增加立体深度的文字投影 */
+    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+}
+
+/* 单位 “首” */
+.action-decoration .unit {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-left: 8px;
+    align-self: flex-end;
+    padding-bottom: 5px;
+}
+
+/* 当数字变化时通过 JS 触发的缩放特效 (可选) */
+#selected-count.count-bump {
+    transform: scale(1.1);
+}
+
+/* 核心数字：大幅度增大 */
+#selected-count {
+    display: inline-block;
+    font-size: 2.8rem; /* 显著放大，形成视觉中心 */
+    font-weight: 900;
+    color: var(--accent); /* 使用标志性的金色 */
+    font-family: 'Inter', 'Helvetica Neue', sans-serif; /* 现代无衬线体 */
+    line-height: 1;
+    margin: 0 6px;
+    /* 增加一个细微的文字阴影，让数字更有立体感 */
+    text-shadow: 2px 2px 0px rgba(212, 175, 55, 0.1); 
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+#start-btn {
+    background: var(--primary);
+    color: #fff;
+    border: none;
+    padding: 22px 80px;
+    font-size: 1.3rem;
+    font-weight: 900;
+    letter-spacing: 0.5em;
+    cursor: pointer;
+    transition: 0.4s;
+    position: relative;
+    clip-path: polygon(5% 0%, 100% 0%, 95% 100%, 0% 100%);
+}
+
+#start-btn:hover {
+    background: var(--accent);
+    padding: 22px 100px;
+    transform: translateX(-10px);
+}
+
+/* 物理占位符样式 */
+.spacer {
+    display: block !important;
+    height: 20px !important; /* 底边距高度 */
+    width: 100%;
+    background: transparent;
+    pointer-events: none;
+}
+
+/* ============================================================
+   7. 响应式
+   ============================================================ */
+@media (max-width: 900px) {
+    .color-checkboxes { flex-wrap: wrap; } /* 手机端空间小，允许换行 */
+    body { overflow-y: auto; height: auto; } /* 移动端允许滚动 */
+    #setup-screen { grid-template-columns: 1fr; margin-top: 80px; gap: 40px; }
+    .glass-container { padding: 30px 20px; }
+    .mode-selector-grid, .feature-grid { grid-template-columns: 1fr; }
+
+    /* 标题区域优化 */
+    .setup-header {
+        position: static !important; /* 取消 sticky */
+        text-align: center;
+        margin-bottom: 30px;
+    }
+
+    .logo-text {
+        font-size: 2.8rem;
+        margin-bottom: 10px;
+    }
+
+    .setup-description {
+        border-left: none;
+        border-top: 2px solid var(--accent);
+        padding-left: 0;
+        padding-top: 15px;
+        display: inline-block;
+    }
+
+    /* 开始按钮优化 */
+    .start-action {
+        text-align: center;
+        margin-top: 30px;
+        padding-bottom: 20px;
+    }
+
+    #start-btn {
+        width: 100%; /* 手机端按钮全宽更易点击 */
+        padding: 20px 0;
+        letter-spacing: 0.3em;
+        clip-path: none; /* 手机端建议取消复杂切角，防止点击区域误判 */
+        border-radius: 8px;
+    }
+
+    /* 移除移动端的 hover 位移，防止点击时按钮“飘走”导致误触 */
+    #start-btn:hover {
+        transform: none;
+        background: var(--primary);
+    }
+
+    #start-btn:active {
+        background: var(--accent) !important;
+        transform: scale(0.96) !important;
+        transition: 0.05s;
+    }
+
+    .kimariji-grid {
+        flex-wrap: wrap; /* 手机端空间不足时自然换行 */
+    }
+    
+    .k-chip {
+        flex: 1 1 calc(33.33% - 10px); /* 手机端一行三个 */
+    }
+}
+
+/* ============================================================
+   8. 页面切换效果
+   ============================================================ */
+
+/* 1. 针对列表页的 HTML 结构，通常外层是 .container */
+/* 2. 针对试炼页的 HTML 结构，外层是 #main-content */
+
+#main-content, 
+.container {
+    transition: opacity 0.5s ease, transform 0.5s ease;
+    will-change: opacity, transform;
+}
+
+/* 激活状态：仅内容淡出并轻微下沉 */
+body.fade-content-only #main-content,
+body.fade-content-only .container {
+    opacity: 0;
+    transform: translateY(10px); /* 增加一点下沉感，显得更高级 */
+    pointer-events: none;
+}
+
+/* 激活状态：全屏黑场（对应你之前的全屏遮罩逻辑） */
+body.fade-to-black .fade-overlay {
+    opacity: 1;
+    pointer-events: all;
+}

@@ -1,0 +1,299 @@
+/* ============================================================
+   1. 基础全局设置
+   ============================================================ */
+:root {
+    --primary-color: #2c3e50;
+    --accent-color: #f1c40f;
+    --correct-color: #2ecc71;
+    --wrong-color: #e74c3c;
+    --card-bg: #fffaf0;
+    --battle-bg: #efead8;
+    --shadow-soft: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+body, html {
+    margin: 0; padding: 0; 
+    min-height: 100%;
+    background-color: var(--battle-bg);
+    background-image: radial-gradient(#dcd7c5 1px, transparent 1px);
+    background-size: 20px 20px;
+    user-select: none;
+    color: var(--primary-color);
+    overflow-x: hidden;
+    font-family: 'Noto Serif JP', serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 屏幕显示逻辑：当前仅对战模式 */
+.screen { display: none; width: 100%; box-sizing: border-box; }
+
+body.battle-mode #battle-screen {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ============================================================
+   2. 游戏 HUD (顶部实时信息)
+   ============================================================ */
+.hud {
+    position: fixed; top: 0; left: 0; width: 100%;
+    display: flex; justify-content: space-between;
+    padding: 15px 5%; background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(12px); z-index: 1000; box-sizing: border-box;
+}
+
+/* 进度/倒计时条容器 */
+.timer-wrapper {
+    width: 100%; height: 4px;
+    background: rgba(0, 0, 0, 0.05);
+    position: fixed; top: 55px; z-index: 1001;
+}
+
+/* 进度条基础样式 */
+#timer-bar {
+    height: 100%; width: 100%;
+    /* 宽度变化的过渡要稍微快一点，颜色过渡可以慢点 */
+    transition: width 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28), background-color 0.3s ease;
+}
+
+/* 1. 神速状态 (Godspeed) - 金黄 */
+.timer-godspeed {
+    background-color: #f1c40f !important;
+    box-shadow: 0 0 15px rgba(241, 196, 15, 0.7);
+}
+
+/* 2. 闪光状态 (Flash) - 天蓝 */
+.timer-flash {
+    background-color: #3498db !important;
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.4);
+}
+
+/* 3. 正解状态 (Correct) - 翡翠绿 */
+.timer-correct {
+    background-color: #2ecc71 !important;
+    box-shadow: 0 0 12px rgba(46, 204, 113, 0.5);
+}
+
+/* 4. 迟缓状态 (Slow) - 红色背景，且触发红黑闪烁动画 */
+.timer-slow {
+    width: 100% !important; /* 强制充满 */
+    animation: alert-blink 0.5s infinite; /* 0.5秒一个周期 */
+    box-shadow: 0 0 20px rgba(231, 76, 60, 0.8);
+}
+
+/* 红黑交替动画 */
+@keyframes alert-blink {
+    0% { background-color: #e74c3c; }      /* 红色 */
+    50% { background-color: #000000; }     /* 黑色 */
+    100% { background-color: #e74c3c; }    /* 回到红色 */
+}
+
+/* ============================================================
+   3. 核心对战区域 (Battle Screen)
+   ============================================================ */
+#battle-screen { padding-top: 80px; }
+
+/* 答题反馈提示 (如：神速、Correct) */
+#status-label {
+    height: 4.5rem; display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem; font-weight: 900; transition: all 0.3s;
+}
+
+/* 上句 (Kami-no-ku) 文字显示区域 */
+.kami-text {
+    width: 90%; margin: 20px auto;
+    font-size: clamp(2rem, 5vw, 3.2rem); min-height: 4.8rem;
+    text-align: center; font-weight: bold; letter-spacing: 0.15em;
+}
+
+/* 逐字播放动画效果 */
+.kami-text span {
+    opacity: 0; transform: translateY(10px);
+    transition: all 0.4s ease-out; display: inline-block;
+}
+.kami-text span.active { opacity: 1; transform: none; }
+
+/* 歌牌容器：4列网格布局 */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 180px);
+    justify-content: center;
+    gap: 30px; margin: 20px auto;
+}
+
+/* 下句 (Shimo-no-ku) 竞技歌牌样式 */
+.karuta-card {
+    aspect-ratio: 52 / 73; /* 锁定标准歌牌比例 */
+    height: auto; 
+    width: 75%;
+    margin: 0 auto !important;
+    writing-mode: vertical-rl;
+    text-orientation: upright;
+    display: flex;
+    flex-direction: row; 
+    justify-content: center;
+    align-items: center;
+    background: var(--card-bg);
+    border: 5px solid #1a910bff;
+    padding: 20px 12px;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.5;      /* 控制列间距 */
+    letter-spacing: 0.13em; /* 控制字间距 */
+    cursor: pointer;
+    box-shadow: var(--shadow-soft);
+    position: relative;
+    transition: all 0.2s ease-out;
+    white-space: pre; /* 关键修改：保留显式换行，禁用自动换行 */
+    /* 如果字数实在太多，允许它溢出到卡片外而不是强行换行 */
+    overflow: visible;
+}
+/* 移除可能导致高度变化的潜在因素 */
+.karuta-card span {
+    display: inline; /* 确保所有 span 都是行内元素 */
+    line-height: inherit;
+}
+/* 歌牌内边框装饰 */
+.karuta-card::before {
+    content: '';
+    position: absolute;
+    top: 8px; left: 8px; right: 8px; bottom: 8px;
+    border: 1px solid rgba(44, 62, 80, 0.04);
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+.karuta-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    background: #fff;
+}
+
+/* 1. 当 body 处于倒置视角时，我们只翻转卡片内部的文字包装层 */
+body.inverted-view .card-text-wrapper {
+    transform: rotate(180deg);
+    transform-origin: center center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+/* 2. 修正：卡片本体不要转，否则你的卡片阴影和边框会看起来很怪 */
+body.inverted-view .karuta-card {
+    transform: none !important; 
+}
+
+/* 3. 如果你希望点击效果也适配倒转方向 */
+body.inverted-view .karuta-card:active {
+    transform: scale(0.95); /* 缩放不受旋转影响，这样最稳 */
+}
+
+/* 决定字高亮样式 */
+.card-kimariji, .kimariji-display {
+    color: var(--accent-color) !important;
+    font-weight: bold; display: contents !important;
+    background-color: rgba(241, 196, 15, 0.15);
+    border-radius: 4px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+}
+
+/* 答题状态反馈 */
+.karuta-card.correct { border-color: var(--correct-color) !important; background: #e8f5e9; }
+.karuta-card.wrong { border-color: var(--wrong-color) !important; animation: shake 0.4s both; }
+.highlight-answer { border-color: var(--accent-color) !important; animation: pulse-gold 1.5s infinite; }
+
+/* 结算期间锁定点击 */
+.card-grid.locked { pointer-events: none; }
+
+/* ============================================================
+   4. 动画特效
+   ============================================================ */
+/* 错误时的震动效果 */
+@keyframes shake {
+    10%, 90% { transform: translate3d(-2px, 0, 0) rotate(-1deg); }
+    30%, 70% { transform: translate3d(-4px, 0, 0) rotate(1deg); }
+    40%, 60% { transform: translate3d(4px, 0, 0) rotate(-1deg); }
+}
+
+/* 正确答案提示的金色脉冲效果 */
+@keyframes pulse-gold {
+    0% { box-shadow: 0 0 0 0 rgba(241, 196, 15, 0.5); }
+    70% { box-shadow: 0 0 0 15px rgba(241, 196, 15, 0); }
+}
+
+/* 反馈文字级别样式 */
+.status-godspeed { color: #f1c40f !important; font-size: 3rem !important; font-style: italic; text-shadow: 2px 2px 0 #000; }
+.status-flash { color: #3498db !important; font-size: 2.5rem !important; text-shadow: 2px 2px 0 #000; }
+.status-correct { color: var(--correct-color); }
+.status-slow {
+    color: #7f8c8d; /* 灰色 */
+    font-size: 1.5rem;
+    font-weight: bold;
+    animation: shake 0.5s ease; /* 增加一个嫌弃的抖动效果 */
+}
+.status-wrong { color: var(--wrong-color); }
+
+#intro-overlay {
+    position: fixed;
+    inset: 0;
+    background: #1a1a1aff; /* 纯黑背景 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000; /* 确保在所有 HUD 之上 */
+    transition: opacity 0.8s ease-out, visibility 0.8s;
+}
+
+.intro-logo {
+    font-size: clamp(3rem, 15vw, 6rem);
+    color: #f1c40f; /* 对应 var(--accent) 的金色 */
+    font-weight: 900;
+    text-indent: 1.5rem; /* 修正居中偏移 */
+    letter-spacing: 1.5rem;
+    filter: blur(12px);
+    opacity: 0;
+    animation: logoReveal 2.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes logoReveal {
+    0% { opacity: 0; filter: blur(20px); transform: scale(0.9); }
+    40% { opacity: 1; filter: blur(0); transform: scale(1); }
+    70% { opacity: 1; filter: blur(0); transform: scale(1.05); letter-spacing: 2rem; }
+    100% { opacity: 0; filter: blur(20px); transform: scale(1.1); }
+}
+
+/* 动画结束后的状态 */
+.intro-hidden {
+    opacity: 0 !important;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+/* ============================================================
+   5. 响应式适配 (移动端)
+   ============================================================ */
+@media (max-width: 800px) {
+    /* 移动端强制 2x2 布局以保证歌牌大小 */
+    .card-grid {
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px !important;
+        padding: 10px;
+        max-width: 100vw;
+    }
+}
+@media (max-width: 400px) {
+    /* 适配小屏的等比例缩放 */
+    .karuta-card {
+        width: 110px;
+        height: 154px;
+        font-size: 1.6rem;
+        border-width: 5px;
+        padding: 10px 8px;
+    }
+}
