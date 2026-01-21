@@ -530,6 +530,8 @@ body.page-leaving .container {
         black 10%, 
         black 90%, 
         transparent 100%);
+    /* 2. 禁止 iOS LINE 浏览器的回弹拉伸（这个最容易导致滚轮错位） */
+    overscroll-behavior: contain;
 }
 
 /* 单个数字槽位 */
