@@ -511,8 +511,6 @@ body.page-leaving .container {
 
 /* 滚轮机器容器 */
 .slot-machine {
-    /* 强制开启 3D 加速 */
-    transform: translateZ(0);
     will-change: transform;
     display: inline-flex;
     height: 4rem;
@@ -530,6 +528,9 @@ body.page-leaving .container {
         black 10%, 
         black 90%, 
         transparent 100%);
+    /* 1. 物理层面的强制独立渲染 */
+    transform: translateZ(0); 
+    -webkit-transform: translateZ(0);
     /* 2. 禁止 iOS LINE 浏览器的回弹拉伸（这个最容易导致滚轮错位） */
     overscroll-behavior: contain;
 }
