@@ -1,6 +1,14 @@
 /* ============================================================
    1. 核心变量与基础重设
    ============================================================ */
+@font-face {
+    font-family: 'LocalImpact'; /* 给它取个名字，避免和系统冲突 */
+    src: url('assets/fonts/impact.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+    font-display: block; /* 关键：强制浏览器等字体加载完再渲染，防止错位 */
+}
+
 :root {
     --primary: #2c3e50;
     --accent: #d4af37;
@@ -337,6 +345,7 @@ body.page-leaving .container {
     font-weight: 900;
     margin-bottom: 4px;
     color: #333;
+    white-space: nowrap;
 }
 
 .status-tile .desc {
@@ -579,20 +588,22 @@ body.page-leaving .container {
 
 /* 单个数字 span */
 .numbers span {
-    display: block;
+    display: flex;             /* 改为 flex */
+    justify-content: center;   /* 水平居中 */
+    align-items: center;       /* 垂直居中，不依赖行高 */
     height: 4rem;
     width: 100%;
-    /* 压迫感核心：Impact 字体 + 横向拉伸 + 斜体 */
-    font-family: 'Impact', 'Arial Black', sans-serif !important;
+    
+    font-family: 'LocalImpact', 'Arial Black', sans-serif !important;
     font-size: 3.8rem !important;
     font-weight: 900;
-    line-height: 4rem;
+    /* 即使字体变了，垂直位置也由 flex 控制，不会偏移 */
+    
     font-style: italic;
     transform: scaleX(1.25);
-    /* 字符间距紧缩增加紧张感 */
-    letter-spacing: -1px;
-    /* 增加立体深度的文字投影 */
-    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.2);
+    /* 加上这个防止缩放导致的模糊 */
+    -webkit-font-smoothing: antialiased; 
+    backface-visibility: hidden;
 }
 
 /* 单位 “首” */
@@ -603,25 +614,6 @@ body.page-leaving .container {
     margin-left: 8px;
     align-self: flex-end;
     padding-bottom: 5px;
-}
-
-/* 当数字变化时通过 JS 触发的缩放特效 (可选) */
-#selected-count.count-bump {
-    transform: scale(1.1);
-}
-
-/* 核心数字：大幅度增大 */
-#selected-count {
-    display: inline-block;
-    font-size: 2.8rem; /* 显著放大，形成视觉中心 */
-    font-weight: 900;
-    color: var(--accent); /* 使用标志性的金色 */
-    font-family: 'Inter', 'Helvetica Neue', sans-serif; /* 现代无衬线体 */
-    line-height: 1;
-    margin: 0 6px;
-    /* 增加一个细微的文字阴影，让数字更有立体感 */
-    text-shadow: 2px 2px 0px rgba(212, 175, 55, 0.1); 
-    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 #start-btn {
