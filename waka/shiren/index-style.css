@@ -511,6 +511,9 @@ body.page-leaving .container {
 
 /* 滚轮机器容器 */
 .slot-machine {
+    /* 强制开启 3D 加速 */
+    transform: translateZ(0);
+    will-change: transform;
     display: inline-flex;
     height: 4rem;
     padding: 0 10px;
@@ -531,6 +534,9 @@ body.page-leaving .container {
 
 /* 单个数字槽位 */
 .slot {
+    /* 强制开启 3D 加速 */
+    transform: translateZ(0);
+    will-change: transform;
     width: 3.2rem;
     height: 4rem;
     position: relative;
