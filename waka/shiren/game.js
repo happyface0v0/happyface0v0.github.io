@@ -226,37 +226,40 @@ function renderOptions(correct) {
     if (!grid) return;
     grid.innerHTML = '';
 
-    // 获取决句长度
-    const fullKey = correct.first_half + correct.second_half;
-    const kData = kimarijiMap.get(fullKey); // 依赖 data.js 中的 kimarijiMap
-    const kLen = kData ? kData.kimarijiFirstHalf.length : 1;
-
-    // 寻找混淆项逻辑
-    let offset = (kLen >= 8) ? 2 : 1;
-    let currentLen = Math.max(1, kLen - offset);
-    
     let options = [correct];
     let usedIds = new Set([correct.standardNumber]);
 
-    // 尝试寻找前缀相似的“友札”
-    while (options.length < 4 && currentLen > 0) {
-        const prefix = correct.second_half.substring(0, currentLen);
+    // 辅助函数：根据属性寻找相似项
+    function findSimilars(prop, targetValue, count) {
+        let currentLen = 2; // 从前两个字开始匹配，迷惑性最高
+        let results = [];
         
-        let friends = mainData.filter(p => 
-            !usedIds.has(p.standardNumber) && 
-            p.second_half.startsWith(prefix)
-        );
-
-        while (friends.length > 0 && options.length < 4) {
-            const randomIndex = Math.floor(Math.random() * friends.length);
-            const picked = friends.splice(randomIndex, 1)[0];
-            options.push(picked);
-            usedIds.add(picked.standardNumber);
+        while (results.length < count && currentLen > 0) {
+            const prefix = targetValue.substring(0, currentLen);
+            let matches = mainData.filter(p => 
+                !usedIds.has(p.standardNumber) && 
+                p[prop].startsWith(prefix)
+            );
+            
+            while (matches.length > 0 && results.length < count) {
+                const picked = matches.splice(Math.floor(Math.random() * matches.length), 1)[0];
+                results.push(picked);
+                usedIds.add(picked.standardNumber);
+            }
+            currentLen--;
         }
-        currentLen--;
+        return results;
     }
 
-    // 如果还不够4张，随机补齐
+    // 1. 寻找 1 首下半句相似的 (原本是想找3首，现在拆分)
+    const secondHalfSimilars = findSimilars('second_half', correct.second_half, 1);
+    options.push(...secondHalfSimilars);
+
+    // 2. 寻找 2 首上半句相似的
+    const firstHalfSimilars = findSimilars('first_half', correct.first_half, 2);
+    options.push(...firstHalfSimilars);
+
+    // 3. 如果因为找不到相似项导致不够4张，随机补齐
     while (options.length < 4) {
         let rand = mainData[Math.floor(Math.random() * mainData.length)];
         if (!usedIds.has(rand.standardNumber)) {
@@ -274,28 +277,26 @@ function renderOptions(correct) {
         card.className = `karuta-card color-${poem.color}`;
         card.dataset.isCorrect = (poem.standardNumber === correct.standardNumber);
         
-        // 关键：创建一个文字包装层
         const contentWrapper = document.createElement('div');
-        contentWrapper.className = 'card-text-wrapper'; // 给它一个类名
+        contentWrapper.className = 'card-text-wrapper';
 
         const fullText = poem.second_half.replace(/[\s　]/g, "");
 
+        // 处理特殊长度或换行逻辑
         if (poem.standardNumber === 21) {
             const p1 = fullText.substring(0, 5);
             const p2 = fullText.substring(5, 10);
             const p3 = fullText.substring(10);
-            // 注意这里赋值给 contentWrapper
             contentWrapper.innerHTML = `${p1}\n${p2}\n<div style="display: contents; letter-spacing: -0.10em;">${p3}</div>`;
         } else {
             let lines = [];
             for (let i = 0; i < fullText.length; i += 5) {
                 lines.push(fullText.substring(i, i + 5));
             }
-            // 注意这里赋值给 contentWrapper
-            contentWrapper.innerText = lines.map(line => line.length === 4 ? line + "\n" : line).join("\n");
+            contentWrapper.innerText = lines.join("\n");
         }
 
-        card.appendChild(contentWrapper); // 先把文字塞进包装层，再塞进卡片
+        card.appendChild(contentWrapper);
         card.onclick = () => handleChoice(poem.standardNumber === correct.standardNumber, card);
         grid.appendChild(card);
     });
