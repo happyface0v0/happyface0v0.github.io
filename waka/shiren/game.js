@@ -1,36 +1,67 @@
 /**
- * game.js - 纯净对战版
- * 适配仅有 battle-screen 的 HTML 结构
+ * game.js
  */
 
-// --- 游戏状态变量 ---
-let gamePool = [];      // 题目池
-let currentIndex = 0;   // 当前题目指针
-let currentPoem = null; // 当前题目对象
-let score = 0;
-let combo = 0;
-let maxCombo = 0;
-let correctCount = 0;
-let audio = new Audio();
-let canClick = false;
-let startTime = 0;
-let totalTime = 0;
-let activeTimeouts = [];
+// ── 游戏状态变量 ─────────────────────────────────────────────
 
-// --- 判定阈值配置 ---
+let gamePool     = [];    // 题目池
+let currentIndex = 0;     // 当前题目指针
+let currentPoem  = null;  // 当前题目对象
+let score        = 0;
+let combo        = 0;
+let maxCombo     = 0;
+let correctCount = 0;
+let audio        = new Audio();
+let canClick     = false;
+let startTime    = 0;
+let totalTime    = 0;
+let activeTimeouts = [];
+let judgeLog     = [];    // 全問の判定ログ
+
+// ── 判定阈值配置 ─────────────────────────────────────────────
+
 const JUDGE_CONFIG = {
-    SYLLABLE_TIME: 0.3,       // 每个音节耗时
-    BASE_REACTION: 1.25,       // 基础反应宽限期
-    FLASH_WINDOW: 3.0,        // 闪光评价的额外窗口时间
-    FAIL_LIMIT: 10.0          // 10秒强制线
+    SYLLABLE_TIME: 0.3,   // 每个音节耗时
+    BASE_REACTION: 1.25,  // 基础反应宽限期
+    FLASH_WINDOW:  3.0,   // 闪光评价的额外窗口时间
+    FAIL_LIMIT:    10.0   // 10秒强制线
 };
 
-// 页面加载完成后立即初始化
+// ── 编码工具（供 handleGameOver 使用）────────────────────────
+
+const JUDGE_CHAR_GAME = { godspeed: 'g', flash: 'f', correct: 'c', slow: 's', wrong: 'w' };
+
+function pad(n, len, radix = 36) {
+    return n.toString(radix).padStart(len, '0');
+}
+
+function encodeResultToURL(data) {
+    const { score, correctCount, total, maxCombo, totalTime, log, trialConfig } = data;
+
+    const logStr = log.map(entry => {
+        const stdPart  = pad(entry.poem.standardNumber, 2);
+        const judPart  = JUDGE_CHAR_GAME[entry.judge] || 'w';
+        const timePart = (entry.time >= 0) ? pad(Math.round(entry.time * 100), 4) : '----';
+        const corPart  = entry.isCorrect ? '1' : '0';
+        return stdPart + judPart + timePart + corPart;
+    }).join(';');
+
+    const cfg    = trialConfig || {};
+    const cfgStr = btoa(
+        (cfg.audioOnly    ? '1' : '0') +
+        (cfg.invertedView ? '1' : '0') +
+        '|' + (cfg.poolIds || []).join(',')
+    );
+
+    const main = [score, correctCount, total, maxCombo, Math.round((totalTime || 0) * 100), logStr, cfgStr].join('|');
+    return btoa(unescape(encodeURIComponent(main))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+}
+
+// ── 初始化 ───────────────────────────────────────────────────
+
 window.addEventListener('load', () => {
     initGame();
 });
-
-// --- 修改后的初始化逻辑 ---
 
 function initGame() {
     if (typeof mainData === 'undefined' || mainData.length === 0) {
@@ -38,84 +69,62 @@ function initGame() {
         return;
     }
 
-    // --- 新增：刷新校验逻辑 ---
-    // 检查是否有合法的“入场券”
+    // 检查是否有合法的入场券
     const entryTicket = sessionStorage.getItem('trial_active');
-    
     if (!entryTicket) {
-        // 如果没有券（说明是直接刷新或手动输入地址），跳回首页
         window.location.href = 'index.html';
         return;
     }
-    // 立即销毁凭证：确保下一次刷新时凭证已失效
+    // 立即销毁凭证，确保下一次刷新时凭证已失效
     sessionStorage.removeItem('trial_active');
 
-    // 1. 获取配置
+    // 获取配置
     const savedConfig = sessionStorage.getItem('trial_config');
-    let poolIds = [];
+    let poolIds     = [];
     let isAudioOnly = false;
-    let isInverted = false;
+    let isInverted  = false;
 
     if (savedConfig) {
         const config = JSON.parse(savedConfig);
-        poolIds = config.poolIds || [];
-        isAudioOnly = config.audioOnly || false;
-        isInverted = config.invertedView || false;
+        poolIds     = config.poolIds     || [];
+        isAudioOnly = config.audioOnly   || false;
+        isInverted  = config.invertedView || false;
     }
 
-    // 2. 根据 ID 池过滤题目
-    if (poolIds.length > 0) {
-        // 仅包含用户在选择页面筛选出的 ID
-        gamePool = mainData.filter(p => poolIds.includes(p.standardNumber));
-    } else {
-        // 如果没有 ID 池（预防意外），则使用全部
-        gamePool = [...mainData];
-    }
+    // 根据 ID 池过滤题目
+    gamePool = poolIds.length > 0
+        ? mainData.filter(p => poolIds.includes(p.standardNumber))
+        : [...mainData];
 
-    // 3. 获取遮罩元素
+    // intro 动画结束后移除遮罩
     const intro = document.getElementById('intro-overlay');
-    
-    // 4. 动画结束后自动移除
     if (intro) {
         setTimeout(() => {
             intro.classList.add('intro-hidden');
-            // 动画彻底结束后从 DOM 移除，节省性能
             setTimeout(() => intro.remove(), 1000);
-        }, 2500); // 对应动画 logoReveal 的时间
+        }, 2500);
     }
 
-    // 5. 核心修改：让第一题稍微等一下再开始
-    // 这样不会出现“遮罩还在黑屏，声音就开始读”的情况
+    // 遮罩消失后再开始第一题
     setTimeout(() => {
         applySpecialModes(isAudioOnly, isInverted);
         shufflePool(gamePool);
         resetGame();
         nextQuestion();
-    }, 2500); // 在 Logo 亮起之后开始读题
+    }, 2500);
 }
 
-/**
- * 处理“仅音频”和“倒置视角”模式
- */
 function applySpecialModes(audioOnly, inverted) {
-    const body = document.body;
-    
-    // 调试用：看看 sessionStorage 到底给了什么
-    console.log("模式检查:", { audioOnly, inverted });
-
     if (audioOnly) {
         const kami = document.getElementById('kami-no-ku');
         if (kami) kami.style.display = 'none';
     }
 
-    // 重点：强制转换为布尔值判断
-    const shouldInvert = String(inverted) === 'true';
-
-    if (shouldInvert) {
-        body.classList.add('inverted-view');
-        console.log("已成功添加 inverted-view 类名");
+    // 强制转换为布尔值
+    if (String(inverted) === 'true') {
+        document.body.classList.add('inverted-view');
     } else {
-        body.classList.remove('inverted-view');
+        document.body.classList.remove('inverted-view');
     }
 }
 
@@ -127,22 +136,19 @@ function shufflePool(pool) {
 }
 
 function resetGame() {
-    score = 0;
-    combo = 0;
-    maxCombo = 0;
+    score        = 0;
+    combo        = 0;
+    maxCombo     = 0;
     currentIndex = 0;
     correctCount = 0;
-    totalTime = 0;
+    totalTime    = 0;
+    judgeLog     = [];
     updateUI();
 }
 
-// --- 核心游戏流程 ---
+// ── 核心游戏流程 ─────────────────────────────────────────────
 
-/**
- * 加载下一题
- */
 function nextQuestion() {
-    // 游戏结束判定
     if (currentIndex >= gamePool.length) {
         handleGameOver();
         return;
@@ -151,27 +157,23 @@ function nextQuestion() {
     currentPoem = gamePool[currentIndex];
 
     const statusLabel = document.getElementById('status-label');
-    const cardGrid = document.getElementById('card-grid');
-    const timerBar = document.getElementById('timer-bar');
-    
-    // 重置界面状态
+    const cardGrid    = document.getElementById('card-grid');
+    const timerBar    = document.getElementById('timer-bar');
+
     if (statusLabel) {
         statusLabel.innerText = "";
         statusLabel.classList.remove('status-godspeed', 'status-flash', 'status-correct', 'status-wrong');
     }
-    if (cardGrid) cardGrid.classList.remove('locked');
-    if (timerBar) timerBar.style.width = "100%";
-    
-    canClick = true; 
+    if (cardGrid)  cardGrid.classList.remove('locked');
+    if (timerBar)  timerBar.style.width = "100%";
 
-    // 渲染卡片
+    canClick = true;
+
     renderOptions(currentPoem);
 
-    // 播放音频与文字动画
     const stdNum = String(currentPoem.standardNumber).padStart(3, '0');
     audio.src = `assets/audio/a${stdNum}.mp3`;
-    
-    // 音频播放回调
+
     const playHandler = () => {
         startTime = Date.now();
         animateTextIn(currentPoem.first_half);
@@ -179,48 +181,32 @@ function nextQuestion() {
     };
 
     audio.onplay = playHandler;
-    
-    // 尝试播放 (处理浏览器自动播放策略)
-    audio.play().catch(e => {
-        console.warn("自动播放被拦截，显示全屏解锁层");
 
-        // 1. 创建全屏遮罩
+    audio.play().catch(() => {
+        // 浏览器自动播放被拦截，显示全屏解锁层
         const overlay = document.createElement('div');
         overlay.id = 'audio-unlock-overlay';
-        
-        // 2. 样式（确保盖住一切）
         Object.assign(overlay.style, {
             position: 'fixed', top: '0', left: '0', width: '100vw', height: '100vh',
             backgroundColor: '#1a1a1a', zIndex: '10000',
             display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center',
             color: 'white', cursor: 'pointer', textAlign: 'center'
         });
-
-        // 3. 内容
         overlay.innerHTML = `
             <div style="font-size: 3rem; margin-bottom: 10px;">🔈</div>
             <div style="font-size: 1.5rem; font-weight: bold;">タップして開始</div>
             <div style="font-size: 0.9rem; margin-top: 10px; opacity: 0.7;">(音声再生を許可してください)</div>
         `;
-
-        // 4. 点击解锁逻辑
         overlay.onclick = () => {
             audio.play().then(() => {
-                // 只有成功出声了，才移除遮罩并开始动画
                 overlay.remove();
-                playHandler(); 
-            }).catch(err => {
-                console.error("解锁失败:", err);
-            });
+                playHandler();
+            }).catch(err => console.error("解锁失败:", err));
         };
-
         document.body.appendChild(overlay);
     });
 }
 
-/**
- * 渲染卡片选项 - 核心：挖掘友札逻辑
- */
 function renderOptions(correct) {
     const grid = document.getElementById('card-grid');
     if (!grid) return;
@@ -229,18 +215,14 @@ function renderOptions(correct) {
     let options = [correct];
     let usedIds = new Set([correct.standardNumber]);
 
-    // 辅助函数：根据属性寻找相似项
     function findSimilars(prop, targetValue, count) {
-        let currentLen = 2; // 从前两个字开始匹配，迷惑性最高
+        let currentLen = 2;
         let results = [];
-        
         while (results.length < count && currentLen > 0) {
-            const prefix = targetValue.substring(0, currentLen);
-            let matches = mainData.filter(p => 
-                !usedIds.has(p.standardNumber) && 
-                p[prop].startsWith(prefix)
+            const prefix  = targetValue.substring(0, currentLen);
+            let matches = mainData.filter(p =>
+                !usedIds.has(p.standardNumber) && p[prop].startsWith(prefix)
             );
-            
             while (matches.length > 0 && results.length < count) {
                 const picked = matches.splice(Math.floor(Math.random() * matches.length), 1)[0];
                 results.push(picked);
@@ -251,45 +233,36 @@ function renderOptions(correct) {
         return results;
     }
 
-    // 1. 寻找 1 首下半句相似的 (原本是想找3首，现在拆分)
-    const secondHalfSimilars = findSimilars('second_half', correct.second_half, 1);
-    options.push(...secondHalfSimilars);
+    options.push(...findSimilars('second_half', correct.second_half, 1));
+    options.push(...findSimilars('first_half',  correct.first_half,  2));
 
-    // 2. 寻找 2 首上半句相似的
-    const firstHalfSimilars = findSimilars('first_half', correct.first_half, 2);
-    options.push(...firstHalfSimilars);
-
-    // 3. 如果因为找不到相似项导致不够4张，随机补齐
     while (options.length < 4) {
-        let rand = mainData[Math.floor(Math.random() * mainData.length)];
+        const rand = mainData[Math.floor(Math.random() * mainData.length)];
         if (!usedIds.has(rand.standardNumber)) {
             options.push(rand);
             usedIds.add(rand.standardNumber);
         }
     }
 
-    // 选项洗牌
     options.sort(() => Math.random() - 0.5);
 
-    // 生成 DOM
     options.forEach(poem => {
         const card = document.createElement('div');
         card.className = `karuta-card color-${poem.color}`;
         card.dataset.isCorrect = (poem.standardNumber === correct.standardNumber);
-        
+
         const contentWrapper = document.createElement('div');
         contentWrapper.className = 'card-text-wrapper';
 
         const fullText = poem.second_half.replace(/[\s　]/g, "");
 
-        // 处理特殊长度或换行逻辑
         if (poem.standardNumber === 21) {
             const p1 = fullText.substring(0, 5);
             const p2 = fullText.substring(5, 10);
             const p3 = fullText.substring(10);
             contentWrapper.innerHTML = `${p1}\n${p2}\n<div style="display: contents; letter-spacing: -0.10em;">${p3}</div>`;
         } else {
-            let lines = [];
+            const lines = [];
             for (let i = 0; i < fullText.length; i += 5) {
                 lines.push(fullText.substring(i, i + 5));
             }
@@ -302,86 +275,76 @@ function renderOptions(correct) {
     });
 }
 
-/**
- * 处理玩家点击
- */
 function handleChoice(isCorrect, cardElement) {
     if (!canClick) return;
     canClick = false;
-    
+
     document.getElementById('card-grid').classList.add('locked');
     audio.pause();
     currentIndex++;
 
-    const elapsed = (Date.now() - startTime) / 1000;
-    totalTime += elapsed; 
+    const elapsed     = (Date.now() - startTime) / 1000;
+    totalTime        += elapsed;
 
     const statusLabel = document.getElementById('status-label');
-    statusLabel.className = ''; // 重置样式
+    statusLabel.className = '';
     void statusLabel.offsetWidth; // 强制重绘
 
     if (isCorrect) {
         correctCount++;
         combo++;
         if (combo > maxCombo) maxCombo = combo;
-        
-        // 1. 基础参数与难度权重 (长牌高分)
-        const fullKey = currentPoem.first_half + currentPoem.second_half;
-        const kData = kimarijiMap.get(fullKey);
-        const kLen = (kData ? kData.kimarijiFirstHalf.length : 1);
-        const difficultyWeight = 0.8 + (kLen * 0.2); 
 
-        // 2. 动态阈值设定
+        const fullKey          = currentPoem.first_half + currentPoem.second_half;
+        const kData            = kimarijiMap.get(fullKey);
+        const kLen             = kData ? kData.kimarijiFirstHalf.length : 1;
+        const difficultyWeight = 0.8 + (kLen * 0.2);
+
         const godspeedThreshold = (kLen * JUDGE_CONFIG.SYLLABLE_TIME) + JUDGE_CONFIG.BASE_REACTION;
-        const flashThreshold = godspeedThreshold + JUDGE_CONFIG.FLASH_WINDOW;
-        const failThreshold = JUDGE_CONFIG.FAIL_LIMIT;
+        const flashThreshold    = godspeedThreshold + JUDGE_CONFIG.FLASH_WINDOW;
+        const failThreshold     = JUDGE_CONFIG.FAIL_LIMIT;
 
+        let judgeName = 'correct';
         let multiplier = 1.0;
         let sfx = 'correct.wav';
 
-        // 3. 四个等级判定
-        if (elapsed < godspeedThreshold) { 
-            multiplier = 3.5;
-            sfx = 'godspeed.wav'; 
-            statusLabel.innerText = "神速！"; 
-            statusLabel.classList.add('status-godspeed'); 
-        } else if (elapsed < flashThreshold) { 
-            multiplier = 2.0; 
-            sfx = 'flash.wav'; 
-            statusLabel.innerText = "閃光！"; 
-            statusLabel.classList.add('status-flash'); 
+        if (elapsed < godspeedThreshold) {
+            judgeName = 'godspeed'; multiplier = 3.5; sfx = 'godspeed.wav';
+            statusLabel.innerText = "神速！";
+            statusLabel.classList.add('status-godspeed');
+        } else if (elapsed < flashThreshold) {
+            judgeName = 'flash'; multiplier = 2.0; sfx = 'flash.wav';
+            statusLabel.innerText = "閃光！";
+            statusLabel.classList.add('status-flash');
         } else if (elapsed < failThreshold) {
-            multiplier = 1.0; 
-            sfx = 'correct.wav'; 
-            statusLabel.innerText = "正解！"; 
-            statusLabel.classList.add('status-correct'); 
+            judgeName = 'correct'; multiplier = 1.0; sfx = 'correct.wav';
+            statusLabel.innerText = "正解！";
+            statusLabel.classList.add('status-correct');
         } else {
-            // 第四等级：太慢了，虽然选对了但不给倍率，评价为“緩慢”
-            multiplier = 0.5; // 只有一半分数，甚至可以给 0
-            sfx = 'slow.wav'; 
-            statusLabel.innerText = "遅すぎ！"; 
-            statusLabel.classList.add('status-slow'); // 需要在 CSS 增加这个类
+            judgeName = 'slow'; multiplier = 0.5; sfx = 'slow.wav';
+            statusLabel.innerText = "遅すぎ！";
+            statusLabel.classList.add('status-slow');
         }
 
-        // 4. 分数计算
-        const comboBonus = 1 + (combo * 0.05); 
-        const thisPoint = Math.round((100 * difficultyWeight * multiplier) * comboBonus);
-        score += thisPoint; 
-        
+        judgeLog.push({ poem: currentPoem, judge: judgeName, time: elapsed, isCorrect: true });
+
+        const comboBonus = 1 + (combo * 0.05);
+        score += Math.round((100 * difficultyWeight * multiplier) * comboBonus);
+
         cardElement.classList.add('correct');
-        new Audio(`assets/sounds/${sfx}`).play().catch(()=>{});
+        new Audio(`assets/sounds/${sfx}`).play().catch(() => {});
 
     } else {
-        // お手つき逻辑维持不变
         combo = 0;
+        judgeLog.push({ poem: currentPoem, judge: 'wrong', time: -1, isCorrect: false });
         statusLabel.innerText = "お手つき！";
         statusLabel.className = 'status-wrong';
         cardElement.classList.add('wrong');
-        
+
         const correctCard = document.querySelector('.karuta-card[data-is-correct="true"]');
         if (correctCard) correctCard.classList.add('highlight-answer');
-        
-        new Audio(`assets/sounds/wrong.wav`).play().catch(()=>{});
+
+        new Audio(`assets/sounds/wrong.wav`).play().catch(() => {});
     }
 
     revealKimariji();
@@ -389,96 +352,72 @@ function handleChoice(isCorrect, cardElement) {
     setTimeout(nextQuestion, 2000);
 }
 
-// --- 辅助视觉逻辑 ---
+// ── 視覚補助 ─────────────────────────────────────────────────
 
 function animateTextIn(text) {
     const container = document.getElementById('kami-no-ku');
     if (!container) return;
-    
+
     container.innerHTML = '';
     activeTimeouts.forEach(clearTimeout);
     activeTimeouts = [];
 
-    const chars = text.split('');
     let accumulatedDelay = 0;
-
-    chars.forEach((char, i) => {
+    text.split('').forEach((char, i) => {
         const span = document.createElement('span');
         span.innerText = char;
         container.appendChild(span);
 
-        let delay = (i === 0) ? 600 : 300; 
-        accumulatedDelay += delay;
-
-        const timer = setTimeout(() => {
-            span.classList.add('active');
-        }, accumulatedDelay);
+        accumulatedDelay += (i === 0) ? 600 : 300;
+        const timer = setTimeout(() => span.classList.add('active'), accumulatedDelay);
         activeTimeouts.push(timer);
     });
 }
 
-/**
- * 核心逻辑：显示决意字（Kimariji）
- * 修改点：匹配时自动跳过文本中的空格和换行符
- */
 function revealKimariji() {
     if (!currentPoem) return;
-    
-    // 1. 瞬间完成上句动画
+
+    // 上句アニメーションを即完了
     const kamiContainer = document.getElementById('kami-no-ku');
     if (kamiContainer) {
-        const spans = kamiContainer.querySelectorAll('span');
-        spans.forEach(span => span.classList.add('active'));
+        kamiContainer.querySelectorAll('span').forEach(s => s.classList.add('active'));
     }
-
     activeTimeouts.forEach(clearTimeout);
     activeTimeouts = [];
 
     const fullKey = currentPoem.first_half + currentPoem.second_half;
-    const kData = kimarijiMap.get(fullKey);
+    const kData   = kimarijiMap.get(fullKey);
     if (!kData) return;
 
     function applyKimariji(container, kText, highlightClass) {
         if (!container) return;
-        // 过滤掉决意字配置里可能存在的空格，确保匹配队列纯净
         let chars = kText.replace(/[\s　]/g, "").split('');
-        
+
         function walk(node) {
             if (chars.length === 0) return;
-            
-            if (node.nodeType === 3) { // 文本节点
-                const text = node.nodeValue;
+            if (node.nodeType === 3) {
+                const text     = node.nodeValue;
                 const fragment = document.createDocumentFragment();
                 let hasChanged = false;
 
-                for (let char of text) {
-                    // 如果当前文本字符是空格或换行
+                for (const char of text) {
                     if (/[\s　\n\r]/.test(char)) {
                         fragment.appendChild(document.createTextNode(char));
-                        // 注意：这里不消耗 chars 队列，直接进入下一个循环
-                        continue; 
+                        continue;
                     }
-
-                    // 如果当前字符匹配决意字队列的首字
                     if (chars.length > 0 && char === chars[0]) {
                         const span = document.createElement('span');
-                        span.className = highlightClass;
+                        span.className   = highlightClass;
                         span.textContent = char;
                         fragment.appendChild(span);
-                        
-                        chars.shift(); // 匹配成功，弹出队列
+                        chars.shift();
                         hasChanged = true;
                     } else {
-                        // 字符不匹配且不是空格，直接保留原样
                         fragment.appendChild(document.createTextNode(char));
                     }
                 }
-                
-                if (hasChanged) {
-                    node.parentNode.replaceChild(fragment, node);
-                }
+                if (hasChanged) node.parentNode.replaceChild(fragment, node);
             } else {
-                // 递归处理子节点，跳过已经高亮过的节点
                 if (node.className !== highlightClass) {
                     Array.from(node.childNodes).forEach(walk);
                 }
@@ -487,11 +426,10 @@ function revealKimariji() {
         walk(container);
     }
 
-    // 处理上句和下句
-    const k1 = kData.kimarijiFirstHalf || "";
+    const k1 = kData.kimarijiFirstHalf  || "";
+    const k2 = kData.kimarijiSecondHalf || "";
     if (k1 && kamiContainer) applyKimariji(kamiContainer, k1, 'kimariji-display');
 
-    const k2 = kData.kimarijiSecondHalf || "";
     const correctCard = document.querySelector('.karuta-card[data-is-correct="true"]');
     if (k2 && correctCard) applyKimariji(correctCard, k2, 'card-kimariji');
 }
@@ -505,55 +443,144 @@ function updateUI() {
 
 function updateTimer() {
     if (!canClick || !startTime) return;
-    
+
     const timerBar = document.getElementById('timer-bar');
     if (!timerBar) return;
 
-    const elapsed = (Date.now() - startTime) / 1000;
-    
-    // 动态计算阈值（建议将这些计算提到全局，避免每帧重复计算）
-    const fullKey = currentPoem.first_half + currentPoem.second_half;
-    const kData = kimarijiMap.get(fullKey);
-    const kLen = kData ? kData.kimarijiFirstHalf.length : 1;
+    const elapsed   = (Date.now() - startTime) / 1000;
+    const fullKey   = currentPoem.first_half + currentPoem.second_half;
+    const kData     = kimarijiMap.get(fullKey);
+    const kLen      = kData ? kData.kimarijiFirstHalf.length : 1;
     const godspeedThreshold = (kLen * JUDGE_CONFIG.SYLLABLE_TIME) + JUDGE_CONFIG.BASE_REACTION;
-    const flashThreshold = godspeedThreshold + JUDGE_CONFIG.FLASH_WINDOW;
+    const flashThreshold    = godspeedThreshold + JUDGE_CONFIG.FLASH_WINDOW;
 
-    timerBar.className = ""; // 重置类名
+    timerBar.className = "";
 
     if (elapsed < JUDGE_CONFIG.FAIL_LIMIT) {
-        // 10秒内：正常倒退
-        const progress = (elapsed / JUDGE_CONFIG.FAIL_LIMIT) * 100;
-        timerBar.style.width = Math.max(0, 100 - progress) + "%";
-
-        // 颜色状态切换
-        if (elapsed < godspeedThreshold) {
-            timerBar.classList.add('timer-godspeed');
-        } else if (elapsed < flashThreshold) {
-            timerBar.classList.add('timer-flash');
-        } else {
-            timerBar.classList.add('timer-correct');
-        }
-
+        timerBar.style.width = Math.max(0, 100 - (elapsed / JUDGE_CONFIG.FAIL_LIMIT) * 100) + "%";
+        if      (elapsed < godspeedThreshold) timerBar.classList.add('timer-godspeed');
+        else if (elapsed < flashThreshold)    timerBar.classList.add('timer-flash');
+        else                                  timerBar.classList.add('timer-correct');
         requestAnimationFrame(updateTimer);
     } else {
-        // --- 核心修改：超时逻辑 ---
-        timerBar.style.width = "100%"; // 直接充满
-        timerBar.classList.add('timer-slow'); // 变成红色发光
-        // 停止 requestAnimationFrame，因为它已经达到终止状态
+        timerBar.style.width = "100%";
+        timerBar.classList.add('timer-slow');
     }
 }
 
-/**
- * 游戏结束处理
- * 因 HTML 无结算界面，仅做简单提示
- */
+// ── 游戏结束 ─────────────────────────────────────────────────
+
 function handleGameOver() {
-    const total = gamePool.length;
-    const accuracy = total > 0 ? ((correctCount / total) * 100).toFixed(1) : 0;
-    
-    // 简单的结束反馈，防止报错
-    alert(`試合終了！\nSCORE: ${score}\n正解率: ${accuracy}%`);
-    
-    // 可以在这里选择重新开始
-    // window.location.reload(); 
+    const encoded = encodeResultToURL({
+        score,
+        correctCount,
+        total:       gamePool.length,
+        maxCombo,
+        totalTime,
+        log:         judgeLog,
+        trialConfig: JSON.parse(sessionStorage.getItem('trial_config') || '{}')
+    });
+
+    // 结算覆盖层
+    const overlay = document.createElement('div');
+    Object.assign(overlay.style, {
+        position:       'fixed',
+        inset:          '0',
+        background:     '#1a1a1a',
+        zIndex:         '10000',
+        display:        'flex',
+        flexDirection:  'column',
+        alignItems:     'center',
+        justifyContent: 'center',
+        gap:            '24px',
+        opacity:        '0',
+        transition:     'opacity 0.6s ease',
+        fontFamily:     "'Noto Serif JP', serif",
+        color:          '#fff',
+        userSelect:     'none',
+    });
+
+    const accuracy = gamePool.length > 0
+        ? ((correctCount / gamePool.length) * 100).toFixed(1)
+        : 0;
+
+    overlay.innerHTML = `
+        <div style="font-size:0.85rem; letter-spacing:0.4em; color:#888; text-transform:uppercase;">試練終了</div>
+        <div id="gameover-score" style="
+            font-size: clamp(4rem, 15vw, 8rem);
+            font-weight: 900;
+            line-height: 1;
+            background: linear-gradient(135deg, #d4af37, #f1c40f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        ">0</div>
+        <div style="display:flex; gap:32px; font-size:0.9rem; color:#aaa;">
+            <span><b style="color:#fff; font-size:1.1rem;">${correctCount}/${gamePool.length}</b> 正解</span>
+            <span><b style="color:#fff; font-size:1.1rem;">${accuracy}%</b> 正解率</span>
+            <span><b style="color:#fff; font-size:1.1rem;">${maxCombo}</b> 最大COMBO</span>
+        </div>
+        <div style="font-size:0.75rem; color:#555; margin-top:8px; letter-spacing:0.2em;">結果画面へ移動中...</div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // フェードイン
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+    });
+
+    // スコアカウントアップ → 完了後に遷移
+    const scoreEl = overlay.querySelector('#gameover-score');
+    const duration = 1400;
+    const start = performance.now();
+    (function countUp(now) {
+        const p = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - p, 4);
+        scoreEl.textContent = Math.floor(score * eased).toLocaleString();
+        if (p < 1) {
+            requestAnimationFrame(countUp);
+        } else {
+            // カウントアップ完了 → 800ms 停留 → 扫光 → 遷移
+            setTimeout(() => {
+                // 扫光元素
+                const sweep = document.createElement('div');
+                Object.assign(sweep.style, {
+                    position:      'absolute',
+                    top:           '0',
+                    left:          '-40%',
+                    width:         '40%',
+                    height:        '100%',
+                    background:    'linear-gradient(90deg, transparent, rgba(241,196,15,0.3) 30%, rgba(255,255,255,0.95) 48%, rgba(255,255,255,1) 50%, rgba(255,255,255,0.95) 52%, rgba(241,196,15,0.3) 70%, transparent)',
+                    transform:     'skewX(-12deg)',
+                    transition:    'left 0.8s cubic-bezier(0.4, 0, 0.2, 1)',
+                    zIndex:        '1',
+                    pointerEvents: 'none',
+                });
+                overlay.style.overflow = 'hidden';
+                overlay.appendChild(sweep);
+
+                // 触发扫光
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => { sweep.style.left = '140%'; });
+                });
+
+                // 扫光结束后：内容淡出，背景变和纸色，跳转
+                setTimeout(() => {
+                    Array.from(overlay.children).forEach(el => {
+                        if (el !== sweep) {
+                            el.style.transition = 'opacity 0.3s ease';
+                            el.style.opacity    = '0';
+                        }
+                    });
+                    overlay.style.transition = 'background 0.5s ease';
+                    overlay.style.background = '#efead8';
+                    // 背景开始变色就立刻跳转，result页面的入场动画填补这段时间
+                    setTimeout(() => {
+                        window.location.href = `result.html?d=${encoded}`;
+                    }, 50);
+                }, 800);
+            }, 800);
+        }
+    })(performance.now());
 }

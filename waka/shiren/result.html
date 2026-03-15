@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>試練の結果</title>
+    <link rel="stylesheet" href="result-style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <div class="fade-overlay"></div>
+    <div id="page-exit-overlay" class="exit-overlay"></div>
+
+    <nav class="main-nav">
+        <a href="../shiren/index.html" class="nav-item">試練</a>
+        <a href="../index.html" class="nav-item">歌一覧</a>
+        <a href="history.html" class="nav-item">記録</a>
+    </nav>
+
+    <main class="container">
+
+        <!-- ===== ヘッダー ===== -->
+        <header class="result-header">
+            <div class="header-deco">試練の記録</div>
+            <h1 class="final-score" id="final-score">0</h1>
+            <div class="score-label">SCORE</div>
+        </header>
+
+        <!-- ===== サマリーカード群 ===== -->
+        <section class="summary-grid">
+            <div class="summary-card">
+                <span class="card-value" id="accuracy">0%</span>
+                <span class="card-label">正解率</span>
+            </div>
+            <div class="summary-card">
+                <span class="card-value" id="max-combo">0</span>
+                <span class="card-label">最大コンボ</span>
+            </div>
+            <div class="summary-card">
+                <span class="card-value" id="avg-time">0.0s</span>
+                <span class="card-label">平均反応速度</span>
+            </div>
+            <div class="summary-card">
+                <span class="card-value" id="total-count">0/0</span>
+                <span class="card-label">正解数</span>
+            </div>
+        </section>
+
+        <!-- ===== 判定内訳 ===== -->
+        <section class="judge-section">
+            <h2 class="section-title">判定内訳</h2>
+            <div class="judge-bars">
+                <div class="judge-row">
+                    <span class="judge-label godspeed">神速</span>
+                    <div class="bar-track">
+                        <div class="bar-fill godspeed" id="bar-godspeed"></div>
+                    </div>
+                    <span class="judge-count" id="cnt-godspeed">0</span>
+                </div>
+                <div class="judge-row">
+                    <span class="judge-label flash">閃光</span>
+                    <div class="bar-track">
+                        <div class="bar-fill flash" id="bar-flash"></div>
+                    </div>
+                    <span class="judge-count" id="cnt-flash">0</span>
+                </div>
+                <div class="judge-row">
+                    <span class="judge-label correct">正解</span>
+                    <div class="bar-track">
+                        <div class="bar-fill correct" id="bar-correct"></div>
+                    </div>
+                    <span class="judge-count" id="cnt-correct">0</span>
+                </div>
+                <div class="judge-row">
+                    <span class="judge-label slow">遅すぎ</span>
+                    <div class="bar-track">
+                        <div class="bar-fill slow" id="bar-slow"></div>
+                    </div>
+                    <span class="judge-count" id="cnt-slow">0</span>
+                </div>
+                <div class="judge-row">
+                    <span class="judge-label wrong">お手つき</span>
+                    <div class="bar-track">
+                        <div class="bar-fill wrong" id="bar-wrong"></div>
+                    </div>
+                    <span class="judge-count" id="cnt-wrong">0</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 間違えた歌 ===== -->
+        <section class="wrong-section" id="wrong-section">
+            <h2 class="section-title">
+                お手つきの歌
+                <span class="section-badge" id="wrong-badge">0首</span>
+            </h2>
+            <div class="wrong-list" id="wrong-list"></div>
+        </section>
+
+        <!-- ===== 全問詳細ログ ===== -->
+        <section class="log-section">
+            <h2 class="section-title toggle-title" id="log-toggle">
+                全問詳細
+                <span class="toggle-icon">▼</span>
+            </h2>
+            <div class="log-table-wrapper" id="log-table-wrapper">
+                <table class="log-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th></th>
+                            <th>上の句</th>
+                            <th>下の句</th>
+                            <th>判定</th>
+                            <th>タイム</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-tbody"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ===== アクションボタン ===== -->
+        <footer class="result-actions">
+            <button class="action-btn retry-btn" id="btn-retry">もう一度</button>
+            <button class="action-btn setup-btn" id="btn-setup">設定に戻る</button>
+            <button class="action-btn list-btn" id="btn-list">歌一覧へ</button>
+        </footer>
+
+    </main>
+
+    <script src="data.js"></script>
+    <script src="result.js"></script>
+</body>
+</html>

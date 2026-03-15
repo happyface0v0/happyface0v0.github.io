@@ -1,0 +1,211 @@
+/* ============================================================
+   history-style.css
+   ============================================================ */
+
+:root {
+    --primary:      #2c3e50;
+    --accent:       #d4af37;
+    --accent-light: #f1c40f;
+    --bg-color:     #efead8;
+    --card-bg:      rgba(255,255,255,0.92);
+    --text-main:    #34495e;
+    --text-muted:   #7f8c8d;
+    --shadow-soft:  0 8px 30px rgba(0,0,0,0.08);
+}
+
+/* ============================================================
+   1. ベース
+   ============================================================ */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { overflow-y: scroll; }
+
+body {
+    font-family: 'Noto Serif JP', serif;
+    background: var(--bg-color) url('https://www.transparenttextures.com/patterns/washi.png');
+    color: var(--primary);
+    min-height: 100vh;
+    padding-top: 70px;
+}
+
+/* ============================================================
+   2. Nav
+   ============================================================ */
+.main-nav {
+    position: fixed;
+    top: 0; width: 100%; height: 70px;
+    display: flex; justify-content: center; align-items: center; gap: 40px;
+    z-index: 100;
+    background: rgba(239,234,216,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    line-height: 70px;
+}
+
+.nav-item {
+    text-decoration: none;
+    color: var(--primary);
+    font-weight: 700; font-size: 0.95rem; letter-spacing: 0.1em;
+    position: relative; height: 70px; display: inline-block;
+    font-family: 'Noto Serif JP', serif; transition: 0.3s;
+}
+
+.nav-item::after {
+    content: '';
+    position: absolute;
+    bottom: 15px; left: 50%;
+    width: 0; height: 2px;
+    background: var(--accent);
+    transition: all 0.3s ease;
+    transform: translateX(-50%);
+}
+
+.nav-item.active::after,
+.nav-item:hover::after { width: 100%; }
+
+/* ============================================================
+   3. ページ遷移
+   ============================================================ */
+.fade-overlay {
+    position: fixed; inset: 0;
+    background: #1a1a1a;
+    z-index: 9999; opacity: 0; pointer-events: none;
+    transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body.page-leaving .fade-overlay,
+body.fade-to-black .fade-overlay {
+    opacity: 1; pointer-events: all;
+}
+
+/* ============================================================
+   4. コンテナ（入場 / 離場アニメーション）
+   ============================================================ */
+.container {
+    max-width: 800px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 16px; padding: 40px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border: 1px solid #eaeaea;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+}
+
+body.page-loaded .container {
+    opacity: 1; transform: translateY(0);
+}
+
+body.page-leaving .container,
+body.fade-content-only .container {
+    opacity: 0; transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    pointer-events: none;
+}
+
+/* ============================================================
+   5. ヘッダー
+   ============================================================ */
+.page-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 30px; padding-bottom: 20px;
+    border-bottom: 1px solid #f0ede6;
+}
+
+.page-title { font-size: 1.6rem; font-weight: 900; letter-spacing: 0.15em; }
+
+.clear-all-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px;
+    background: transparent; color: var(--text-muted);
+    border: 1px solid #ddd; border-radius: 6px;
+    font-family: 'Noto Serif JP', serif; font-size: 0.85rem;
+    cursor: pointer; transition: all 0.2s;
+}
+
+.clear-all-btn:hover { color: #e74c3c; border-color: #e74c3c; }
+
+/* ============================================================
+   6. リスト
+   ============================================================ */
+.history-list { display: flex; flex-direction: column; gap: 12px; }
+
+.history-item {
+    display: flex; align-items: stretch;
+    border-radius: 10px; border: 1px solid #eee;
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.2s, opacity 0.3s;
+}
+
+.history-item:hover {
+    box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+    transform: translateY(-2px);
+}
+
+.history-item.removing { opacity: 0; transform: translateX(20px); }
+
+.history-link {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 120px 1fr auto;
+    align-items: center; gap: 20px;
+    padding: 18px 20px;
+    text-decoration: none; color: inherit;
+    background: var(--card-bg); transition: background 0.2s;
+}
+
+.history-link:hover { background: #fffdf5; }
+
+.hi-score { font-size: 1.8rem; font-weight: 900; color: var(--accent); line-height: 1; white-space: nowrap; }
+
+.hi-stats { display: flex; flex-wrap: wrap; gap: 6px 20px; }
+
+.stat { font-size: 0.8rem; color: var(--text-muted); white-space: nowrap; }
+.stat em { font-style: normal; font-weight: 700; color: var(--primary); margin-right: 3px; }
+
+.hi-date { font-size: 0.75rem; color: var(--text-muted); white-space: nowrap; text-align: right; }
+
+.delete-btn {
+    width: 44px; flex-shrink: 0;
+    background: #fafafa; border: none; border-left: 1px solid #eee;
+    color: #ccc; font-size: 1.1rem; cursor: pointer; transition: all 0.2s;
+}
+
+.delete-btn:hover { background: #fff0f0; color: #e74c3c; }
+
+/* ============================================================
+   7. 空状態
+   ============================================================ */
+.empty-state {
+    flex-direction: column; align-items: center; justify-content: center;
+    padding: 80px 20px; gap: 16px; color: var(--text-muted);
+}
+
+.empty-icon { font-size: 3rem; opacity: 0.3; }
+.empty-state p { font-size: 1rem; }
+
+.empty-link {
+    color: var(--accent); text-decoration: none;
+    font-weight: 700; font-size: 0.95rem; letter-spacing: 0.1em;
+    transition: opacity 0.2s;
+}
+
+.empty-link:hover { opacity: 0.7; }
+
+/* ============================================================
+   8. レスポンシブ
+   ============================================================ */
+@media (max-width: 640px) {
+    .container { padding: 24px 16px; margin: 20px auto; }
+
+    .history-link {
+        grid-template-columns: 90px 1fr;
+        grid-template-rows: auto auto;
+    }
+
+    .hi-date { grid-column: 1 / -1; text-align: left; margin-top: 4px; }
+    .hi-score { font-size: 1.4rem; }
+}
