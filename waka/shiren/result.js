@@ -236,6 +236,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-setup')?.addEventListener('click', () => {
         fadeOut(() => { window.location.href = 'index.html'; });
     });
+    document.getElementById('btn-share')?.addEventListener('click', () => {
+        const btn = document.getElementById('btn-share');
+        btn.disabled = true;
+        btn.textContent = '生成中...';
+        generateShareImage(data).finally(() => {
+            btn.disabled = false;
+            btn.textContent = '画像で共有';
+        });
+    });
+
     document.getElementById('btn-list')?.addEventListener('click', () => {
         fadeOut(() => { window.location.href = '../index.html'; });
     });
